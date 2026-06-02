@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Item } from '@/lib/types';
 import { Film, BookOpen, UtensilsCrossed, Loader2, MapPin, Star, Filter, Plus } from 'lucide-react';
 import Card from '@/components/Card';
+import FoodListItem from '@/components/FoodListItem';
 import SearchBar from '@/components/SearchBar';
 import EmptyState from '@/components/EmptyState';
 
@@ -250,10 +251,14 @@ export default function BrowseContent() {
             <EmptyState type="search" />
           ) : (
             <>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                {items.map((item) => (
-                  <Card key={item.id} item={item} />
-                ))}
+              <div className={activeTab === 'food' ? 'space-y-3' : 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4'}>
+                {items.map((item) =>
+                  activeTab === 'food' ? (
+                    <FoodListItem key={item.id} item={item} />
+                  ) : (
+                    <Card key={item.id} item={item} />
+                  )
+                )}
               </div>
 
               {hasMore && (
