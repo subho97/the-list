@@ -212,13 +212,12 @@ export default function CreateListContent() {
                 type={showPin ? 'text' : 'password'}
                 value={editPin}
                 onChange={(e) => {
-                  const val = e.target.value.replace(/\D/g, '').slice(0, 4);
+                  const val = e.target.value.replace(/[^a-zA-Z0-9]/g, '').slice(0, 6);
                   setEditPin(val);
                 }}
-                placeholder="4-digit PIN"
-                maxLength={4}
-                inputMode="numeric"
-                pattern="\d{4}"
+                placeholder="6-character PIN"
+                maxLength={6}
+                inputMode="text"
                 className="w-full px-4 py-3 pr-12 bg-white border border-stone-200 rounded-xl text-sm text-stone-700 placeholder:text-olive-light focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary transition-all duration-150"
               />
               <button
@@ -230,7 +229,7 @@ export default function CreateListContent() {
               </button>
             </div>
             <p className="mt-1.5 text-xs text-olive-light">
-              {editPin ? '✓ PIN protection enabled — only people with this PIN can edit' : 'Leave blank for open editing'}
+              {editPin ? '✓ PIN protection enabled — 6-character alphanumeric' : 'Leave blank for open editing'}
             </p>
           </div>
 

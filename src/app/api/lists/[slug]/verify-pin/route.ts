@@ -19,8 +19,8 @@ export async function POST(
   const body = await request.json();
   const { pin } = body;
 
-  if (!pin || !/^\d{4}$/.test(String(pin))) {
-    return NextResponse.json({ error: 'PIN must be exactly 4 digits' }, { status: 400 });
+  if (!pin || !/^[a-zA-Z0-9]{6}$/.test(String(pin))) {
+    return NextResponse.json({ error: 'PIN must be exactly 6 alphanumeric characters' }, { status: 400 });
   }
 
   // Get the list to check PIN

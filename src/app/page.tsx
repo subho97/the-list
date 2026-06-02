@@ -56,6 +56,10 @@ export default async function Home() {
             A shared collection of the best movies, books, and food places.
             Curated by everyone, for everyone.
           </p>
+          <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 rounded-full border border-emerald-200/50">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+            <span className="text-[11px] text-emerald-700 font-medium tracking-wide">Zero ads. Real reviews.</span>
+          </div>
 
           <div className="flex flex-wrap items-center justify-center gap-3 mt-8">
             <Link
@@ -87,7 +91,7 @@ export default async function Home() {
             </div>
             <h3 className="font-semibold text-stone-900 text-sm mb-2">Only the best</h3>
             <p className="text-xs text-olive-light leading-relaxed">
-              Movies need 7.0+ IMDB. Books and food places earn their spot through community reviews and recommendations.
+              No ads, no sponsorships. Every movie, book, and food place is here because someone genuinely loved it. Real reviews from real people.
             </p>
           </div>
 

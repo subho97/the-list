@@ -37,7 +37,7 @@ export async function POST(
 
   // Verify PIN if list has one
   if (list.edit_pin) {
-    if (!pin || !/^\d{4}$/.test(String(pin))) {
+    if (!pin || !/^[a-zA-Z0-9]{6}$/.test(String(pin))) {
       return NextResponse.json({ error: 'Valid 4-digit PIN is required to edit this list' }, { status: 403 });
     }
     const hashed = hashPin(String(pin));
