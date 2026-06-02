@@ -7,7 +7,7 @@ import { Compass, List, Home } from 'lucide-react';
 const navItems = [
   { href: '/', label: 'Home', icon: Home },
   { href: '/browse', label: 'Browse', icon: Compass },
-  { href: '/lists/new', label: 'Lists', icon: List },
+  { href: '/lists', label: 'Lists', icon: List },
 ];
 
 export default function Nav() {

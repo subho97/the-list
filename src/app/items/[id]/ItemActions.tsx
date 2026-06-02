@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { ListPlus, Check, Share2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import AddItemModal from '@/components/AddItemModal';
 
 interface ItemActionsProps {
   itemId: string;
@@ -12,7 +11,6 @@ interface ItemActionsProps {
 
 export default function ItemActions({ itemId, itemType }: ItemActionsProps) {
   const router = useRouter();
-  const [showModal, setShowModal] = useState(false);
   const [copied, setCopied] = useState(false);
 
   const handleShare = async () => {
@@ -47,7 +45,7 @@ export default function ItemActions({ itemId, itemType }: ItemActionsProps) {
     <>
       <div className="flex gap-3 mt-6">
         <button
-          onClick={() => setShowModal(true)}
+          onClick={() => router.push(`/lists/new?add=${itemId}`)}
           className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-amber-primary/10 text-amber-primary rounded-xl font-medium text-sm hover:bg-amber-primary/20 transition-colors"
         >
           <ListPlus size={16} />
@@ -69,15 +67,6 @@ export default function ItemActions({ itemId, itemType }: ItemActionsProps) {
           {copied ? <Check size={18} className="text-emerald-500" /> : <Share2 size={18} />}
         </button>
       </div>
-
-      <AddItemModal
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
-        onAddToList={(newItemId) => {
-          // navigate to list selection page
-          window.location.href = `/lists/new?add=${newItemId}`;
-        }}
-      />
     </>
   );
 }

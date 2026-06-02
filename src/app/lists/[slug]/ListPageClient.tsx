@@ -180,7 +180,7 @@ export default function ListPageClient({ list: initialList }: ListPageClientProp
     <div className="min-h-screen pt-24 md:pt-28 pb-12 px-4 max-w-5xl mx-auto">
       {/* Back link */}
       <Link
-        href="/browse"
+        href="/lists"
         className="inline-flex items-center gap-1 text-sm text-olive hover:text-stone-700 mb-5 transition-colors duration-150"
       >
         ← All Lists

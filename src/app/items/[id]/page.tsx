@@ -117,6 +117,14 @@ export default async function ItemDetailPage({ params }: { params: Promise<{ id:
               )}
               {item.year && <p className="text-sm text-olive-light mt-1">{item.year}</p>}
 
+              {item.genre && (
+                <p className="text-sm text-olive-light mt-1">{item.genre}</p>
+              )}
+
+              {item.cuisine && (
+                <p className="text-sm text-olive-light mt-1">{item.cuisine}</p>
+              )}
+
               {item.external_rating && (
                 <div className="flex items-center gap-2 mt-4">
                   <span className="text-xs font-medium text-stone-500 uppercase tracking-wider">

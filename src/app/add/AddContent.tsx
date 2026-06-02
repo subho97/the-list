@@ -1,7 +1,7 @@
 // @ts-nocheck
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Film, BookOpen, UtensilsCrossed, Search, X, AlertCircle, Loader2, Check } from 'lucide-react';
 import { ItemType, MovieSearchResult, BookSearchResult, Item } from '@/lib/types';
@@ -32,7 +32,7 @@ export default function AddPage() {
   const [foodPhoto, setFoodPhoto] = useState<File | null>(null);
   const [addedBy, setAddedBy] = useState('');
   const [foodData, setFoodData] = useState({ title: '', creator: '', cuisine: '', must_try: '', description: '', city: '', year: new Date().getFullYear() });
-  let searchTimeout: ReturnType<typeof setTimeout>;
+  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const handleTypeSelect = (selectedType) => {
     setType(selectedType);
@@ -187,7 +187,7 @@ export default function AddPage() {
         <div className="space-y-4">
           <div className="relative">
             <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-olive-light" />
-            <input type="text" value={searchQuery} onChange={(e) => { clearTimeout(searchTimeout); searchTimeout = setTimeout(() => handleSearch(e.target.value), 400); setSearchQuery(e.target.value); }}
+            <input type="text" value={searchQuery} onChange={(e) => { if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current); searchTimeoutRef.current = setTimeout(() => handleSearch(e.target.value), 400); setSearchQuery(e.target.value); }}
               placeholder={`Search ${type === 'movie' ? 'movies' : 'books'}...`} className="w-full pl-10 pr-4 py-3 bg-white border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary" autoFocus />
           </div>
           {searchError && <div className="flex items-start gap-2 p-4 rounded-xl bg-red-50 border border-red-100 text-red-700 text-sm"><AlertCircle size={18} className="mt-0.5 shrink-0" /><p>{searchError}</p></div>}

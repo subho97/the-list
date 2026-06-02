@@ -37,8 +37,13 @@ export async function POST(
 
   // Verify PIN if list has one
   if (list.edit_pin) {
-    if (!pin || !/^[a-zA-Z0-9]{6}$/.test(String(pin))) {
+    if (!pin) {
       return NextResponse.json({ error: 'Valid 4-digit PIN is required to edit this list' }, { status: 403 });
+    }
+    // Accept both 4-digit and 6-alphanumeric PINs for backward compatibility
+    const pinStr = String(pin);
+    if (!/^[a-zA-Z0-9]{4,6}$/.test(pinStr)) {
+      return NextResponse.json({ error: 'PIN must be 4-6 alphanumeric characters' }, { status: 403 });
     }
     const hashed = hashPin(String(pin));
     if (hashed !== list.edit_pin) {

@@ -56,6 +56,7 @@ export interface MovieSearchResult {
   imdbRating: string;
   Plot: string;
   Director: string;
+  Genre?: string;
 }
 
 export interface BookSearchResult {

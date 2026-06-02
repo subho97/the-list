@@ -30,12 +30,13 @@ export async function DELETE(
     return NextResponse.json({ error: 'List not found' }, { status: 404 });
   }
 
-  // Verify PIN if list has one
+  // Verify PIN if list has one (accept 4-6 alphanumeric)
   if (list.edit_pin) {
-    if (!pin || !/^\d{4}$/.test(String(pin))) {
-      return NextResponse.json({ error: 'Valid 4-digit PIN is required to edit this list' }, { status: 403 });
+    const pinStr = String(pin || '');
+    if (!pin || !/^[a-zA-Z0-9]{4,6}$/.test(pinStr)) {
+      return NextResponse.json({ error: 'Valid PIN is required to edit this list' }, { status: 403 });
     }
-    const hashed = hashPin(String(pin));
+    const hashed = hashPin(pinStr);
     if (hashed !== list.edit_pin) {
       return NextResponse.json({ error: 'Incorrect PIN' }, { status: 403 });
     }

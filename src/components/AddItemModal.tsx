@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Film, BookOpen, UtensilsCrossed, Search, X, AlertCircle, Loader2 } from 'lucide-react';
 import { ItemType, MovieSearchResult, BookSearchResult, Item } from '@/lib/types';
@@ -36,7 +36,7 @@ export default function AddItemModal({ isOpen, onClose, onAddToList }: AddItemMo
   });
 
   // Search timeout ref for debounce
-  let searchTimeout: ReturnType<typeof setTimeout>;
+  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const handleTypeSelect = (selectedType: AddType) => {
     setType(selectedType);
@@ -77,19 +77,20 @@ export default function AddItemModal({ isOpen, onClose, onAddToList }: AddItemMo
 
   const handleMovieSelect = async (result: MovieSearchResult) => {
     const rating = parseFloat(result.imdbRating);
-    if (rating < 8.0) {
-      setSearchError(`"${result.Title}" has a ${rating} IMDB rating, which doesn't meet The List's quality bar (8.0+).`);
+    if (rating < 7.0) {
+      setSearchError(`"${result.Title}" has a ${rating} IMDB rating, which doesn't meet The List's quality bar (7.0+).`);
       return;
     }
     setSelectedItem({
       type: 'movie',
       title: result.Title,
-      creator: result.Director,
+      creator: result.Director || 'Unknown',
       year: parseInt(result.Year),
       description: result.Plot,
       image_url: result.Poster !== 'N/A' ? result.Poster : null,
       external_rating: rating,
       imdb_id: result.imdbID,
+      genre: result.Genre ? result.Genre.split(',')[0].trim() : null,
       external_link: `https://www.imdb.com/title/${result.imdbID}`,
     });
     setStep('confirm');
@@ -100,8 +101,8 @@ export default function AddItemModal({ isOpen, onClose, onAddToList }: AddItemMo
       type: 'book',
       title: result.volumeInfo.title,
       creator: result.volumeInfo.authors?.join(', ') || null,
-      year: result.volumeInfo.publishedDate ? parseInt(result.volumeInfo.publishedDate) : null,
-      description: result.volumeInfo.description || null,
+      year: result.volumeInfo.publishedDate ? parseInt(result.volumeInfo.publishedDate.substring(0, 4)) : null,
+      description: result.volumeInfo.description?.substring(0, 500) || null,
       image_url: result.volumeInfo.imageLinks?.thumbnail?.replace('http:', 'https:') || null,
       external_rating: result.volumeInfo.averageRating || null,
       external_link: result.volumeInfo.infoLink || null,
@@ -255,8 +256,8 @@ export default function AddItemModal({ isOpen, onClose, onAddToList }: AddItemMo
                 type="text"
                 value={searchQuery}
                 onChange={(e) => {
-                  clearTimeout(searchTimeout);
-                  searchTimeout = setTimeout(() => handleSearch(e.target.value), 400);
+                  if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+                  searchTimeoutRef.current = setTimeout(() => handleSearch(e.target.value), 400);
                   setSearchQuery(e.target.value);
                 }}
                 placeholder={`Search ${type === 'movie' ? 'movies' : 'books'}...`}

@@ -67,3 +67,5 @@ export default async function ListDetailPage({ params }: { params: Promise<{ slu
 
   return <ListPageClient list={list} />;
 }
+
+export const dynamic = 'force-dynamic';

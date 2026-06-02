@@ -56,8 +56,8 @@ export async function POST(request: NextRequest) {
   // Validate PIN if provided
   if (edit_pin !== undefined && edit_pin !== null) {
     const pinStr = String(edit_pin);
-    if (!/^\d{4}$/.test(pinStr)) {
-      return NextResponse.json({ error: 'PIN must be exactly 4 digits' }, { status: 400 });
+    if (!/^[a-zA-Z0-9]{4,6}$/.test(pinStr)) {
+      return NextResponse.json({ error: 'PIN must be 4-6 alphanumeric characters' }, { status: 400 });
     }
   }
 
@@ -82,8 +82,8 @@ export async function POST(request: NextRequest) {
     created_by: created_by || 'Anonymous',
   };
 
-  if (edit_pin !== undefined && edit_pin !== null && edit_pin !== '') {
-    insertData.edit_pin = hashPin(String(edit_pin));
+  if (edit_pin !== undefined && edit_pin !== null && String(edit_pin).trim() !== '') {
+    insertData.edit_pin = hashPin(String(edit_pin).trim());
   }
 
   const { data, error } = await supabase

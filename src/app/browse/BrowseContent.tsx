@@ -57,6 +57,7 @@ export default function BrowseContent() {
     setIsLoading(true);
     setSearchQuery('');
     setCityFilter('');
+    setCuisineFilter('');
     setGenreFilter('');
     setMinRating('');
   };
