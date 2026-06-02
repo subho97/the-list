@@ -49,7 +49,6 @@ const CUISINE_KEYWORDS: [string, string][] = [
   ['food truck', 'Food Truck'],
   ['chaat', 'Street Food'],
   ['pani puri', 'Street Food'],
-  ['temple', 'Temple Food'],
   ['dessert', 'Dessert'],
   ['ice cream', 'Ice Cream'],
   ['sandwich', 'Sandwich'],
@@ -71,7 +70,7 @@ export const ALL_CUISINES = [
   'Bakery', 'Burgers', 'Cafe', 'Dessert', 'Dimsum', 'Food Truck', 'Italian',
   'Japanese', 'Litti Chokha', 'Mediterranean', 'Middle Eastern', 'Momos',
   'North Indian', 'Pan Asian', 'Pizza', 'Ramen', 'Restaurant', 'Shawarma',
-  'Steak', 'Street Food', 'Temple Food',
+  'Steak', 'Street Food',
 ].sort();
 
 export const ALL_CITIES = [

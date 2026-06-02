@@ -244,7 +244,7 @@ export default function AddPage() {
             <div className="relative">
               <input type="text" value={foodData.cuisine} onChange={(e) => setFoodData({ ...foodData, cuisine: e.target.value })} placeholder="Type or select cuisine..." className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary" list="cuisine-list" />
               <datalist id="cuisine-list">
-                <option value="Bakery" /><option value="Burgers" /><option value="Cafe" /><option value="Dessert" /><option value="Dimsum" /><option value="Food Truck" /><option value="Italian" /><option value="Japanese" /><option value="Litti Chokha" /><option value="Mediterranean" /><option value="Middle Eastern" /><option value="Momos" /><option value="North Indian" /><option value="Pan Asian" /><option value="Pizza" /><option value="Ramen" /><option value="Restaurant" /><option value="Shawarma" /><option value="Steak" /><option value="Street Food" /><option value="Temple Food" />
+                <option value="Bakery" /><option value="Burgers" /><option value="Cafe" /><option value="Dessert" /><option value="Dimsum" /><option value="Food Truck" /><option value="Italian" /><option value="Japanese" /><option value="Litti Chokha" /><option value="Mediterranean" /><option value="Middle Eastern" /><option value="Momos" /><option value="North Indian" /><option value="Pan Asian" /><option value="Pizza" /><option value="Ramen" /><option value="Restaurant" /><option value="Shawarma" /><option value="Steak" /><option value="Street Food" />
               </datalist>
             </div>
           </div>
