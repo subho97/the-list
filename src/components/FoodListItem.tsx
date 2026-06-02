@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Item } from '@/lib/types';
-import { MapPin, Star, ChevronRight } from 'lucide-react';
+import { MapPin, ChevronRight } from 'lucide-react';
+import VoteButtons from './VoteButtons';
 
 const cuisineEmojis: Record<string, string> = {
   pizza: '🍕', italian: '🍝', pasta: '🍝',
@@ -62,6 +63,9 @@ export default function FoodListItem({ item }: { item: Item }) {
 
       {/* Arrow */}
       <ChevronRight size={18} className="text-olive-light group-hover:text-amber-primary transition-colors duration-150 shrink-0" />
+      <div className="shrink-0">
+        <VoteButtons itemId={item.id} initialUpvotes={item.upvotes} initialDownvotes={item.downvotes} />
+      </div>
     </Link>
   );
 }

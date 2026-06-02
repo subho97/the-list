@@ -5,6 +5,7 @@ import { Item, Review } from '@/lib/types';
 import { Film, BookOpen, UtensilsCrossed, ExternalLink, Star, Share2, MapPin } from 'lucide-react';
 import RatingBadge from '@/components/RatingBadge';
 import ItemActions from './ItemActions';
+import VoteButtons from '@/components/VoteButtons';
 
 interface ItemDetailData extends Item {
   reviews: Review[];
@@ -199,6 +200,10 @@ export default async function ItemDetailPage({ params }: { params: Promise<{ id:
                   {item.city}
                 </p>
               )}
+            </div>
+
+            <div className="mt-4">
+              <VoteButtons itemId={item.id} initialUpvotes={item.upvotes} initialDownvotes={item.downvotes} size="md" />
             </div>
 
             <div className="mt-4">

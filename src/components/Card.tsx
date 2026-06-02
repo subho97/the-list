@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { Item } from '@/lib/types';
 import { Film, BookOpen, UtensilsCrossed, MapPin } from 'lucide-react';
 import RatingBadge from './RatingBadge';
+import VoteButtons from './VoteButtons';
 
 interface CardProps {
   item: Item;
@@ -148,6 +149,9 @@ export default function Card({ item }: CardProps) {
             {item.city}
           </p>
         )}
+        <div className="mt-2">
+          <VoteButtons itemId={item.id} initialUpvotes={item.upvotes} initialDownvotes={item.downvotes} />
+        </div>
       </div>
     </Link>
   );

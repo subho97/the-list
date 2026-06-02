@@ -22,6 +22,8 @@ export interface Item {
   city: string | null;
   added_at: string;
   added_by: string;
+  upvotes: number;
+  downvotes: number;
 }
 
 export interface List {
