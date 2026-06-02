@@ -94,7 +94,7 @@ export default function Card({ item }: CardProps) {
   return (
     <Link
       href={`/items/${item.id}`}
-      className="group block bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-150 overflow-hidden border border-stone-200 hover:border-amber-primary/30 hover:-translate-y-0.5"
+      className="group block bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-150 overflow-hidden border border-stone-200 hover:border-amber-primary/30 hover:-translate-y-0.5 h-full"
     >
       {/* Image */}
       <div className="aspect-[3/4] bg-stone-100 relative overflow-hidden">

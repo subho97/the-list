@@ -296,7 +296,7 @@ export default function BrowseContent() {
               {activeTab === 'food' && viewMode === 'map' ? (
                 <MapView items={items} />
               ) : (
-                <div onClick={saveScroll} className={activeTab === 'food' ? 'space-y-3' : 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4'}>
+                <div onClick={saveScroll} className={'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 items-stretch'}>
                   {items.map((item) =>
                     activeTab === 'food' ? (
                       <FoodListItem key={item.id} item={item} />
