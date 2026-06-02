@@ -237,9 +237,8 @@ export default function CreateListContent() {
                   <p className="text-xs text-olive-light mt-0.5">Edit and delete require this PIN. Cannot be added later. Viewing is always open.</p>
                 </div>
               ) : (
-                <p className="text-xs text-olive-light">Leave blank for open viewing. PIN is required for edit/delete and cannot be added later.</p>
+                <span className="text-xs text-olive-light">Leave blank for open viewing. PIN is required for edit/delete and cannot be added later.</span>
               )}
-            </div>
 
             {/* Privacy toggle */}
             <div className="flex items-center justify-between p-3 bg-white border border-stone-200 rounded-xl">

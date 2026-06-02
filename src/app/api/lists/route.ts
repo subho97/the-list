@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
 
   const body = await request.json();
 
-  const { name, description, created_by, edit_pin } = body;
+  const { name, description, created_by, edit_pin, is_private } = body;
 
   if (!name) {
     return NextResponse.json({ error: 'List name is required' }, { status: 400 });
