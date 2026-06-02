@@ -68,7 +68,10 @@ export function suggestCuisine(title: string): string {
 }
 
 export const ALL_CUISINES = [
-  ...new Set(CUISINE_KEYWORDS.map(([, c]) => c))
+  'Bakery', 'Burgers', 'Cafe', 'Dessert', 'Dimsum', 'Food Truck', 'Italian',
+  'Japanese', 'Litti Chokha', 'Mediterranean', 'Middle Eastern', 'Momos',
+  'North Indian', 'Pan Asian', 'Pizza', 'Ramen', 'Restaurant', 'Shawarma',
+  'Steak', 'Street Food', 'Temple Food',
 ].sort();
 
 export const ALL_CITIES = [
