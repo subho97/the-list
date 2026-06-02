@@ -1,0 +1,69 @@
+export type ItemType = 'movie' | 'book' | 'food';
+
+export interface Item {
+  id: string;
+  type: ItemType;
+  title: string;
+  creator: string | null;
+  year: number | null;
+  description: string | null;
+  image_url: string | null;
+  external_rating: number | null;
+  imdb_id: string | null;
+  external_link: string | null;
+  added_at: string;
+  added_by: string;
+}
+
+export interface List {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  created_at: string;
+  created_by: string;
+}
+
+export interface ListItem {
+  id: string;
+  list_id: string;
+  item_id: string;
+  added_at: string;
+  note: string | null;
+}
+
+export interface Review {
+  id: string;
+  item_id: string;
+  rating: number;
+  comment: string | null;
+  photo_url: string;
+  reviewed_by: string;
+  created_at: string;
+}
+
+export interface MovieSearchResult {
+  Title: string;
+  Year: string;
+  imdbID: string;
+  Type: string;
+  Poster: string;
+  imdbRating: string;
+  Plot: string;
+  Director: string;
+}
+
+export interface BookSearchResult {
+  id: string;
+  volumeInfo: {
+    title: string;
+    authors?: string[];
+    publishedDate?: string;
+    description?: string;
+    imageLinks?: {
+      thumbnail?: string;
+    };
+    averageRating?: number;
+    infoLink?: string;
+  };
+}

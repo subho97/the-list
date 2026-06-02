@@ -1,0 +1,59 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-cream: #FAF5E9;
+  --color-cream-dark: #FEF7E6;
+  --color-amber-primary: #D97706;
+  --color-amber-dark: #B45309;
+  --color-rust: #9A3412;
+  --color-olive: #78716C;
+  --color-olive-light: #A8A29E;
+  --color-card-bg: #FFFFFF;
+  --font-serif: 'Playfair Display', Georgia, serif;
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --color-background: var(--color-cream);
+  --color-foreground: #292524;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--color-cream);
+  color: #292524;
+  font-family: var(--font-sans);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #D97706;
+  border-radius: 3px;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+.animate-fade-in-delay {
+  opacity: 0;
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+.delay-1 { animation-delay: 0.1s; }
+.delay-2 { animation-delay: 0.2s; }
+.delay-3 { animation-delay: 0.3s; }
