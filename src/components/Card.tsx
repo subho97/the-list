@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Item } from '@/lib/types';
-import { Film, BookOpen, UtensilsCrossed, MapPin } from 'lucide-react';
+import { Film, BookOpen, UtensilsCrossed, MapPin, Star } from 'lucide-react';
 import RatingBadge from './RatingBadge';
 
 interface CardProps {
@@ -64,6 +64,9 @@ export default function Card({ item }: CardProps) {
         </h3>
         {item.creator && (
           <p className="text-[12px] text-olive truncate">{item.creator}</p>
+        )}
+        {item.genre && (
+          <p className="text-[12px] text-olive-light truncate">{item.genre}</p>
         )}
         {item.year && (
           <p className="text-[12px] text-olive-light">{item.year}</p>

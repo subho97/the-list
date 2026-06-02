@@ -12,6 +12,7 @@ export interface Item {
   imdb_id: string | null;
   external_link: string | null;
   google_maps_link: string | null;
+  genre: string | null;
   city: string | null;
   added_at: string;
   added_by: string;

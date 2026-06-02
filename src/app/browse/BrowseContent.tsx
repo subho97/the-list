@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Item } from '@/lib/types';
-import { Film, BookOpen, UtensilsCrossed, Loader2, MapPin } from 'lucide-react';
+import { Film, BookOpen, UtensilsCrossed, Loader2, MapPin, Star, Filter } from 'lucide-react';
 import Card from '@/components/Card';
 import SearchBar from '@/components/SearchBar';
 import EmptyState from '@/components/EmptyState';
@@ -16,6 +16,15 @@ const tabs: { key: TabType; label: string; icon: typeof Film }[] = [
   { key: 'food', label: 'Food', icon: UtensilsCrossed },
 ];
 
+const RATING_OPTIONS = [
+  { label: 'All', value: '' },
+  { label: '7.0+', value: '7' },
+  { label: '7.5+', value: '7.5' },
+  { label: '8.0+', value: '8' },
+  { label: '8.5+', value: '8.5' },
+  { label: '9.0+', value: '9' },
+];
+
 export default function BrowseContent() {
   const searchParams = useSearchParams();
   const initialType = searchParams.get('type') as TabType | null;
@@ -26,6 +35,9 @@ export default function BrowseContent() {
   const [searchQuery, setSearchQuery] = useState('');
   const [cityFilter, setCityFilter] = useState('');
   const [cities, setCities] = useState<string[]>([]);
+  const [genreFilter, setGenreFilter] = useState('');
+  const [genres, setGenres] = useState<string[]>([]);
+  const [minRating, setMinRating] = useState('');
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const [error, setError] = useState('');
@@ -40,6 +52,8 @@ export default function BrowseContent() {
       params.set('limit', '20');
       if (search) params.set('search', search);
       if (tab === 'food' && cityFilter) params.set('city', cityFilter);
+      if (tab === 'movie' && genreFilter) params.set('genre', genreFilter);
+      if (tab === 'movie' && minRating) params.set('minRating', minRating);
 
       const res = await fetch(`/api/items?${params}`);
       if (!res.ok) throw new Error('Failed to fetch');
@@ -56,20 +70,24 @@ export default function BrowseContent() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [cityFilter, genreFilter, minRating]);
 
   useEffect(() => {
     setPage(1);
     fetchItems(activeTab, searchQuery, 1);
-  }, [activeTab, searchQuery, cityFilter, fetchItems]);
+  }, [activeTab, searchQuery, cityFilter, genreFilter, minRating, fetchItems]);
 
-  // Fetch available cities
+  // Fetch cities for food
   useEffect(() => {
     if (activeTab === 'food') {
-      fetch('/api/cities')
-        .then(r => r.json())
-        .then(d => setCities(d.cities || []))
-        .catch(() => {});
+      fetch('/api/cities').then(r => r.json()).then(d => setCities(d.cities || [])).catch(() => {});
+    }
+  }, [activeTab]);
+
+  // Fetch genres for movies
+  useEffect(() => {
+    if (activeTab === 'movie') {
+      fetch('/api/genres').then(r => r.json()).then(d => setGenres(d.genres || [])).catch(() => {});
     }
   }, [activeTab]);
 
@@ -121,6 +139,43 @@ export default function BrowseContent() {
           <span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-primary" />
           Only movies with 7.0+ IMDB rating make the cut
         </p>
+      )}
+
+      {/* Movie filters */}
+      {activeTab === 'movie' && (
+        <div className="flex flex-wrap gap-2 mb-4">
+          {/* Genre filter */}
+          <div className="relative">
+            <Filter size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-olive-light pointer-events-none" />
+            <select
+              value={genreFilter}
+              onChange={(e) => { setGenreFilter(e.target.value); setPage(1); }}
+              className="pl-8 pr-3 py-2 bg-white border border-stone-200 rounded-xl text-xs text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none"
+            >
+              <option value="">All genres</option>
+              {genres.map(g => (
+                <option key={g} value={g}>{g}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Rating filter */}
+          <div className="flex gap-1">
+            {RATING_OPTIONS.map(opt => (
+              <button
+                key={opt.value}
+                onClick={() => { setMinRating(opt.value); setPage(1); }}
+                className={`px-3 py-2 rounded-xl text-xs font-medium transition-all duration-150 border ${
+                  minRating === opt.value
+                    ? 'bg-amber-primary text-white border-amber-primary shadow-sm'
+                    : 'bg-white text-stone-600 border-stone-200 hover:border-amber-primary/40'
+                }`}
+              >
+                {opt.label === 'All' ? 'All' : <span className="flex items-center gap-1"><Star size={11} className={minRating === opt.value ? 'fill-white' : ''} />{opt.label}</span>}
+              </button>
+            ))}
+          </div>
+        </div>
       )}
 
       {/* City filter (food only) */}
