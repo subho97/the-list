@@ -1,7 +1,7 @@
 // @ts-nocheck
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Film, BookOpen, UtensilsCrossed, Search, X, AlertCircle, Loader2, Check } from 'lucide-react';
 import { ItemType, MovieSearchResult, BookSearchResult, Item } from '@/lib/types';
@@ -19,8 +19,8 @@ export default function AddPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const prefillType = searchParams.get('type') as ItemType | null;
-  const [step, setStep] = useState<Step>(prefillType ? (prefillType === 'food' ? 'detail' : 'search') : 'choose-type');
-  const [type, setType] = useState<ItemType | null>(prefillType);
+  const [step, setStep] = useState<Step>('choose-type');
+  const [type, setType] = useState<ItemType | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<(MovieSearchResult | BookSearchResult)[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -33,6 +33,13 @@ export default function AddPage() {
   const [addedBy, setAddedBy] = useState('');
   const [foodData, setFoodData] = useState({ title: '', creator: '', cuisine: '', must_try: '', notes: '', description: '', city: '', year: new Date().getFullYear() });
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  useEffect(() => {
+    if (prefillType) {
+      setType(prefillType);
+      setStep(prefillType === 'food' ? 'detail' : 'search');
+    }
+  }, [prefillType]);
 
   const handleTypeSelect = (selectedType) => {
     setType(selectedType);
