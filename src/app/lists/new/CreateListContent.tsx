@@ -126,7 +126,7 @@ export default function CreateListContent() {
   // Success state after creation
   if (success) {
     return (
-      <div className="min-h-screen pt-20 px-4 flex items-center justify-center">
+      <div className="min-h-screen pt-24 px-4 flex items-center justify-center">
         <div className="text-center max-w-sm">
           <div className="w-20 h-20 mx-auto rounded-full bg-emerald-100 flex items-center justify-center mb-6">
             <Check size={36} className="text-emerald-600" />
@@ -140,23 +140,23 @@ export default function CreateListContent() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen pt-20 px-4 flex items-center justify-center">
+      <div className="min-h-screen pt-24 px-4 flex items-center justify-center">
         <Loader2 size={28} className="animate-spin text-amber-primary" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen pt-20 md:pt-24 pb-12 px-4 max-w-lg mx-auto">
-      <h1 className="font-serif text-3xl font-bold text-stone-900 mb-2">
+    <div className="min-h-screen pt-24 md:pt-28 pb-12 px-4 max-w-lg mx-auto">
+      <h1 className="font-serif text-3xl md:text-4xl font-bold text-stone-900 mb-2">
         {step === 'create' ? 'New List' : 'Add Items'}
       </h1>
-      <p className="text-olive text-sm mb-6">
+      <p className="text-olive text-sm mb-8">
         {step === 'create' ? 'Curate your collection.' : 'Search and add items to your list.'}
       </p>
 
       {error && (
-        <div className="flex items-start gap-2 p-3 rounded-xl bg-red-50 border border-red-100 text-red-700 text-sm mb-4">
+        <div className="flex items-start gap-2 p-3 rounded-xl bg-red-50 border border-red-100 text-red-700 text-sm mb-6">
           <AlertCircle size={16} className="mt-0.5 shrink-0" />
           <p>{error}</p>
         </div>
@@ -164,7 +164,7 @@ export default function CreateListContent() {
 
       {/* Step 1: Create List */}
       {step === 'create' && (
-        <div className="space-y-4">
+        <div className="space-y-5">
           <div>
             <label className="block text-sm font-medium text-stone-700 mb-1.5">List Name *</label>
             <input
@@ -172,7 +172,7 @@ export default function CreateListContent() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Subho's Must Watch 2026"
-              className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary"
+              className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm text-stone-700 placeholder:text-olive-light focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary transition-all duration-150"
             />
           </div>
           <div>
@@ -182,7 +182,7 @@ export default function CreateListContent() {
               onChange={(e) => setDescription(e.target.value)}
               placeholder="What's this list about?"
               rows={3}
-              className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary resize-none"
+              className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm text-stone-700 placeholder:text-olive-light focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary transition-all duration-150 resize-none"
             />
           </div>
           <div>
@@ -193,7 +193,7 @@ export default function CreateListContent() {
               onChange={(e) => setCreatedBy(e.target.value)}
               placeholder="Anonymous"
               maxLength={50}
-              className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary"
+              className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm text-stone-700 placeholder:text-olive-light focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary transition-all duration-150"
             />
           </div>
 
@@ -210,7 +210,7 @@ export default function CreateListContent() {
                     className="inline-flex items-center gap-1 px-3 py-1.5 bg-amber-primary/10 text-amber-primary rounded-full text-xs font-medium"
                   >
                     {item.title}
-                    <button onClick={() => toggleItem(item)} className="ml-1">
+                    <button onClick={() => toggleItem(item)} className="ml-1 hover:text-amber-dark">
                       <X size={12} />
                     </button>
                   </span>
@@ -222,7 +222,7 @@ export default function CreateListContent() {
           <button
             onClick={handleCreate}
             disabled={isCreating || !name.trim()}
-            className="w-full py-3 bg-amber-primary text-white rounded-xl font-medium text-sm hover:bg-amber-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full py-3 bg-amber-primary text-white rounded-xl font-medium text-sm hover:bg-amber-dark transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm"
           >
             {isCreating ? (
               <><Loader2 size={16} className="animate-spin" /> Creating...</>
@@ -236,13 +236,13 @@ export default function CreateListContent() {
         <div className="space-y-4">
           {/* Search */}
           <div className="relative">
-            <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-olive-light" />
+            <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-olive-light pointer-events-none" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search items to add..."
-              className="w-full pl-10 pr-4 py-3 bg-white border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary"
+              className="w-full pl-10 pr-4 py-3 bg-white border border-stone-200 rounded-xl text-sm text-stone-700 placeholder:text-olive-light focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary transition-all duration-150"
               autoFocus
             />
           </div>
@@ -256,7 +256,7 @@ export default function CreateListContent() {
                   className="inline-flex items-center gap-1 px-3 py-1.5 bg-amber-primary/10 text-amber-primary rounded-full text-xs font-medium"
                 >
                   {item.title}
-                  <button onClick={() => toggleItem(item)}>
+                  <button onClick={() => toggleItem(item)} className="hover:text-amber-dark">
                     <X size={12} />
                   </button>
                 </span>
@@ -270,17 +270,17 @@ export default function CreateListContent() {
               <button
                 key={item.id}
                 onClick={() => toggleItem(item)}
-                className="w-full flex items-center gap-3 p-3 rounded-xl border border-stone-100 hover:border-amber-primary/30 hover:bg-stone-50 transition-all text-left"
+                className="w-full flex items-center gap-3 p-3 rounded-xl border border-stone-100 hover:border-amber-primary/30 hover:bg-stone-50 transition-all duration-150 text-left"
               >
                 {item.image_url ? (
                   <img src={item.image_url} alt={item.title} className="w-10 h-14 object-cover rounded-lg shrink-0 bg-stone-100" />
                 ) : (
-                  <div className="w-10 h-14 rounded-lg bg-stone-100 flex items-center justify-center text-olive-light text-[10px] shrink-0">
+                  <div className="w-10 h-14 rounded-lg bg-stone-100 flex items-center justify-center text-olive-light text-[10px] shrink-0 uppercase tracking-wider">
                     {item.type}
                   </div>
                 )}
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-stone-800 text-sm truncate">{item.title}</p>
+                  <p className="font-medium text-stone-900 text-sm truncate">{item.title}</p>
                   <p className="text-xs text-olive truncate">{item.creator || item.type}</p>
                 </div>
                 <Plus size={16} className="text-olive-light shrink-0" />
@@ -295,14 +295,14 @@ export default function CreateListContent() {
           <div className="flex gap-3 pt-2">
             <button
               onClick={() => setStep('create')}
-              className="flex-1 py-3 border border-stone-200 text-stone-600 rounded-xl font-medium text-sm hover:bg-stone-50 transition-colors"
+              className="flex-1 py-3 border border-stone-200 text-stone-600 rounded-xl font-medium text-sm hover:bg-stone-50 transition-colors duration-150"
             >
               Back
             </button>
             <button
               onClick={() => listSlug && addItemsToList(listSlug)}
               disabled={isAdding || selectedItems.length === 0}
-              className="flex-1 py-3 bg-amber-primary text-white rounded-xl font-medium text-sm hover:bg-amber-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="flex-1 py-3 bg-amber-primary text-white rounded-xl font-medium text-sm hover:bg-amber-dark transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm"
             >
               {isAdding ? (
                 <><Loader2 size={16} className="animate-spin" /> Saving...</>
@@ -314,7 +314,7 @@ export default function CreateListContent() {
           <div className="text-center">
             <button
               onClick={() => listSlug && router.push(`/lists/${listSlug}`)}
-              className="text-sm text-olive hover:text-stone-600 transition-colors"
+              className="text-sm text-olive hover:text-stone-700 transition-colors duration-150"
             >
               Skip — I'll add items later →
             </button>

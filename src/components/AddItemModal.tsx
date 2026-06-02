@@ -187,10 +187,10 @@ export default function AddItemModal({ isOpen, onClose, onAddToList }: AddItemMo
 
   return (
     <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/40 backdrop-blur-sm">
-      <div className="bg-white rounded-t-2xl md:rounded-2xl w-full max-w-lg max-h-[85vh] overflow-y-auto shadow-2xl">
+      <div className="bg-white rounded-t-2xl md:rounded-2xl w-full max-w-lg max-h-[85vh] overflow-y-auto shadow-lg">
         {/* Header */}
-        <div className="sticky top-0 bg-white border-b border-stone-100 px-5 py-4 flex items-center justify-between z-10">
-          <h2 className="font-serif text-lg font-bold text-stone-800">
+        <div className="sticky top-0 bg-white border-b border-stone-200 px-5 py-4 flex items-center justify-between z-10">
+          <h2 className="font-serif text-xl font-bold text-stone-900">
             {step === 'choose-type' && "What's good?"}
             {step === 'search' && `Search ${type === 'movie' ? 'Movies' : 'Books'}`}
             {step === 'detail' && 'Add Food Place'}
@@ -198,7 +198,7 @@ export default function AddItemModal({ isOpen, onClose, onAddToList }: AddItemMo
           </h2>
           <button
             onClick={resetAndClose}
-            className="p-1.5 rounded-lg hover:bg-stone-100 text-olive-light"
+            className="p-1.5 rounded-lg hover:bg-stone-100 text-olive-light transition-colors duration-150"
           >
             <X size={20} />
           </button>
@@ -209,37 +209,37 @@ export default function AddItemModal({ isOpen, onClose, onAddToList }: AddItemMo
           <div className="p-5 space-y-3">
             <button
               onClick={() => handleTypeSelect('movie')}
-              className="w-full flex items-center gap-4 p-4 rounded-xl border border-stone-200 hover:border-amber-primary/50 hover:bg-amber-primary/5 transition-all text-left"
+              className="w-full flex items-center gap-4 p-4 rounded-xl border border-stone-200 hover:border-amber-primary/40 hover:bg-amber-primary/5 transition-all duration-150 text-left"
             >
-              <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
-                <Film size={24} />
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white shadow-sm">
+                <Film size={22} />
               </div>
               <div>
-                <p className="font-medium text-stone-800">Movie</p>
+                <p className="font-medium text-stone-900">Movie</p>
                 <p className="text-sm text-olive-light">Search OMDb — only 8.0+ IMDB rated</p>
               </div>
             </button>
             <button
               onClick={() => handleTypeSelect('book')}
-              className="w-full flex items-center gap-4 p-4 rounded-xl border border-stone-200 hover:border-amber-primary/50 hover:bg-amber-primary/5 transition-all text-left"
+              className="w-full flex items-center gap-4 p-4 rounded-xl border border-stone-200 hover:border-amber-primary/40 hover:bg-amber-primary/5 transition-all duration-150 text-left"
             >
-              <div className="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600">
-                <BookOpen size={24} />
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white shadow-sm">
+                <BookOpen size={22} />
               </div>
               <div>
-                <p className="font-medium text-stone-800">Book</p>
+                <p className="font-medium text-stone-900">Book</p>
                 <p className="text-sm text-olive-light">Search Google Books</p>
               </div>
             </button>
             <button
               onClick={() => handleTypeSelect('food')}
-              className="w-full flex items-center gap-4 p-4 rounded-xl border border-stone-200 hover:border-amber-primary/50 hover:bg-amber-primary/5 transition-all text-left"
+              className="w-full flex items-center gap-4 p-4 rounded-xl border border-stone-200 hover:border-amber-primary/40 hover:bg-amber-primary/5 transition-all duration-150 text-left"
             >
-              <div className="w-12 h-12 rounded-xl bg-orange-50 flex items-center justify-center text-orange-600">
-                <UtensilsCrossed size={24} />
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center text-white shadow-sm">
+                <UtensilsCrossed size={22} />
               </div>
               <div>
-                <p className="font-medium text-stone-800">Food Place</p>
+                <p className="font-medium text-stone-900">Food Place</p>
                 <p className="text-sm text-olive-light">Manual entry — add reviews later</p>
               </div>
             </button>
@@ -250,7 +250,7 @@ export default function AddItemModal({ isOpen, onClose, onAddToList }: AddItemMo
         {step === 'search' && (
           <div className="p-5 space-y-4">
             <div className="relative">
-              <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-olive-light" />
+              <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-olive-light pointer-events-none" />
               <input
                 type="text"
                 value={searchQuery}
@@ -260,13 +260,13 @@ export default function AddItemModal({ isOpen, onClose, onAddToList }: AddItemMo
                   setSearchQuery(e.target.value);
                 }}
                 placeholder={`Search ${type === 'movie' ? 'movies' : 'books'}...`}
-                className="w-full pl-10 pr-4 py-3 bg-stone-50 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary"
+                className="w-full pl-10 pr-4 py-3 bg-white border border-stone-200 rounded-xl text-sm text-stone-700 placeholder:text-olive-light focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary transition-all duration-150"
                 autoFocus
               />
             </div>
 
             {searchError && (
-              <div className="flex items-start gap-2 p-3 rounded-lg bg-red-50 text-red-700 text-sm">
+              <div className="flex items-start gap-2 p-3 rounded-lg bg-red-50 border border-red-100 text-red-700 text-sm">
                 <AlertCircle size={16} className="mt-0.5 shrink-0" />
                 <p>{searchError}</p>
               </div>
@@ -292,19 +292,19 @@ export default function AddItemModal({ isOpen, onClose, onAddToList }: AddItemMo
                     <button
                       key={movieResult.imdbID}
                       onClick={() => handleMovieSelect(movieResult)}
-                      className="w-full flex items-center gap-3 p-3 rounded-xl border border-stone-100 hover:border-amber-primary/30 hover:bg-stone-50 transition-all text-left"
+                      className="w-full flex items-center gap-3 p-3 rounded-xl border border-stone-100 hover:border-amber-primary/30 hover:bg-stone-50 transition-all duration-150 text-left"
                     >
                       <img
                         src={movieResult.Poster !== 'N/A' ? movieResult.Poster : '/placeholder.svg'}
                         alt={movieResult.Title}
-                        className="w-12 h-16 object-cover rounded-lg bg-stone-100"
+                        className="w-12 h-16 object-cover rounded-lg bg-stone-100 shrink-0"
                       />
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-stone-800 text-sm truncate">{movieResult.Title}</p>
+                        <p className="font-medium text-stone-900 text-sm truncate">{movieResult.Title}</p>
                         <p className="text-xs text-olive">{movieResult.Year}</p>
                       </div>
                       {movieResult.imdbRating && (
-                        <span className="text-xs font-bold text-amber-primary bg-amber-primary/10 px-2 py-1 rounded-full">
+                        <span className="text-xs font-bold text-amber-primary bg-amber-primary/10 px-2 py-1 rounded-full shrink-0">
                           {movieResult.imdbRating}
                         </span>
                       )}
@@ -316,19 +316,19 @@ export default function AddItemModal({ isOpen, onClose, onAddToList }: AddItemMo
                   <button
                     key={bookResult.id}
                     onClick={() => handleBookSelect(bookResult)}
-                    className="w-full flex items-center gap-3 p-3 rounded-xl border border-stone-100 hover:border-amber-primary/30 hover:bg-stone-50 transition-all text-left"
+                    className="w-full flex items-center gap-3 p-3 rounded-xl border border-stone-100 hover:border-amber-primary/30 hover:bg-stone-50 transition-all duration-150 text-left"
                   >
                     <img
                       src={bookResult.volumeInfo.imageLinks?.thumbnail?.replace('http:', 'https:') || '/placeholder.svg'}
                       alt={bookResult.volumeInfo.title}
-                      className="w-12 h-16 object-cover rounded-lg bg-stone-100"
+                      className="w-12 h-16 object-cover rounded-lg bg-stone-100 shrink-0"
                     />
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-stone-800 text-sm truncate">{bookResult.volumeInfo.title}</p>
+                      <p className="font-medium text-stone-900 text-sm truncate">{bookResult.volumeInfo.title}</p>
                       <p className="text-xs text-olive">{bookResult.volumeInfo.authors?.join(', ') || 'Unknown author'}</p>
                     </div>
                     {bookResult.volumeInfo.averageRating && (
-                      <span className="text-xs font-bold text-amber-primary bg-amber-primary/10 px-2 py-1 rounded-full">
+                      <span className="text-xs font-bold text-amber-primary bg-amber-primary/10 px-2 py-1 rounded-full shrink-0">
                         {bookResult.volumeInfo.averageRating}
                       </span>
                     )}
@@ -349,7 +349,7 @@ export default function AddItemModal({ isOpen, onClose, onAddToList }: AddItemMo
                 value={foodData.title}
                 onChange={(e) => setFoodData({ ...foodData, title: e.target.value })}
                 placeholder="e.g. The Bombay Canteen"
-                className="w-full px-4 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary"
+                className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm text-stone-700 placeholder:text-olive-light focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary transition-all duration-150"
               />
             </div>
             <div>
@@ -359,7 +359,7 @@ export default function AddItemModal({ isOpen, onClose, onAddToList }: AddItemMo
                 value={foodData.creator}
                 onChange={(e) => setFoodData({ ...foodData, creator: e.target.value })}
                 placeholder="e.g. Indian, Mumbai"
-                className="w-full px-4 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary"
+                className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm text-stone-700 placeholder:text-olive-light focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary transition-all duration-150"
               />
             </div>
             <div>
@@ -369,7 +369,7 @@ export default function AddItemModal({ isOpen, onClose, onAddToList }: AddItemMo
                 onChange={(e) => setFoodData({ ...foodData, description: e.target.value })}
                 placeholder="What makes this place special?"
                 rows={3}
-                className="w-full px-4 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary resize-none"
+                className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm text-stone-700 placeholder:text-olive-light focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary transition-all duration-150 resize-none"
               />
             </div>
             <PhotoUpload onFileSelect={setFoodPhoto} />
@@ -385,7 +385,7 @@ export default function AddItemModal({ isOpen, onClose, onAddToList }: AddItemMo
                 setStep('confirm');
               }}
               disabled={!foodData.title}
-              className="w-full py-3 bg-amber-primary text-white rounded-xl font-medium text-sm hover:bg-amber-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-3 bg-amber-primary text-white rounded-xl font-medium text-sm hover:bg-amber-dark transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Continue
             </button>
@@ -395,21 +395,21 @@ export default function AddItemModal({ isOpen, onClose, onAddToList }: AddItemMo
         {/* Step: Confirm */}
         {step === 'confirm' && selectedItem && (
           <div className="p-5 space-y-4">
-            <div className="flex gap-4 p-4 rounded-xl bg-stone-50">
+            <div className="flex gap-4 p-4 rounded-xl bg-white border border-stone-200">
               {selectedItem.image_url && (
                 <img
                   src={selectedItem.image_url}
                   alt={selectedItem.title || ''}
-                  className="w-20 h-28 object-cover rounded-lg"
+                  className="w-20 h-28 object-cover rounded-lg shrink-0"
                 />
               )}
               <div className="flex-1 min-w-0">
-                <h3 className="font-medium text-stone-800">{selectedItem.title}</h3>
+                <h3 className="font-medium text-stone-900">{selectedItem.title}</h3>
                 {selectedItem.creator && (
                   <p className="text-sm text-olive mt-0.5">{selectedItem.creator}</p>
                 )}
                 {selectedItem.external_rating && (
-                  <p className="text-xs font-bold text-amber-primary mt-1">
+                  <p className="text-xs font-bold text-amber-primary bg-amber-primary/10 inline-block px-2 py-0.5 rounded-full mt-1">
                     Rating: {selectedItem.external_rating.toFixed(1)}
                   </p>
                 )}
@@ -420,7 +420,7 @@ export default function AddItemModal({ isOpen, onClose, onAddToList }: AddItemMo
             </div>
 
             {submitError && (
-              <div className="flex items-start gap-2 p-3 rounded-lg bg-red-50 text-red-700 text-sm">
+              <div className="flex items-start gap-2 p-3 rounded-lg bg-red-50 border border-red-100 text-red-700 text-sm">
                 <AlertCircle size={16} className="mt-0.5 shrink-0" />
                 <p>{submitError}</p>
               </div>
@@ -429,14 +429,14 @@ export default function AddItemModal({ isOpen, onClose, onAddToList }: AddItemMo
             <div className="flex gap-3">
               <button
                 onClick={() => setStep(type === 'food' ? 'detail' : 'search')}
-                className="flex-1 py-3 border border-stone-200 text-stone-600 rounded-xl font-medium text-sm hover:bg-stone-50 transition-colors"
+                className="flex-1 py-3 border border-stone-200 text-stone-600 rounded-xl font-medium text-sm hover:bg-stone-50 transition-colors duration-150"
               >
                 Back
               </button>
               <button
                 onClick={handleSubmit}
                 disabled={isSubmitting}
-                className="flex-1 py-3 bg-amber-primary text-white rounded-xl font-medium text-sm hover:bg-amber-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="flex-1 py-3 bg-amber-primary text-white rounded-xl font-medium text-sm hover:bg-amber-dark transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {isSubmitting ? (
                   <>

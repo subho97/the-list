@@ -64,37 +64,38 @@ export default async function ListDetailPage({ params }: { params: Promise<{ slu
   }
 
   return (
-    <div className="min-h-screen pt-20 md:pt-24 pb-12 px-4 max-w-5xl mx-auto">
+    <div className="min-h-screen pt-24 md:pt-28 pb-12 px-4 max-w-5xl mx-auto">
+      {/* Back link */}
+      <Link
+        href="/browse"
+        className="inline-flex items-center gap-1 text-sm text-olive hover:text-stone-700 mb-5 transition-colors duration-150"
+      >
+        ← All Lists
+      </Link>
+
       {/* Header */}
       <div className="mb-8">
-        <Link
-          href="/browse"
-          className="inline-flex items-center gap-1 text-sm text-olive hover:text-stone-600 mb-3 transition-colors"
-        >
-          ← All Lists
-        </Link>
-
         <div className="bg-white rounded-2xl shadow-sm border border-stone-200 p-6 md:p-8">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h1 className="font-serif text-3xl md:text-4xl font-bold text-stone-900">
+              <h1 className="font-serif text-3xl md:text-4xl font-bold text-stone-900 tracking-tight">
                 {list.name}
               </h1>
               {list.description && (
-                <p className="mt-2 text-olive">{list.description}</p>
+                <p className="mt-2 text-olive leading-relaxed">{list.description}</p>
               )}
-              <div className="flex flex-wrap items-center gap-4 mt-3 text-xs text-olive-light">
-                <span className="flex items-center gap-1">
+              <div className="flex flex-wrap items-center gap-4 mt-4 text-xs text-olive-light">
+                <span className="flex items-center gap-1.5">
                   <User size={12} />
                   {list.created_by}
                 </span>
-                <span className="flex items-center gap-1">
+                <span className="flex items-center gap-1.5">
                   <Calendar size={12} />
                   {new Date(list.created_at).toLocaleDateString('en-US', {
                     year: 'numeric', month: 'short', day: 'numeric'
                   })}
                 </span>
-                <span className="flex items-center gap-1">
+                <span className="flex items-center gap-1.5">
                   <Clock size={12} />
                   {list.items.length} item{list.items.length !== 1 ? 's' : ''}
                 </span>
@@ -125,10 +126,10 @@ export default async function ListDetailPage({ params }: { params: Promise<{ slu
       )}
 
       {/* Add more CTA */}
-      <div className="mt-8 text-center">
+      <div className="mt-10 text-center">
         <Link
           href={`/lists/new?add_from=${list.slug}`}
-          className="inline-flex items-center gap-2 px-6 py-3 bg-amber-primary text-white rounded-xl font-medium text-sm hover:bg-amber-dark transition-colors shadow-sm"
+          className="inline-flex items-center gap-2 px-6 py-3 bg-amber-primary text-white rounded-xl font-medium text-sm hover:bg-amber-dark transition-colors duration-150 shadow-sm"
         >
           Add more items
         </Link>

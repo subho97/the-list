@@ -67,8 +67,8 @@ export default function BrowseContent() {
   };
 
   return (
-    <div className="min-h-screen pt-20 md:pt-24 px-4 max-w-5xl mx-auto">
-      <h1 className="font-serif text-3xl font-bold text-stone-900 mb-2">Browse</h1>
+    <div className="min-h-screen pt-24 md:pt-28 px-4 max-w-5xl mx-auto">
+      <h1 className="font-serif text-3xl md:text-4xl font-bold text-stone-900 mb-2">Browse</h1>
       <p className="text-olive text-sm mb-6">Explore the best of everything.</p>
 
       {/* Tabs */}
@@ -80,10 +80,10 @@ export default function BrowseContent() {
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-sm font-medium transition-all ${
+              className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-sm font-medium transition-all duration-150 ${
                 isActive
                   ? 'bg-amber-primary text-white shadow-sm'
-                  : 'text-olive hover:text-stone-600'
+                  : 'text-olive hover:text-stone-700'
               }`}
             >
               <Icon size={16} />
@@ -104,11 +104,11 @@ export default function BrowseContent() {
 
       {/* Error state */}
       {error && (
-        <div className="text-center py-8">
+        <div className="text-center py-12">
           <p className="text-red-600 text-sm">{error}</p>
           <button
             onClick={() => fetchItems(activeTab, searchQuery, 1)}
-            className="mt-3 text-amber-primary text-sm font-medium hover:underline"
+            className="mt-3 text-amber-primary text-sm font-medium hover:text-amber-dark transition-colors duration-150"
           >
             Try again
           </button>
@@ -119,14 +119,14 @@ export default function BrowseContent() {
       {!error && (
         <>
           {isLoading && items.length === 0 ? (
-            <div className="flex items-center justify-center py-20">
+            <div className="flex items-center justify-center py-24">
               <Loader2 size={28} className="animate-spin text-amber-primary" />
             </div>
           ) : items.length === 0 ? (
             <EmptyState type="search" />
           ) : (
             <>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                 {items.map((item) => (
                   <Card key={item.id} item={item} />
                 ))}
@@ -137,7 +137,7 @@ export default function BrowseContent() {
                   <button
                     onClick={handleLoadMore}
                     disabled={isLoading}
-                    className="px-6 py-3 bg-white border border-stone-200 rounded-xl text-sm font-medium text-stone-600 hover:border-amber-primary/50 hover:text-amber-primary transition-all disabled:opacity-50"
+                    className="px-6 py-3 bg-white border border-stone-200 rounded-xl text-sm font-medium text-stone-600 hover:border-amber-primary/40 hover:text-amber-primary transition-all duration-150 disabled:opacity-50 shadow-sm"
                   >
                     {isLoading ? (
                       <span className="flex items-center gap-2">

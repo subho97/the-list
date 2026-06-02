@@ -31,22 +31,22 @@ export default async function Home() {
   return (
     <div className="min-h-screen">
       {/* Hero */}
-      <section className="relative pt-20 pb-12 md:pt-24 md:pb-16 px-4 text-center overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-amber-primary/5 to-transparent pointer-events-none" />
+      <section className="relative pt-24 pb-14 md:pt-28 md:pb-20 px-4 text-center overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-amber-primary/8 to-transparent pointer-events-none" />
         <div className="relative max-w-2xl mx-auto">
-          <h1 className="font-serif text-5xl md:text-6xl font-bold text-stone-900 tracking-tight">
+          <h1 className="font-serif text-5xl md:text-6xl font-bold text-stone-900 tracking-tight leading-tight">
             The List
           </h1>
-          <p className="mt-3 text-lg md:text-xl text-olive font-medium">
+          <p className="mt-4 text-lg md:text-xl text-olive font-medium">
             Where the good things live.
           </p>
-          <p className="mt-2 text-sm text-olive-light max-w-md mx-auto">
+          <p className="mt-2 text-sm text-olive-light max-w-md mx-auto leading-relaxed">
             A shared collection of the best movies, books, and food places. Curated by everyone.
           </p>
           {!hasItems && (
             <Link
               href="/add"
-              className="mt-8 inline-flex items-center gap-2 px-6 py-3 bg-amber-primary text-white rounded-xl font-medium text-sm hover:bg-amber-dark transition-colors shadow-sm"
+              className="mt-8 inline-flex items-center gap-2 px-6 py-3 bg-amber-primary text-white rounded-xl font-medium text-sm hover:bg-amber-dark transition-colors duration-150 shadow-sm"
             >
               Add the first item →
             </Link>

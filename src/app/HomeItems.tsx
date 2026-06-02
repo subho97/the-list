@@ -26,7 +26,7 @@ export default function HomeItems({ movies, books, food }: HomeItemsProps) {
   const itemsMap: Record<TabType, Item[]> = { movies, books, food };
 
   return (
-    <section className="max-w-5xl mx-auto px-4 pb-20 md:pb-12">
+    <section className="max-w-5xl mx-auto px-4 pb-24 md:pb-16">
       {/* Tabs */}
       <div className="flex gap-1 bg-white rounded-xl p-1 shadow-sm border border-stone-200 mb-6">
         {tabs.map((tab) => {
@@ -36,10 +36,10 @@ export default function HomeItems({ movies, books, food }: HomeItemsProps) {
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-sm font-medium transition-all ${
+              className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-sm font-medium transition-all duration-150 ${
                 isActive
                   ? 'bg-amber-primary text-white shadow-sm'
-                  : 'text-olive hover:text-stone-600'
+                  : 'text-olive hover:text-stone-700'
               }`}
             >
               <Icon size={16} />
@@ -57,24 +57,24 @@ export default function HomeItems({ movies, books, food }: HomeItemsProps) {
               <Card key={item.id} item={item} />
             ))}
           </div>
-          <div className="mt-6 text-center">
+          <div className="mt-8 text-center">
             <Link
               href={`/browse?type=${activeTab === 'food' ? 'food' : activeTab === 'books' ? 'book' : 'movie'}`}
-              className="inline-flex text-sm text-amber-primary font-medium hover:text-amber-dark transition-colors"
+              className="inline-flex text-sm text-amber-primary font-medium hover:text-amber-dark transition-colors duration-150"
             >
               View all {activeTab} →
             </Link>
           </div>
         </>
       ) : (
-        <div className="text-center py-16">
+        <div className="text-center py-20">
           <div className="w-20 h-20 mx-auto flex items-center justify-center rounded-full bg-stone-100 text-olive-light mb-4">
             {activeTab === 'movies' ? <Film size={36} /> : activeTab === 'books' ? <BookOpen size={36} /> : <UtensilsCrossed size={36} />}
           </div>
           <p className="text-olive text-sm">{tabs.find(t => t.key === activeTab)?.emptyMsg}</p>
           <Link
             href="/add"
-            className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 bg-amber-primary text-white rounded-lg text-sm font-medium hover:bg-amber-dark transition-colors"
+            className="mt-4 inline-flex items-center gap-1.5 px-5 py-2.5 bg-amber-primary text-white rounded-xl text-sm font-medium hover:bg-amber-dark transition-colors duration-150 shadow-sm"
           >
             Add one now
           </Link>

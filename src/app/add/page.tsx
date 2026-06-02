@@ -114,7 +114,6 @@ export default function AddPage() {
     try {
       let imageUrl = selectedItem?.image_url || null;
 
-      // Upload food photo if applicable
       if (type === 'food' && foodPhoto) {
         const formData = new FormData();
         formData.append('file', foodPhoto);
@@ -165,10 +164,9 @@ export default function AddPage() {
     setAddedItemId(null);
   };
 
-  // Success state
   if (addedItemId) {
     return (
-      <div className="min-h-screen pt-20 md:pt-24 px-4 flex items-center justify-center">
+      <div className="min-h-screen pt-24 md:pt-28 px-4 flex items-center justify-center">
         <div className="max-w-sm w-full text-center">
           <div className="w-20 h-20 mx-auto rounded-full bg-emerald-100 flex items-center justify-center mb-6">
             <Check size={36} className="text-emerald-600" />
@@ -178,13 +176,13 @@ export default function AddPage() {
           <div className="flex flex-col gap-3">
             <button
               onClick={() => router.push(`/items/${addedItemId}`)}
-              className="w-full py-3 bg-amber-primary text-white rounded-xl font-medium text-sm hover:bg-amber-dark transition-colors"
+              className="w-full py-3 bg-amber-primary text-white rounded-xl font-medium text-sm hover:bg-amber-dark transition-colors duration-150 shadow-sm"
             >
               View item
             </button>
             <button
               onClick={resetForm}
-              className="w-full py-3 border border-stone-200 text-stone-600 rounded-xl font-medium text-sm hover:bg-stone-50 transition-colors"
+              className="w-full py-3 border border-stone-200 text-stone-600 rounded-xl font-medium text-sm hover:bg-stone-50 transition-colors duration-150"
             >
               Add another
             </button>
@@ -195,9 +193,9 @@ export default function AddPage() {
   }
 
   return (
-    <div className="min-h-screen pt-20 md:pt-24 px-4 max-w-lg mx-auto">
-      <h1 className="font-serif text-3xl font-bold text-stone-900 mb-2">Add to The List</h1>
-      <p className="text-olive text-sm mb-6">Share something good with the world.</p>
+    <div className="min-h-screen pt-24 md:pt-28 px-4 max-w-lg mx-auto">
+      <h1 className="font-serif text-3xl md:text-4xl font-bold text-stone-900 mb-2">Add to The List</h1>
+      <p className="text-olive text-sm mb-8">Share something good with the world.</p>
 
       {/* Step: Choose Type */}
       {step === 'choose-type' && (
@@ -208,13 +206,13 @@ export default function AddPage() {
               <button
                 key={key}
                 onClick={() => handleTypeSelect(key)}
-                className="w-full flex items-center gap-4 p-5 rounded-xl bg-white border border-stone-200 hover:border-amber-primary/50 hover:bg-amber-primary/5 transition-all text-left group"
+                className="w-full flex items-center gap-4 p-5 rounded-xl bg-white border border-stone-200 hover:border-amber-primary/40 hover:bg-amber-primary/5 transition-all duration-150 text-left group"
               >
-                <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${config.gradient} flex items-center justify-center text-white shadow-sm group-hover:scale-105 transition-transform`}>
+                <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${config.gradient} flex items-center justify-center text-white shadow-sm group-hover:scale-105 transition-transform duration-150`}>
                   <Icon size={26} />
                 </div>
                 <div className="flex-1">
-                  <p className="font-semibold text-stone-800">{config.label}</p>
+                  <p className="font-semibold text-stone-900">{config.label}</p>
                   <p className="text-sm text-olive-light mt-0.5">
                     {key === 'movie' ? 'Search OMDb — only 8.0+ IMDB rated' :
                      key === 'book' ? 'Search Google Books' :
@@ -231,7 +229,7 @@ export default function AddPage() {
       {step === 'search' && (
         <div className="space-y-4">
           <div className="relative">
-            <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-olive-light" />
+            <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-olive-light pointer-events-none" />
             <input
               type="text"
               value={searchQuery}
@@ -241,7 +239,7 @@ export default function AddPage() {
                 setSearchQuery(e.target.value);
               }}
               placeholder={`Search ${type === 'movie' ? 'movies' : 'books'}...`}
-              className="w-full pl-10 pr-4 py-3 bg-white border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary"
+              className="w-full pl-10 pr-4 py-3 bg-white border border-stone-200 rounded-xl text-sm text-stone-700 placeholder:text-olive-light focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary transition-all duration-150"
               autoFocus
             />
           </div>
@@ -276,7 +274,7 @@ export default function AddPage() {
                     key={movieResult.imdbID}
                     onClick={() => isQualified && handleMovieSelect(movieResult)}
                     disabled={!isQualified}
-                    className={`w-full flex items-center gap-3 p-3 rounded-xl border transition-all text-left ${
+                    className={`w-full flex items-center gap-3 p-3 rounded-xl border transition-all duration-150 text-left ${
                       isQualified
                         ? 'border-stone-100 hover:border-amber-primary/30 hover:bg-stone-50 cursor-pointer'
                         : 'border-red-100 bg-red-50/30 cursor-not-allowed opacity-70'
@@ -289,7 +287,7 @@ export default function AddPage() {
                       onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.svg'; }}
                     />
                     <div className="flex-1 min-w-0 text-left">
-                      <p className="font-medium text-stone-800 text-sm truncate">{movieResult.Title}</p>
+                      <p className="font-medium text-stone-900 text-sm truncate">{movieResult.Title}</p>
                       <p className="text-xs text-olive">{movieResult.Year}</p>
                       {!isQualified && (
                         <p className="text-xs text-red-500 mt-0.5">Below 8.0 quality bar ({movieResult.imdbRating})</p>
@@ -310,7 +308,7 @@ export default function AddPage() {
                 <button
                   key={bookResult.id}
                   onClick={() => handleBookSelect(bookResult)}
-                  className="w-full flex items-center gap-3 p-3 rounded-xl border border-stone-100 hover:border-amber-primary/30 hover:bg-stone-50 transition-all text-left"
+                  className="w-full flex items-center gap-3 p-3 rounded-xl border border-stone-100 hover:border-amber-primary/30 hover:bg-stone-50 transition-all duration-150 text-left"
                 >
                   <img
                     src={bookResult.volumeInfo.imageLinks?.thumbnail?.replace('http:', 'https:') || '/placeholder.svg'}
@@ -319,7 +317,7 @@ export default function AddPage() {
                     onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.svg'; }}
                   />
                   <div className="flex-1 min-w-0 text-left">
-                    <p className="font-medium text-stone-800 text-sm truncate">{bookResult.volumeInfo.title}</p>
+                    <p className="font-medium text-stone-900 text-sm truncate">{bookResult.volumeInfo.title}</p>
                     <p className="text-xs text-olive truncate">{bookResult.volumeInfo.authors?.join(', ') || 'Unknown author'}</p>
                   </div>
                   {bookResult.volumeInfo.averageRating && (
@@ -334,7 +332,7 @@ export default function AddPage() {
 
           <button
             onClick={() => { setStep('choose-type'); setSearchQuery(''); setSearchResults([]); setSearchError(''); }}
-            className="text-sm text-olive hover:text-stone-600 transition-colors"
+            className="text-sm text-olive hover:text-stone-700 transition-colors duration-150"
           >
             ← Choose a different type
           </button>
@@ -351,7 +349,7 @@ export default function AddPage() {
               value={foodData.title}
               onChange={(e) => setFoodData({ ...foodData, title: e.target.value })}
               placeholder="e.g. The Bombay Canteen"
-              className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary"
+              className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm text-stone-700 placeholder:text-olive-light focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary transition-all duration-150"
             />
           </div>
           <div>
@@ -361,7 +359,7 @@ export default function AddPage() {
               value={foodData.creator}
               onChange={(e) => setFoodData({ ...foodData, creator: e.target.value })}
               placeholder="e.g. Indian, Mumbai"
-              className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary"
+              className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm text-stone-700 placeholder:text-olive-light focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary transition-all duration-150"
             />
           </div>
           <div>
@@ -371,7 +369,7 @@ export default function AddPage() {
               onChange={(e) => setFoodData({ ...foodData, description: e.target.value })}
               placeholder="What makes this place special?"
               rows={3}
-              className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary resize-none"
+              className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm text-stone-700 placeholder:text-olive-light focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary transition-all duration-150 resize-none"
             />
           </div>
           <PhotoUpload onFileSelect={setFoodPhoto} />
@@ -379,7 +377,7 @@ export default function AddPage() {
           <div className="flex gap-3 pt-2">
             <button
               onClick={() => { setStep('choose-type'); setType(null); }}
-              className="flex-1 py-3 border border-stone-200 text-stone-600 rounded-xl font-medium text-sm hover:bg-stone-50 transition-colors"
+              className="flex-1 py-3 border border-stone-200 text-stone-600 rounded-xl font-medium text-sm hover:bg-stone-50 transition-colors duration-150"
             >
               Back
             </button>
@@ -394,7 +392,7 @@ export default function AddPage() {
                 setStep('confirm');
               }}
               disabled={!foodData.title}
-              className="flex-1 py-3 bg-amber-primary text-white rounded-xl font-medium text-sm hover:bg-amber-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 py-3 bg-amber-primary text-white rounded-xl font-medium text-sm hover:bg-amber-dark transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Preview & Add
             </button>
@@ -414,7 +412,7 @@ export default function AddPage() {
               />
             )}
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-stone-800">{selectedItem.title}</h3>
+              <h3 className="font-semibold text-stone-900">{selectedItem.title}</h3>
               {selectedItem.creator && <p className="text-sm text-olive mt-0.5">{selectedItem.creator}</p>}
               {selectedItem.external_rating && (
                 <p className="text-xs font-bold text-amber-primary bg-amber-primary/10 inline-block px-2 py-0.5 rounded-full mt-1">
@@ -422,7 +420,7 @@ export default function AddPage() {
                 </p>
               )}
               {selectedItem.description && (
-                <p className="text-xs text-olive-light mt-2 line-clamp-3">{selectedItem.description}</p>
+                <p className="text-xs text-olive-light mt-2 line-clamp-3 leading-relaxed">{selectedItem.description}</p>
               )}
             </div>
           </div>
@@ -437,14 +435,14 @@ export default function AddPage() {
           <div className="flex gap-3">
             <button
               onClick={() => setStep(type === 'food' ? 'detail' : 'search')}
-              className="flex-1 py-3 border border-stone-200 text-stone-600 rounded-xl font-medium text-sm hover:bg-stone-50 transition-colors"
+              className="flex-1 py-3 border border-stone-200 text-stone-600 rounded-xl font-medium text-sm hover:bg-stone-50 transition-colors duration-150"
             >
               Back
             </button>
             <button
               onClick={handleSubmit}
               disabled={isSubmitting}
-              className="flex-1 py-3 bg-amber-primary text-white rounded-xl font-medium text-sm hover:bg-amber-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="flex-1 py-3 bg-amber-primary text-white rounded-xl font-medium text-sm hover:bg-amber-dark transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isSubmitting ? (
                 <><Loader2 size={16} className="animate-spin" /> Adding...</>
@@ -453,7 +451,7 @@ export default function AddPage() {
           </div>
 
           {type === 'movie' && (
-            <p className="text-[11px] text-olive-light text-center">
+            <p className="text-xs text-olive-light text-center">
               Only movies with 8.0+ IMDB rating are accepted.
             </p>
           )}

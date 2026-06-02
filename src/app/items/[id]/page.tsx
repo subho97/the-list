@@ -62,11 +62,11 @@ export default async function ItemDetailPage({ params }: { params: Promise<{ id:
   const TypeIcon = typeIcons[item.type];
 
   return (
-    <div className="min-h-screen pt-20 md:pt-24 pb-12 px-4 max-w-3xl mx-auto">
+    <div className="min-h-screen pt-24 md:pt-28 pb-12 px-4 max-w-3xl mx-auto">
       {/* Back link */}
       <Link
         href="/browse"
-        className="inline-flex items-center gap-1 text-sm text-olive hover:text-stone-600 mb-4 transition-colors"
+        className="inline-flex items-center gap-1 text-sm text-olive hover:text-stone-700 mb-5 transition-colors duration-150"
       >
         ← Browse
       </Link>
@@ -103,7 +103,7 @@ export default async function ItemDetailPage({ params }: { params: Promise<{ id:
           {/* Info */}
           <div className="p-6 md:p-8 flex flex-col justify-between">
             <div>
-              <h1 className="font-serif text-3xl font-bold text-stone-900">{item.title}</h1>
+              <h1 className="font-serif text-3xl font-bold text-stone-900 tracking-tight">{item.title}</h1>
               {item.creator && (
                 <p className="text-olive mt-1">
                   {item.type === 'movie' ? 'Directed by ' : item.type === 'book' ? 'By ' : ''}
@@ -113,13 +113,13 @@ export default async function ItemDetailPage({ params }: { params: Promise<{ id:
               {item.year && <p className="text-sm text-olive-light mt-1">{item.year}</p>}
 
               {item.external_rating && (
-                <div className="flex items-center gap-2 mt-3">
-                  <span className="text-xs font-medium text-stone-500">
+                <div className="flex items-center gap-2 mt-4">
+                  <span className="text-xs font-medium text-stone-500 uppercase tracking-wider">
                     {item.type === 'movie' ? 'IMDB' : 'Rating'}:
                   </span>
                   <div className="flex items-center gap-1">
-                    <Star size={14} className="text-amber-primary fill-amber-primary" />
-                    <span className="font-bold text-stone-800">{item.external_rating.toFixed(1)}</span>
+                    <Star size={16} className="text-amber-primary fill-amber-primary" />
+                    <span className="font-bold text-stone-900">{item.external_rating.toFixed(1)}</span>
                   </div>
                 </div>
               )}
@@ -133,7 +133,7 @@ export default async function ItemDetailPage({ params }: { params: Promise<{ id:
                   href={item.external_link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 mt-4 text-sm text-amber-primary hover:text-amber-dark transition-colors"
+                  className="inline-flex items-center gap-1.5 mt-4 text-sm text-amber-primary hover:text-amber-dark transition-colors duration-150"
                 >
                   <ExternalLink size={14} />
                   View on {item.type === 'movie' ? 'IMDB' : 'Google Books'}
@@ -141,7 +141,9 @@ export default async function ItemDetailPage({ params }: { params: Promise<{ id:
               )}
             </div>
 
-            <ItemActions itemId={item.id} itemType={item.type} />
+            <div className="mt-6">
+              <ItemActions itemId={item.id} itemType={item.type} />
+            </div>
           </div>
         </div>
       </div>
@@ -149,31 +151,31 @@ export default async function ItemDetailPage({ params }: { params: Promise<{ id:
       {/* Food Reviews */}
       {item.type === 'food' && (
         <div className="mt-8">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-serif text-xl font-bold text-stone-800">
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="font-serif text-xl font-bold text-stone-900">
               Reviews ({item.reviews.length})
             </h2>
             <Link
               href={`/items/${item.id}/review`}
-              className="px-4 py-2 bg-amber-primary text-white rounded-xl text-sm font-medium hover:bg-amber-dark transition-colors"
+              className="px-4 py-2.5 bg-amber-primary text-white rounded-xl text-sm font-medium hover:bg-amber-dark transition-colors duration-150 shadow-sm"
             >
               Add review
             </Link>
           </div>
 
           {item.reviews.length === 0 ? (
-            <div className="text-center py-12 bg-white rounded-xl border border-stone-200">
-              <p className="text-olive text-sm">No reviews yet. Be the first!</p>
+            <div className="text-center py-14 bg-white rounded-xl border border-stone-200">
+              <p className="text-olive-text-sm">No reviews yet. Be the first!</p>
             </div>
           ) : (
             <div className="space-y-4">
               {item.reviews.map((review) => (
                 <div
                   key={review.id}
-                  className="bg-white rounded-xl p-4 border border-stone-200 space-y-3"
+                  className="bg-white rounded-xl p-5 border border-stone-200 space-y-3 shadow-sm"
                 >
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-0.5">
                       {Array.from({ length: 5 }).map((_, i) => (
                         <Star
                           key={i}
@@ -185,13 +187,13 @@ export default async function ItemDetailPage({ params }: { params: Promise<{ id:
                     <span className="text-xs text-olive-light">{review.reviewed_by}</span>
                   </div>
                   {review.comment && (
-                    <p className="text-sm text-stone-600">{review.comment}</p>
+                    <p className="text-sm text-stone-600 leading-relaxed">{review.comment}</p>
                   )}
                   {review.photo_url && (
                     <img
                       src={review.photo_url}
                       alt="Review photo"
-                      className="w-full max-w-sm rounded-lg object-cover max-h-64"
+                      className="w-full max-w-sm rounded-lg object-cover max-h-64 border border-stone-200"
                     />
                   )}
                   <p className="text-xs text-olive-light">

@@ -57,10 +57,10 @@ export default function EmptyState({ type, title, description }: EmptyStateProps
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
       {config.svg}
-      <h3 className="mt-6 text-lg font-serif font-bold text-stone-600">
+      <h3 className="mt-6 text-xl font-serif font-bold text-stone-700">
         {title || config.title}
       </h3>
-      <p className="mt-2 text-sm text-olive-light max-w-xs">
+      <p className="mt-2 text-sm text-olive-light max-w-xs leading-relaxed">
         {description || config.description}
       </p>
     </div>

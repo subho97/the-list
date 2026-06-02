@@ -2,12 +2,17 @@
 
 @theme inline {
   --color-cream: #FAF5E9;
-  --color-cream-dark: #FEF7E6;
   --color-amber-primary: #D97706;
   --color-amber-dark: #B45309;
+  --color-amber-light: #F59E0B;
+  --color-amber-glow: #FFFBEB;
   --color-rust: #9A3412;
   --color-olive: #78716C;
   --color-olive-light: #A8A29E;
+  --color-olive-medium: #57534E;
+  --color-stone-200: #E7E5E4;
+  --color-stone-700: #44403C;
+  --color-stone-900: #1C1917;
   --color-card-bg: #FFFFFF;
   --font-serif: 'Playfair Display', Georgia, serif;
   --font-sans: 'Inter', system-ui, sans-serif;
@@ -21,7 +26,7 @@
 
 body {
   background: var(--color-cream);
-  color: #292524;
+  color: #44403C;
   font-family: var(--font-sans);
 }
 

@@ -19,13 +19,19 @@ const typeLabels = {
   food: 'Food',
 };
 
+const typeBadgeGradients = {
+  movie: 'bg-gradient-to-r from-blue-500 to-blue-600',
+  book: 'bg-gradient-to-r from-emerald-500 to-emerald-600',
+  food: 'bg-gradient-to-r from-orange-500 to-orange-600',
+};
+
 export default function Card({ item }: CardProps) {
   const Icon = typeIcons[item.type];
 
   return (
     <Link
       href={`/items/${item.id}`}
-      className="group block bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden border border-stone-200/50 hover:-translate-y-1"
+      className="group block bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-150 overflow-hidden border border-stone-200 hover:border-amber-primary/30 hover:-translate-y-0.5"
     >
       {/* Image */}
       <div className="aspect-[3/4] bg-stone-100 relative overflow-hidden">
@@ -33,7 +39,7 @@ export default function Card({ item }: CardProps) {
           <img
             src={item.image_url}
             alt={item.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             loading="lazy"
           />
         ) : (
@@ -41,26 +47,26 @@ export default function Card({ item }: CardProps) {
             <Icon size={48} strokeWidth={1} />
           </div>
         )}
-        {/* Rating badge overlay */}
-        <div className="absolute top-2 right-2">
+        {/* Rating badge overlay — top-right */}
+        <div className="absolute top-2 right-2 z-10">
           <RatingBadge rating={item.external_rating} />
         </div>
-        {/* Type badge */}
-        <div className="absolute top-2 left-2 bg-white/90 backdrop-blur-sm rounded-full px-2.5 py-0.5 text-xs font-medium text-stone-600">
+        {/* Type badge — top-left with gradient */}
+        <div className={`absolute top-2 left-2 ${typeBadgeGradients[item.type]} rounded-full px-2.5 py-0.5 text-[11px] font-medium text-white shadow-sm`}>
           {typeLabels[item.type]}
         </div>
       </div>
 
       {/* Info */}
-      <div className="p-3">
-        <h3 className="font-medium text-stone-800 text-sm line-clamp-2 group-hover:text-amber-dark transition-colors">
+      <div className="p-3 space-y-0.5">
+        <h3 className="font-medium text-stone-900 text-sm line-clamp-2 group-hover:text-amber-primary transition-colors duration-150 leading-snug">
           {item.title}
         </h3>
         {item.creator && (
-          <p className="text-xs text-olive mt-1 truncate">{item.creator}</p>
+          <p className="text-[12px] text-olive truncate">{item.creator}</p>
         )}
         {item.year && (
-          <p className="text-xs text-olive-light mt-0.5">{item.year}</p>
+          <p className="text-[12px] text-olive-light">{item.year}</p>
         )}
       </div>
     </Link>
