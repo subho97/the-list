@@ -15,6 +15,7 @@ export interface Item {
   genre: string | null;
   cuisine: string | null;
   must_try: string | null;
+  notes: string | null;
   city: string | null;
   added_at: string;
   added_by: string;

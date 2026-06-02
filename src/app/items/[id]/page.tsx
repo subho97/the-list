@@ -109,7 +109,7 @@ export default async function ItemDetailPage({ params }: { params: Promise<{ id:
           <div className="p-6 md:p-8 flex flex-col justify-between">
             <div>
               <h1 className="font-serif text-3xl font-bold text-stone-900 tracking-tight">{item.title}</h1>
-              {item.creator && (
+              {item.creator && item.type !== 'food' && (
                 <p className="text-olive mt-1">
                   {item.type === 'movie' ? 'Directed by ' : item.type === 'book' ? 'By ' : ''}
                   {item.creator}
@@ -173,6 +173,10 @@ export default async function ItemDetailPage({ params }: { params: Promise<{ id:
                   <MapPin size={12} />
                   {item.city}
                 </p>
+              )}
+
+              {item.type === 'food' && item.notes && (
+                <p className="text-xs text-olive-light mt-2 italic">📝 {item.notes}</p>
               )}
             </div>
 

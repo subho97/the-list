@@ -31,7 +31,7 @@ export default function AddPage() {
   const [addedItemId, setAddedItemId] = useState<string | null>(null);
   const [foodPhoto, setFoodPhoto] = useState<File | null>(null);
   const [addedBy, setAddedBy] = useState('');
-  const [foodData, setFoodData] = useState({ title: '', creator: '', cuisine: '', must_try: '', description: '', city: '', year: new Date().getFullYear() });
+  const [foodData, setFoodData] = useState({ title: '', creator: '', cuisine: '', must_try: '', notes: '', description: '', city: '', year: new Date().getFullYear() });
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const handleTypeSelect = (selectedType) => {
@@ -110,7 +110,7 @@ export default function AddPage() {
         }
       }
       const itemData = type === 'food'
-        ? { type: 'food', title: foodData.title, creator: foodData.creator || foodData.cuisine, cuisine: foodData.cuisine || foodData.creator, must_try: foodData.must_try || null, description: foodData.description, city: foodData.city || null, image_url: imageUrl, added_by: addedBy.trim() || 'Anonymous' }
+        ? { type: 'food', title: foodData.title, creator: foodData.creator || foodData.cuisine, cuisine: foodData.cuisine || foodData.creator, must_try: foodData.must_try || null, notes: foodData.notes || null, description: foodData.description, city: foodData.city || null, image_url: imageUrl, added_by: addedBy.trim() || 'Anonymous' }
         : { ...selectedItem, image_url: imageUrl, added_by: addedBy.trim() || 'Anonymous' };
       const res = await fetch('/api/items', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -127,7 +127,7 @@ export default function AddPage() {
   const resetForm = () => {
     setStep('choose-type'); setType(null); setSearchQuery(''); setSearchResults([]);
     setSearchError(''); setSelectedItem(null); setFoodPhoto(null); setAddedBy('');
-    setFoodData({ title: '', creator: '', cuisine: '', must_try: '', description: '', city: '', year: new Date().getFullYear() });
+    setFoodData({ title: '', creator: '', cuisine: '', must_try: '', notes: '', description: '', city: '', year: new Date().getFullYear() });
     setAddedItemId(null);
   };
 
@@ -246,6 +246,10 @@ export default function AddPage() {
             <input type="text" value={foodData.must_try} onChange={(e) => setFoodData({ ...foodData, must_try: e.target.value })} placeholder="e.g. Butter Chicken, Sushi Platter" className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary" />
           </div>
           <div>
+            <label className="block text-sm font-medium text-stone-700 mb-1.5">📝 Notes <span className="text-olive-light font-normal">(timings, location hints, etc.)</span></label>
+            <input type="text" value={foodData.notes} onChange={(e) => setFoodData({ ...foodData, notes: e.target.value })} placeholder="e.g. No Dine-in. Only Order. Opens at 4AM." className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary" />
+          </div>
+          <div>
             <label className="block text-sm font-medium text-stone-700 mb-1.5">City</label>
             <div className="relative">
               <input type="text" value={foodData.city} onChange={(e) => setFoodData({ ...foodData, city: e.target.value })} placeholder="Type or select city..." className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary" list="city-list" />
@@ -262,7 +266,7 @@ export default function AddPage() {
           <p className="text-xs text-olive-light">No photo? We&apos;ll show a cuisine emoji on a gradient background.</p>
           <div className="flex gap-3 pt-2">
             <button onClick={() => { setStep('choose-type'); setType(null); }} className="flex-1 py-3 border border-stone-200 text-stone-600 rounded-xl font-medium text-sm hover:bg-stone-50 transition-colors">Back</button>
-            <button onClick={() => { setSelectedItem({ type: 'food', title: foodData.title, creator: foodData.cuisine || foodData.creator, must_try: foodData.must_try || null, description: foodData.description, city: foodData.city }); setStep('confirm'); }} disabled={!foodData.title} className="flex-1 py-3 bg-amber-primary text-white rounded-xl font-medium text-sm hover:bg-amber-dark disabled:opacity-50 disabled:cursor-not-allowed">Preview & Add</button>
+            <button onClick={() => { setSelectedItem({ type: 'food', title: foodData.title, creator: foodData.cuisine || foodData.creator, must_try: foodData.must_try || null, notes: foodData.notes || null, description: foodData.description, city: foodData.city }); setStep('confirm'); }} disabled={!foodData.title} className="flex-1 py-3 bg-amber-primary text-white rounded-xl font-medium text-sm hover:bg-amber-dark disabled:opacity-50 disabled:cursor-not-allowed">Preview & Add</button>
           </div>
         </div>
       )}

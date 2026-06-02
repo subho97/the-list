@@ -130,7 +130,7 @@ export default function Card({ item }: CardProps) {
         <h3 className="font-medium text-stone-900 text-sm line-clamp-2 group-hover:text-amber-primary transition-colors duration-150 leading-snug">
           {item.title}
         </h3>
-        {item.creator && (
+        {item.creator && item.type !== 'food' && (
           <p className="text-[12px] text-olive truncate">{item.creator}</p>
         )}
         {item.genre && !item.cuisine && (
