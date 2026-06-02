@@ -84,7 +84,7 @@ export default function BrowseContent() {
       const params = new URLSearchParams();
       params.set('type', tab);
       params.set('page', pageNum.toString());
-      params.set('limit', '20');
+      params.set('limit', '50');
       if (search) params.set('search', search);
       if (tab === 'food' && cityFilter) params.set('city', cityFilter);
       if (tab === 'food' && cuisineFilter) params.set('cuisine', cuisineFilter);

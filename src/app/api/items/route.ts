@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
   const cuisine = searchParams.get('cuisine');
   const minRating = parseFloat(searchParams.get('minRating') || '');
   const page = parseInt(searchParams.get('page') || '1');
-  const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 50);
+  const limit = Math.min(parseInt(searchParams.get('limit') || '50'), 100);
   const offset = (page - 1) * limit;
 
   const supabase = await createClient();
