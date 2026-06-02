@@ -48,6 +48,20 @@ export default function BrowseContent() {
   const [hasMore, setHasMore] = useState(false);
   const [error, setError] = useState('');
 
+  // Restore scroll position when coming back from item detail
+  useEffect(() => {
+    const saved = sessionStorage.getItem('browseScrollY');
+    if (saved) {
+      const y = parseInt(saved);
+      if (!isNaN(y)) requestAnimationFrame(() => window.scrollTo(0, y));
+      sessionStorage.removeItem('browseScrollY');
+    }
+  }, []);
+
+  const saveScroll = () => {
+    sessionStorage.setItem('browseScrollY', String(window.scrollY));
+  };
+
   // On tab change: clear items immediately, reset page, start loading
   const handleTabChange = (tab: TabType) => {
     setActiveTab(tab);
@@ -266,7 +280,7 @@ export default function BrowseContent() {
               {activeTab === 'food' && viewMode === 'map' ? (
                 <MapView items={items} />
               ) : (
-                <div className={activeTab === 'food' ? 'space-y-3' : 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4'}>
+                <div onClick={saveScroll} className={activeTab === 'food' ? 'space-y-3' : 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4'}>
                   {items.map((item) =>
                     activeTab === 'food' ? (
                       <FoodListItem key={item.id} item={item} />
