@@ -294,8 +294,9 @@ export default function ListPageClient({ list: initialList }: ListPageClientProp
                   Delete list
                 </button>
                 <span className="text-xs text-olive-light">
-                Hover over an item and click <Trash2 size={11} className="inline text-red-400" /> to remove
-              </span>
+                  Hover over an item and click <Trash2 size={11} className="inline text-red-400" /> to remove
+                </span>
+              </div>
             </div>
           )}
         </div>
