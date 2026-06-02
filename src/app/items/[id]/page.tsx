@@ -171,11 +171,15 @@ export default async function ItemDetailPage({ params }: { params: Promise<{ id:
                   href={item.external_link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-3 inline-flex items-center gap-1.5 text-sm text-amber-primary hover:text-amber-dark transition-colors duration-150"
+                  className="mt-3 block p-3 bg-purple-50 rounded-xl border border-purple-200 hover:bg-purple-100 transition-colors duration-150"
                 >
-                  <ExternalLink size={14} />
-                  View on {item.type === 'movie' ? 'IMDB' : 'Google Books'}
+                  <p className="text-xs font-semibold text-purple-700 uppercase tracking-wider mb-0.5">📖 About this {item.type === 'movie' ? 'movie' : 'book'}</p>
+                  <p className="text-sm text-purple-600 flex items-center gap-1">
+                    {item.type === 'movie' ? 'View on IMDB' : 'View on Google Books'}
+                    <ExternalLink size={12} className="shrink-0" />
+                  </p>
                 </a>
+              )}
               )}
 
               {item.purchase_link && (
@@ -198,7 +202,7 @@ export default async function ItemDetailPage({ params }: { params: Promise<{ id:
               )}
             </div>
 
-            <div className="mt-6">
+            <div className="mt-4">
               <ItemActions itemId={item.id} itemType={item.type} />
             </div>
           </div>
