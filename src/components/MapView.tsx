@@ -83,7 +83,7 @@ export default function MapView({ items }: { items: Item[] }) {
         shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
       });
 
-      const map = L.map(mapRef.current, {
+      const map = L.map(mapRef.current!, {
         center: [12.9716, 77.5946],
         zoom: 11,
         zoomControl: true,
