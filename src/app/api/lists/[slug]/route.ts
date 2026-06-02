@@ -7,6 +7,9 @@ export async function GET(
 ) {
   const { slug } = await params;
   const supabase = await createClient();
+  if (!supabase) {
+    return NextResponse.json({ error: 'Database not configured' }, { status: 503 });
+  }
 
   // Get list
   const { data: list, error: listError } = await supabase

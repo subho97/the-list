@@ -7,6 +7,10 @@ export async function POST(
 ) {
   const { slug } = await params;
   const supabase = await createClient();
+  if (!supabase) {
+    return NextResponse.json({ error: 'Database not configured' }, { status: 503 });
+  }
+
   const body = await request.json();
 
   const { item_id, note } = body;

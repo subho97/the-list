@@ -10,6 +10,9 @@ export async function GET(request: NextRequest) {
   const offset = (page - 1) * limit;
 
   const supabase = await createClient();
+  if (!supabase) {
+    return NextResponse.json({ items: [], total: 0, page: 1, limit, hasMore: false });
+  }
 
   let query = supabase
     .from('items')
@@ -42,6 +45,10 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
+  if (!supabase) {
+    return NextResponse.json({ error: 'Database not configured' }, { status: 503 });
+  }
+
   const body = await request.json();
 
   const { type, title, creator, year, description, image_url, external_rating, imdb_id, external_link, added_by } = body;

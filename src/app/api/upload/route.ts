@@ -3,6 +3,10 @@ import { createClient } from '@/lib/supabase';
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
+  if (!supabase) {
+    return NextResponse.json({ error: 'Database not configured' }, { status: 503 });
+  }
+
   const formData = await request.formData();
   const file = formData.get('file') as File | null;
 

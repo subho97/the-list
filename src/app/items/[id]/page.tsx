@@ -11,27 +11,32 @@ interface ItemDetailData extends Item {
 }
 
 async function getItem(id: string): Promise<ItemDetailData | null> {
-  const supabase = await createClient();
+  try {
+    const supabase = await createClient();
+    if (!supabase) return null;
 
-  const { data: item } = await supabase
-    .from('items')
-    .select('*')
-    .eq('id', id)
-    .single();
-
-  if (!item) return null;
-
-  let reviews: Review[] = [];
-  if (item.type === 'food') {
-    const { data: reviewsData } = await supabase
-      .from('reviews')
+    const { data: item } = await supabase
+      .from('items')
       .select('*')
-      .eq('item_id', id)
-      .order('created_at', { ascending: false });
-    reviews = reviewsData || [];
-  }
+      .eq('id', id)
+      .single();
 
-  return { ...item, reviews };
+    if (!item) return null;
+
+    let reviews: Review[] = [];
+    if (item.type === 'food') {
+      const { data: reviewsData } = await supabase
+        .from('reviews')
+        .select('*')
+        .eq('item_id', id)
+        .order('created_at', { ascending: false });
+      reviews = reviewsData || [];
+    }
+
+    return { ...item, reviews };
+  } catch {
+    return null;
+  }
 }
 
 const typeIcons = {

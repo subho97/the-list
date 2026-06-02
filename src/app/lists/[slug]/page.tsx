@@ -18,36 +18,41 @@ interface ListData {
 }
 
 async function getList(slug: string): Promise<ListData | null> {
-  const supabase = await createClient();
+  try {
+    const supabase = await createClient();
+    if (!supabase) return null;
 
-  const { data: list } = await supabase
-    .from('lists')
-    .select('*')
-    .eq('slug', slug)
-    .single();
+    const { data: list } = await supabase
+      .from('lists')
+      .select('*')
+      .eq('slug', slug)
+      .single();
 
-  if (!list) return null;
+    if (!list) return null;
 
-  const { data: listItems } = await supabase
-    .from('list_items')
-    .select(`
+    const { data: listItems } = await supabase
+      .from('list_items')
+      .select(`
       id,
       added_at,
       note,
       items (*)
     `)
-    .eq('list_id', list.id)
-    .order('added_at', { ascending: true });
+      .eq('list_id', list.id)
+      .order('added_at', { ascending: true });
 
-  return {
-    ...list,
-    items: (listItems || []).map((li: { items: unknown; id: string; added_at: string; note: string | null }) => ({
-      ...(li.items as object),
-      list_item_id: li.id,
-      added_at: li.added_at,
-      note: li.note,
-    } as Item & { list_item_id: string; added_at: string; note: string | null })),
-  };
+    return {
+      ...list,
+      items: (listItems || []).map((li: { items: unknown; id: string; added_at: string; note: string | null }) => ({
+        ...(li.items as object),
+        list_item_id: li.id,
+        added_at: li.added_at,
+        note: li.note,
+      } as Item & { list_item_id: string; added_at: string; note: string | null })),
+    };
+  } catch {
+    return null;
+  }
 }
 
 export default async function ListDetailPage({ params }: { params: Promise<{ slug: string }> }) {

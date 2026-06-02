@@ -4,14 +4,19 @@ import { Item } from '@/lib/types';
 import HomeItems from './HomeItems';
 
 async function getRecentItems(type: string, limit: number = 6): Promise<Item[]> {
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from('items')
-    .select('*')
-    .eq('type', type)
-    .order('added_at', { ascending: false })
-    .limit(limit);
-  return data || [];
+  try {
+    const supabase = await createClient();
+    if (!supabase) return [];
+    const { data } = await supabase
+      .from('items')
+      .select('*')
+      .eq('type', type)
+      .order('added_at', { ascending: false })
+      .limit(limit);
+    return data || [];
+  } catch {
+    return [];
+  }
 }
 
 export default async function Home() {

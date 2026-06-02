@@ -3,6 +3,9 @@ import { createClient } from '@/lib/supabase';
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
+  if (!supabase) {
+    return NextResponse.json({ error: 'Database not configured' }, { status: 503 });
+  }
 
   // Handle multipart form data
   const formData = await request.formData();

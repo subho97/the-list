@@ -12,6 +12,9 @@ function slugify(text: string): string {
 
 export async function GET() {
   const supabase = await createClient();
+  if (!supabase) {
+    return NextResponse.json({ lists: [] });
+  }
 
   const { data, error } = await supabase
     .from('lists')
@@ -27,6 +30,10 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
+  if (!supabase) {
+    return NextResponse.json({ error: 'Database not configured' }, { status: 503 });
+  }
+
   const body = await request.json();
 
   const { name, description, created_by } = body;
