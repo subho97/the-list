@@ -21,6 +21,7 @@ export default function CreateListContent() {
   const [selectedItems, setSelectedItems] = useState<Item[]>([]);
   const [allItems, setAllItems] = useState<Item[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [typeFilter, setTypeFilter] = useState<string>('all');
   const [isLoading, setIsLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
@@ -123,6 +124,7 @@ export default function CreateListContent() {
 
   const filteredItems = allItems.filter(item =>
     item.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
+    (typeFilter === 'all' || item.type === typeFilter) &&
     !selectedItems.find(i => i.id === item.id)
   );
 
@@ -280,6 +282,23 @@ export default function CreateListContent() {
               className="w-full pl-10 pr-4 py-3 bg-white border border-stone-200 rounded-xl text-sm text-stone-700 placeholder:text-olive-light focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary transition-all duration-150"
               autoFocus
             />
+          </div>
+
+          {/* Type filter tabs */}
+          <div className="flex gap-1 bg-white rounded-xl p-1 shadow-sm border border-stone-200">
+            {[{ key: 'all', label: 'All' }, { key: 'movie', label: 'Movies' }, { key: 'book', label: 'Books' }, { key: 'food', label: 'Food' }].map(tab => (
+              <button
+                key={tab.key}
+                onClick={() => setTypeFilter(tab.key)}
+                className={`flex-1 py-2 px-3 rounded-lg text-xs font-medium transition-all duration-150 ${
+                  typeFilter === tab.key
+                    ? 'bg-amber-primary text-white shadow-sm'
+                    : 'text-olive hover:text-stone-700'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
           </div>
 
           {/* Selected items */}
