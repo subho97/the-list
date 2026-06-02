@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase';
 import { List } from '@/lib/types';
-import { Plus, Lock, Calendar, User } from 'lucide-react';
+import { Plus, Lock, Calendar, User, Search } from 'lucide-react';
 
 interface ListWithPinInfo extends Omit<List, 'edit_pin'> {
   has_pin: boolean;
@@ -16,6 +16,7 @@ async function getLists(): Promise<ListWithPinInfo[]> {
     const { data } = await supabase
       .from('lists')
       .select('*')
+      .eq('is_private', false)
       .order('created_at', { ascending: false });
 
     return (data || []).map(({ edit_pin, ...rest }) => ({
@@ -46,8 +47,17 @@ async function getListItemCounts(): Promise<Map<string, number>> {
   }
 }
 
-export default async function ListsPage() {
-  const lists = await getLists();
+export default async function ListsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ search?: string }>;
+}) {
+  const sp = await searchParams;
+  const searchQuery = sp?.search || '';
+  const allLists = await getLists();
+  const lists = searchQuery
+    ? allLists.filter(l => l.name.toLowerCase().includes(searchQuery.toLowerCase()))
+    : allLists;
   const itemCounts = await getListItemCounts();
 
   if (lists.length === 0) {
@@ -75,16 +85,30 @@ export default async function ListsPage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="font-serif text-3xl md:text-4xl font-bold text-stone-900">Lists</h1>
-          <p className="text-olive text-sm mt-1">Curated collections from the community.</p>
+          <p className="text-olive text-sm mt-1">{searchQuery ? `Results for "${searchQuery}"` : 'Curated collections from the community.'}</p>
         </div>
         <Link
           href="/lists/new"
           className="inline-flex items-center gap-2 px-4 py-2.5 bg-amber-primary text-white rounded-xl font-medium text-sm hover:bg-amber-dark transition-colors duration-150 shadow-sm"
         >
           <Plus size={16} />
-          New list
+          New List
         </Link>
       </div>
+
+      {/* Search */}
+      <form method="GET" className="mb-4">
+        <div className="relative">
+          <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-olive-light pointer-events-none" />
+          <input
+            type="text"
+            name="search"
+            defaultValue={searchQuery}
+            placeholder="Search lists..."
+            className="w-full pl-10 pr-4 py-3 bg-white border border-stone-200 rounded-xl text-sm text-stone-700 placeholder:text-olive-light focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary"
+          />
+        </div>
+      </form>
 
       <div className="space-y-3">
         {lists.map((list) => (
@@ -101,6 +125,9 @@ export default async function ListsPage() {
                   </h2>
                   {list.has_pin && (
                     <Lock size={12} className="text-amber-primary shrink-0" aria-label="PIN-protected" />
+                  )}
+                  {'is_private' in list && (list as any).is_private && (
+                    <span className="text-xs bg-stone-100 text-olive-light px-1.5 py-0.5 rounded">Private</span>
                   )}
                 </div>
                 {list.description && (

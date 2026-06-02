@@ -80,6 +80,7 @@ export async function POST(request: NextRequest) {
     slug,
     description: description || null,
     created_by: created_by || 'Anonymous',
+    is_private: is_private || false,
   };
 
   if (edit_pin !== undefined && edit_pin !== null && String(edit_pin).trim() !== '') {

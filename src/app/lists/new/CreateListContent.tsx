@@ -14,6 +14,7 @@ export default function CreateListContent() {
   const [description, setDescription] = useState('');
   const [createdBy, setCreatedBy] = useState('');
   const [editPin, setEditPin] = useState('');
+  const [isPrivate, setIsPrivate] = useState(false);
   const [showPin, setShowPin] = useState(false);
   const [step, setStep] = useState<'create' | 'add-items'>('create');
   const [listId, setListId] = useState<string | null>(null);
@@ -67,6 +68,7 @@ export default function CreateListContent() {
           description: description.trim() || null,
           created_by: createdBy.trim() || 'Anonymous',
           edit_pin: editPin.trim() || null,
+          is_private: isPrivate,
         }),
       });
 
@@ -237,6 +239,22 @@ export default function CreateListContent() {
               ) : (
                 <p className="text-xs text-olive-light">Leave blank for open viewing. PIN is required for edit/delete and cannot be added later.</p>
               )}
+            </div>
+
+            {/* Privacy toggle */}
+            <div className="flex items-center justify-between p-3 bg-white border border-stone-200 rounded-xl">
+              <div>
+                <p className="text-sm font-medium text-stone-700">🔒 Private list</p>
+                <p className="text-xs text-olive-light mt-0.5">Only visible to people with the link. Won't show up on public Lists page.</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsPrivate(!isPrivate)}
+                className={`relative w-12 h-7 rounded-full transition-colors duration-200 ${isPrivate ? 'bg-amber-primary' : 'bg-stone-300'}`}
+              >
+                <span className={`absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-white shadow transition-transform duration-200 ${isPrivate ? 'translate-x-5' : ''}`} />
+              </button>
+            </div>
             </p>
           </div>
 

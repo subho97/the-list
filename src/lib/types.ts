@@ -33,6 +33,7 @@ export interface List {
   description: string | null;
   created_at: string;
   created_by: string;
+  is_private: boolean;
 }
 
 export interface ListItem {
