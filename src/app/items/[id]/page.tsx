@@ -180,7 +180,6 @@ export default async function ItemDetailPage({ params }: { params: Promise<{ id:
                   </p>
                 </a>
               )}
-              )}
 
               {item.purchase_link && (
                 <a
