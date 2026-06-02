@@ -129,7 +129,14 @@ export default async function ItemDetailPage({ params }: { params: Promise<{ id:
                 </div>
               )}
 
-              {item.description && (
+              {item.type === 'food' && item.description && item.description.includes('Must try') && (
+                <div className="mt-4 p-3 bg-amber-primary/5 rounded-xl border border-amber-primary/10">
+                  <p className="text-xs font-semibold text-amber-primary uppercase tracking-wider mb-1">✨ Must Try</p>
+                  <p className="text-sm text-stone-700">{item.description.replace('Must try: ', '').replace('Must try - ', '')}</p>
+                </div>
+              )}
+
+              {item.description && !(item.type === 'food' && item.description.includes('Must try')) && (
                 <p className="mt-4 text-sm text-stone-600 leading-relaxed">{item.description}</p>
               )}
 

@@ -3,9 +3,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Item } from '@/lib/types';
-import { Film, BookOpen, UtensilsCrossed, Loader2, MapPin, Star, Filter, Plus } from 'lucide-react';
+import { Film, BookOpen, UtensilsCrossed, Loader2, MapPin, Star, Filter, Plus, Map, List } from 'lucide-react';
 import Card from '@/components/Card';
 import FoodListItem from '@/components/FoodListItem';
+import MapView from '@/components/MapView';
 import SearchBar from '@/components/SearchBar';
 import EmptyState from '@/components/EmptyState';
 
@@ -39,6 +40,7 @@ export default function BrowseContent() {
   const [cities, setCities] = useState<string[]>([]);
   const [cuisineFilter, setCuisineFilter] = useState('');
   const [cuisines, setCuisines] = useState<string[]>([]);
+  const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
   const [genreFilter, setGenreFilter] = useState('');
   const [genres, setGenres] = useState<string[]>([]);
   const [minRating, setMinRating] = useState('');
@@ -224,6 +226,14 @@ export default function BrowseContent() {
               </select>
             </div>
           )}
+
+          {/* Map/List toggle */}
+          <button
+            onClick={() => setViewMode(viewMode === 'list' ? 'map' : 'list')}
+            className="ml-auto flex items-center gap-1.5 px-3 py-2 bg-white border border-stone-200 rounded-xl text-xs font-medium text-stone-600 hover:border-amber-primary/40 hover:text-amber-primary transition-all duration-150"
+          >
+            {viewMode === 'list' ? <><Map size={14} /> Map</> : <><List size={14} /> List</>}
+          </button>
         </div>
       )}
 
@@ -251,15 +261,19 @@ export default function BrowseContent() {
             <EmptyState type="search" />
           ) : (
             <>
-              <div className={activeTab === 'food' ? 'space-y-3' : 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4'}>
-                {items.map((item) =>
-                  activeTab === 'food' ? (
-                    <FoodListItem key={item.id} item={item} />
-                  ) : (
-                    <Card key={item.id} item={item} />
-                  )
-                )}
-              </div>
+              {activeTab === 'food' && viewMode === 'map' ? (
+                <MapView items={items} />
+              ) : (
+                <div className={activeTab === 'food' ? 'space-y-3' : 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4'}>
+                  {items.map((item) =>
+                    activeTab === 'food' ? (
+                      <FoodListItem key={item.id} item={item} />
+                    ) : (
+                      <Card key={item.id} item={item} />
+                    )
+                  )}
+                </div>
+              )}
 
               {hasMore && (
                 <div className="mt-8 text-center">

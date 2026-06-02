@@ -234,11 +234,21 @@ export default function AddPage() {
           </div>
           <div>
             <label className="block text-sm font-medium text-stone-700 mb-1.5">Cuisine / Category</label>
-            <input type="text" value={foodData.cuisine} onChange={(e) => setFoodData({ ...foodData, cuisine: e.target.value })} placeholder="e.g. Italian, Japanese, Street Food" className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary" />
+            <div className="relative">
+              <input type="text" value={foodData.cuisine} onChange={(e) => setFoodData({ ...foodData, cuisine: e.target.value })} placeholder="Type or select cuisine..." className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary" list="cuisine-list" />
+              <datalist id="cuisine-list">
+                <option value="Pizza" /><option value="Italian" /><option value="Burgers" /><option value="Bakery" /><option value="Cafe" /><option value="Brunch" /><option value="Sushi" /><option value="Japanese" /><option value="Dimsum" /><option value="Momos" /><option value="Ramen" /><option value="Noodles" /><option value="Indian" /><option value="North Indian" /><option value="South Indian" /><option value="Litti Chokha" /><option value="Biryani" /><option value="Chinese" /><option value="Pan Asian" /><option value="Thai" /><option value="Mediterranean" /><option value="Shawarma" /><option value="Kebab" /><option value="Middle Eastern" /><option value="Mexican" /><option value="Temple Food" /><option value="Street Food" /><option value="Food Truck" /><option value="Tibetan" /><option value="Steak" /><option value="Seafood" /><option value="Dessert" /><option value="Ice Cream" /><option value="Breakfast" /><option value="Grill" /><option value="BBQ" />
+              </datalist>
+            </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1.5">City / Area <span className="text-olive-light font-normal">(optional)</span></label>
-            <input type="text" value={foodData.city} onChange={(e) => setFoodData({ ...foodData, city: e.target.value })} placeholder="e.g. Bangalore, HSR Layout" className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary" />
+            <label className="block text-sm font-medium text-stone-700 mb-1.5">City</label>
+            <div className="relative">
+              <input type="text" value={foodData.city} onChange={(e) => setFoodData({ ...foodData, city: e.target.value })} placeholder="Type or select city..." className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary" list="city-list" />
+              <datalist id="city-list">
+                <option value="Bangalore" /><option value="Mysore" /><option value="Mumbai" /><option value="Delhi" /><option value="Hyderabad" /><option value="Chennai" /><option value="Kolkata" /><option value="Pune" /><option value="Ahmedabad" /><option value="Jaipur" /><option value="Goa" /><option value="Chandigarh" /><option value="Kochi" /><option value="Thiruvananthapuram" /><option value="Mangalore" /><option value="Udaipur" /><option value="Jodhpur" /><option value="Amritsar" /><option value="Nagpur" /><option value="Indore" /><option value="Visakhapatnam" /><option value="Coimbatore" /><option value="Guwahati" /><option value="Pondicherry" /><option value="Panaji" /><option value="Shimla" /><option value="Lucknow" /><option value="Surat" />
+              </datalist>
+            </div>
           </div>
           <div>
             <label className="block text-sm font-medium text-stone-700 mb-1.5">Description <span className="text-olive-light font-normal">(optional)</span></label>
