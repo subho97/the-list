@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Item } from '@/lib/types';
-import { Film, BookOpen, UtensilsCrossed, MapPin, Star } from 'lucide-react';
+import { Film, BookOpen, UtensilsCrossed, MapPin } from 'lucide-react';
 import RatingBadge from './RatingBadge';
 
 interface CardProps {
@@ -25,6 +25,69 @@ const typeBadgeGradients = {
   food: 'bg-gradient-to-r from-orange-500 to-orange-600',
 };
 
+const cuisineEmojis: Record<string, string> = {
+  pizza: '🍕', italian: '🍝', pasta: '🍝',
+  sushi: '🍣', japanese: '🍜',
+  dimsum: '🥟', dumpling: '🥟', gyoza: '🥟', momo: '🥟', 'pan asian': '🍜',
+  bakery: '🥐', cake: '🍰', dessert: '🍨', sweet: '🍯',
+  coffee: '☕', cafe: '☕', brunch: '🥞', tea: '🫖',
+  burger: '🍔',
+  steak: '🥩', grill: '🥩', meat: '🍖',
+  indian: '🍛', curry: '🍛', litti: '🫓', paratha: '🫓', naan: '🫓',
+  mediterranean: '🥙', shawarma: '🥙', kebab: '🥙',
+  ramen: '🍜', noodle: '🍜',
+  mexican: '🌮', taco: '🌮',
+  thai: '🍜', vietnamese: '🍜',
+  egyptian: '🧆', 'middle eastern': '🧆',
+  street: '🌮', 'food truck': '🌮',
+  'pani puri': '🫧', chaat: '🫧',
+};
+
+const cuisineGradients: Record<string, string> = {
+  pizza: 'from-amber-200/60 to-amber-300/30',
+  italian: 'from-amber-200/60 to-amber-300/30',
+  pasta: 'from-amber-200/60 to-amber-300/30',
+  sushi: 'from-emerald-200/60 to-emerald-300/30',
+  japanese: 'from-emerald-200/60 to-emerald-300/30',
+  dimsum: 'from-pink-200/60 to-pink-300/30',
+  dumpling: 'from-pink-200/60 to-pink-300/30',
+  momo: 'from-pink-200/60 to-pink-300/30',
+  bakery: 'from-orange-200/60 to-orange-300/30',
+  coffee: 'from-yellow-200/60 to-yellow-300/30',
+  cafe: 'from-yellow-200/60 to-yellow-300/30',
+  burger: 'from-red-200/60 to-red-300/30',
+  steak: 'from-red-200/60 to-red-300/30',
+  indian: 'from-orange-300/60 to-orange-400/30',
+  curry: 'from-orange-300/60 to-orange-400/30',
+  mediterranean: 'from-green-200/60 to-green-300/30',
+  shawarma: 'from-green-200/60 to-green-300/30',
+  ramen: 'from-red-200/60 to-red-300/30',
+  noodle: 'from-red-200/60 to-red-300/30',
+  mexican: 'from-lime-200/60 to-lime-300/30',
+  thai: 'from-teal-200/60 to-teal-300/30',
+  egyptian: 'from-purple-200/60 to-purple-300/30',
+  street: 'from-orange-200/60 to-orange-300/30',
+};
+
+function getCuisineKey(cuisine: string | null): string {
+  if (!cuisine) return 'default';
+  const c = cuisine.toLowerCase();
+  for (const key of Object.keys(cuisineEmojis)) {
+    if (c.includes(key)) return key;
+  }
+  return 'default';
+}
+
+function getCuisineEmoji(cuisine: string | null): string {
+  const key = getCuisineKey(cuisine);
+  return cuisineEmojis[key] || '🍽️';
+}
+
+function getCuisineGradient(cuisine: string | null): string {
+  const key = getCuisineKey(cuisine);
+  return cuisineGradients[key] || 'from-stone-200/60 to-stone-300/30';
+}
+
 export default function Card({ item }: CardProps) {
   const Icon = typeIcons[item.type];
 
@@ -42,6 +105,11 @@ export default function Card({ item }: CardProps) {
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             loading="lazy"
           />
+        ) : item.type === 'food' ? (
+          <div className={`w-full h-full bg-gradient-to-br ${getCuisineGradient(item.cuisine)} flex flex-col items-center justify-center`}>
+            <span className="text-5xl md:text-6xl mb-2">{getCuisineEmoji(item.cuisine)}</span>
+            <p className="text-[11px] text-olive-light font-medium uppercase tracking-wider">{item.cuisine || 'Food'}</p>
+          </div>
         ) : (
           <div className="w-full h-full flex items-center justify-center text-olive-light">
             <Icon size={48} strokeWidth={1} />

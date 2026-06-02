@@ -83,6 +83,11 @@ export default async function ItemDetailPage({ params }: { params: Promise<{ id:
                   alt={item.title}
                   className="w-full h-full object-cover"
                 />
+              ) : item.type === 'food' ? (
+                <div className="w-full h-full bg-gradient-to-br from-orange-200/60 to-orange-300/30 flex flex-col items-center justify-center">
+                  <span className="text-7xl mb-3">🍽️</span>
+                  <p className="text-sm text-olive-light font-medium uppercase tracking-wider">{item.cuisine || 'Food'}</p>
+                </div>
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-olive-light">
                   <TypeIcon size={80} strokeWidth={1} />

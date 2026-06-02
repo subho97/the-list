@@ -245,7 +245,7 @@ export default function AddPage() {
             <textarea value={foodData.description} onChange={(e) => setFoodData({ ...foodData, description: e.target.value })} placeholder="What makes this place special?" rows={3} className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary resize-none" />
           </div>
           <PhotoUpload onFileSelect={setFoodPhoto} />
-          <p className="text-xs text-olive-light">No photo? We&apos;ll use a color-coded cuisine placeholder.</p>
+          <p className="text-xs text-olive-light">No photo? We&apos;ll show a cuisine emoji on a gradient background.</p>
           <div className="flex gap-3 pt-2">
             <button onClick={() => { setStep('choose-type'); setType(null); }} className="flex-1 py-3 border border-stone-200 text-stone-600 rounded-xl font-medium text-sm hover:bg-stone-50 transition-colors">Back</button>
             <button onClick={() => { setSelectedItem({ type: 'food', title: foodData.title, creator: foodData.cuisine || foodData.creator, description: foodData.description, city: foodData.city }); setStep('confirm'); }} disabled={!foodData.title} className="flex-1 py-3 bg-amber-primary text-white rounded-xl font-medium text-sm hover:bg-amber-dark disabled:opacity-50 disabled:cursor-not-allowed">Preview & Add</button>
@@ -272,7 +272,7 @@ export default function AddPage() {
             </button>
           </div>
           {type === 'movie' && <p className="text-[11px] text-olive-light text-center">Only movies with 7.0+ IMDB rating are accepted.</p>}
-          {type === 'food' && <p className="text-[11px] text-olive-light text-center">Color-coded placeholder by cuisine if no photo.</p>}
+          {type === 'food' && <p className="text-[11px] text-olive-light text-center">Cuisine emoji + gradient shown if no photo.</p>}
         </div>
       )}
     </div>
