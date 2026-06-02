@@ -1,53 +1,59 @@
 import { NextRequest, NextResponse } from 'next/server';
+import crypto from 'crypto';
 import { createClient } from '@/lib/supabase';
 
-export async function GET(
+function hashPin(pin: string): string {
+  return crypto.createHash('sha256').update(pin).digest('hex');
+}
+
+export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ) {
-  const { slug } = await params;
-  const supabase = await createClient();
-  if (!supabase) {
-    return NextResponse.json({ error: 'Database not configured' }, { status: 503 });
+  try {
+    const { slug } = await params;
+    const body = await request.json();
+    const { pin } = body;
+
+    const supabase = await createClient();
+    if (!supabase) return NextResponse.json({ error: 'DB unavailable' }, { status: 503 });
+
+    // Get the list
+    const { data: list, error: listError } = await supabase
+      .from('lists')
+      .select('id, edit_pin, name')
+      .eq('slug', slug)
+      .single();
+
+    if (listError || !list) {
+      return NextResponse.json({ error: 'List not found' }, { status: 404 });
+    }
+
+    // Verify PIN if list has one
+    if (list.edit_pin) {
+      if (!pin) {
+        return NextResponse.json({ error: 'PIN is required to delete this list' }, { status: 403 });
+      }
+      const hashedInput = hashPin(String(pin));
+      if (hashedInput !== list.edit_pin) {
+        return NextResponse.json({ error: 'Incorrect PIN' }, { status: 403 });
+      }
+    } else {
+      // List has no PIN — allow deletion without PIN
+      // (anyone can edit an open list anyway)
+    }
+
+    // Delete the list (cascade will handle list_items)
+    const { error: deleteError } = await supabase
+      .from('lists')
+      .delete()
+      .eq('id', list.id);
+
+    if (deleteError) throw deleteError;
+
+    return NextResponse.json({ success: true, deleted: list.name });
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : 'Delete failed';
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
-
-  // Get list
-  const { data: list, error: listError } = await supabase
-    .from('lists')
-    .select('*')
-    .eq('slug', slug)
-    .single();
-
-  if (listError || !list) {
-    return NextResponse.json({ error: 'List not found' }, { status: 404 });
-  }
-
-  // Get items in the list
-  const { data: listItems, error: itemsError } = await supabase
-    .from('list_items')
-    .select(`
-      id,
-      added_at,
-      note,
-      items (*)
-    `)
-    .eq('list_id', list.id)
-    .order('added_at', { ascending: true });
-
-  if (itemsError) {
-    return NextResponse.json({ error: itemsError.message }, { status: 500 });
-  }
-
-  const { edit_pin, ...listWithoutPin } = list;
-
-  return NextResponse.json({
-    ...listWithoutPin,
-    has_pin: !!edit_pin,
-    items: listItems?.map((li: { items: unknown; id: string; added_at: string; note: string | null }) => ({
-      ...(li.items as object),
-      list_item_id: li.id,
-      added_at: li.added_at,
-      note: li.note,
-    })) || [],
-  });
 }

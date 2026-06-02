@@ -124,6 +124,28 @@ export default function ListPageClient({ list: initialList }: ListPageClientProp
     }
   };
 
+  const handleDeleteList = async () => {
+    const confirmed = window.confirm(`Are you sure you want to delete "${initialList.name}"? This cannot be undone.`);
+    if (!confirmed) return;
+
+    try {
+      const res = await fetch(`/api/lists/${initialList.slug}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pin: editPin }),
+      });
+
+      if (res.ok) {
+        window.location.href = '/lists';
+      } else {
+        const data = await res.json();
+        alert(data.error || 'Failed to delete list');
+      }
+    } catch {
+      alert('Failed to delete list');
+    }
+  };
+
   const handleAddItem = async (itemId: string) => {
     if (!editPin) return;
 
@@ -263,7 +285,15 @@ export default function ListPageClient({ list: initialList }: ListPageClientProp
                   Add items
                 </button>
               </div>
-              <span className="text-xs text-olive-light">
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={handleDeleteList}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-xl transition-colors"
+                >
+                  <Trash2 size={13} />
+                  Delete list
+                </button>
+                <span className="text-xs text-olive-light">
                 Hover over an item and click <Trash2 size={11} className="inline text-red-400" /> to remove
               </span>
             </div>
