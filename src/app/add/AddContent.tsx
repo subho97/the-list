@@ -92,26 +92,21 @@ export default function AddPage() {
           const upRes = await fetch('/api/upload', { method: 'POST', body: fd });
           if (upRes.ok) { const upData = await upRes.json(); imageUrl = upData.url; }
         }
-        // Generate AI food image based on cuisine (not name)
+        // Generate reliable placeholder image based on cuisine
         if (!imageUrl) {
-          const cuisine = (foodData.cuisine || foodData.creator || 'restaurant').toLowerCase();
-          let prompt;
-          if (cuisine.includes('pizza')) prompt = 'delicious wood fired pizza on plate restaurant food photography';
-          else if (cuisine.includes('sushi') || cuisine.includes('japanese')) prompt = 'fresh sushi platter with salmon rolls close up food photography';
-          else if (cuisine.includes('dimsum') || cuisine.includes('dumpling') || cuisine.includes('gyoza') || cuisine.includes('momo') || cuisine.includes('pan asian')) prompt = 'steamed dumplings and dimsum basket food photography';
-          else if (cuisine.includes('bakery') || cuisine.includes('cake') || cuisine.includes('dessert') || cuisine.includes('sweet')) prompt = 'fresh croissants and pastries bakery food photography';
-          else if (cuisine.includes('coffee') || cuisine.includes('cafe') || cuisine.includes('brunch') || cuisine.includes('tea')) prompt = 'iced coffee and brunch plate cafe food photography';
-          else if (cuisine.includes('burger')) prompt = 'juicy gourmet burger with fries food photography';
-          else if (cuisine.includes('steak') || cuisine.includes('grill') || cuisine.includes('meat')) prompt = 'perfectly cooked steak with vegetables food photography';
-          else if (cuisine.includes('indian') || cuisine.includes('curry') || cuisine.includes('litti') || cuisine.includes('paratha') || cuisine.includes('naan')) prompt = 'colorful indian curry and naan bread food photography';
-          else if (cuisine.includes('mediterranean') || cuisine.includes('shawarma') || cuisine.includes('kebab')) prompt = 'mediterranean grilled kebab platter food photography';
-          else if (cuisine.includes('pasta') || cuisine.includes('italian')) prompt = 'creamy pasta dish with basil italian food photography';
-          else if (cuisine.includes('ramen') || cuisine.includes('noodle')) prompt = 'steaming bowl of ramen noodles food photography';
-          else if (cuisine.includes('street') || cuisine.includes('food truck') || cuisine.includes('pani puri')) prompt = 'colorful street food snacks food photography';
-          else if (cuisine.includes('egyptian') || cuisine.includes('middle eastern')) prompt = 'middle eastern mezze platter food photography';
-          else if (cuisine.includes('thai') || cuisine.includes('vietnamese')) prompt = 'thai green curry with rice food photography';
-          else prompt = 'beautiful restaurant dish plated food photography';
-          imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`;
+          const cuisine = (foodData.cuisine || foodData.creator || 'food').toLowerCase();
+          let bg = 'FAF5E9', fg = '78716C';
+          if (cuisine.includes('pizza') || cuisine.includes('italian') || cuisine.includes('pasta')) { bg = 'FEF3C7'; fg = 'D97706'; }
+          else if (cuisine.includes('sushi') || cuisine.includes('japanese')) { bg = 'D1FAE5'; fg = '059669'; }
+          else if (cuisine.includes('dimsum') || cuisine.includes('dumpling') || cuisine.includes('momo') || cuisine.includes('pan asian')) { bg = 'FCE7F3'; fg = 'BE185D'; }
+          else if (cuisine.includes('bakery') || cuisine.includes('coffee') || cuisine.includes('cafe') || cuisine.includes('brunch') || cuisine.includes('tea')) { bg = 'FEF7E6'; fg = 'B45309'; }
+          else if (cuisine.includes('burger')) { bg = 'FED7AA'; fg = '9A3412'; }
+          else if (cuisine.includes('indian') || cuisine.includes('curry') || cuisine.includes('paratha') || cuisine.includes('naan') || cuisine.includes('litti')) { bg = 'FFEDD5'; fg = 'C2410C'; }
+          else if (cuisine.includes('mediterranean') || cuisine.includes('shawarma') || cuisine.includes('kebab')) { bg = 'F0FDF4'; fg = '166534'; }
+          else if (cuisine.includes('ramen') || cuisine.includes('noodle')) { bg = 'FEF2F2'; fg = '991B1B'; }
+          else if (cuisine.includes('street') || cuisine.includes('food truck')) { bg = 'FFF7ED'; fg = '9A3412'; }
+          else if (cuisine.includes('mexican') || cuisine.includes('taco')) { bg = 'DCFCE7'; fg = '15803D'; }
+          imageUrl = `https://placehold.co/400x600/${bg}/${fg}?text=${encodeURIComponent(foodData.title.substring(0, 18))}&font=source-sans-pro`;
         }
       }
       const itemData = type === 'food'
@@ -250,7 +245,7 @@ export default function AddPage() {
             <textarea value={foodData.description} onChange={(e) => setFoodData({ ...foodData, description: e.target.value })} placeholder="What makes this place special?" rows={3} className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary resize-none" />
           </div>
           <PhotoUpload onFileSelect={setFoodPhoto} />
-          <p className="text-xs text-olive-light">No photo? We&apos;ll generate an AI image automatically.</p>
+          <p className="text-xs text-olive-light">No photo? We&apos;ll use a color-coded cuisine placeholder.</p>
           <div className="flex gap-3 pt-2">
             <button onClick={() => { setStep('choose-type'); setType(null); }} className="flex-1 py-3 border border-stone-200 text-stone-600 rounded-xl font-medium text-sm hover:bg-stone-50 transition-colors">Back</button>
             <button onClick={() => { setSelectedItem({ type: 'food', title: foodData.title, creator: foodData.cuisine || foodData.creator, description: foodData.description, city: foodData.city }); setStep('confirm'); }} disabled={!foodData.title} className="flex-1 py-3 bg-amber-primary text-white rounded-xl font-medium text-sm hover:bg-amber-dark disabled:opacity-50 disabled:cursor-not-allowed">Preview & Add</button>
@@ -277,7 +272,7 @@ export default function AddPage() {
             </button>
           </div>
           {type === 'movie' && <p className="text-[11px] text-olive-light text-center">Only movies with 7.0+ IMDB rating are accepted.</p>}
-          {type === 'food' && <p className="text-[11px] text-olive-light text-center">AI image will be auto-generated if no photo provided.</p>}
+          {type === 'food' && <p className="text-[11px] text-olive-light text-center">Color-coded placeholder by cuisine if no photo.</p>}
         </div>
       )}
     </div>
