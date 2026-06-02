@@ -50,10 +50,11 @@ export default function FeedbackButton() {
       {/* Floating button */}
       <button
         onClick={() => setOpen(true)}
-        className="fixed bottom-28 left-4 md:bottom-6 md:left-6 z-30 w-12 h-12 rounded-full bg-amber-primary text-white shadow-lg hover:bg-amber-dark hover:shadow-xl transition-all duration-150 flex items-center justify-center"
-        aria-label="Send feedback"
+        className="fixed bottom-28 left-4 md:bottom-6 md:left-6 z-30 w-12 h-12 rounded-full bg-stone-200 hover:bg-stone-300 text-stone-500 shadow-sm hover:shadow transition-all duration-150 flex items-center justify-center"
+        aria-label="Report an issue"
+        title="Report an issue (broken links, wrong info, suggestions)"
       >
-        <MessageCircle size={20} />
+        <MessageCircle size={22} />
       </button>
 
       {/* Modal */}
@@ -61,11 +62,14 @@ export default function FeedbackButton() {
         <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/30 backdrop-blur-sm">
           <div className="w-full md:max-w-sm bg-white rounded-t-2xl md:rounded-2xl shadow-xl md:mb-0 overflow-hidden max-h-[90vh] flex flex-col">
             {/* Header */}
-            <div className="flex items-center justify-between px-5 py-4 border-b border-stone-100">
-              <h3 className="font-semibold text-stone-900 text-sm">Report an issue</h3>
-              <button onClick={() => setOpen(false)} className="text-olive-light hover:text-stone-600 transition-colors">
-                <X size={18} />
-              </button>
+            <div className="px-5 py-4 border-b border-stone-100">
+              <div className="flex items-center justify-between">
+                <h3 className="font-semibold text-stone-900 text-sm">Report an issue</h3>
+                <button onClick={() => setOpen(false)} className="text-olive-light hover:text-stone-600 transition-colors">
+                  <X size={18} />
+                </button>
+              </div>
+              <p className="text-xs text-olive-light mt-1">Broken links, wrong info, suggestions for movies, books, or food — let us know.</p>
             </div>
 
             {/* Body */}

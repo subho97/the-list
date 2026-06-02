@@ -285,10 +285,10 @@ export default function BrowseContent() {
       {/* Floating add button */}
       <button
         onClick={() => router.push(addPageUrl)}
-        className="fixed bottom-24 right-4 md:bottom-6 md:right-6 z-40 w-14 h-14 rounded-full bg-amber-primary text-white shadow-lg hover:bg-amber-dark hover:shadow-xl hover:scale-105 transition-all duration-150 flex items-center justify-center"
+        className="fixed bottom-24 right-4 md:bottom-6 md:right-6 z-40 w-12 h-12 rounded-full bg-amber-primary text-white shadow-lg hover:bg-amber-dark hover:shadow-xl hover:scale-105 transition-all duration-150 flex items-center justify-center"
         aria-label={`Add ${activeTab}`}
       >
-        <Plus size={26} />
+        <Plus size={22} />
       </button>
     </div>
   );
