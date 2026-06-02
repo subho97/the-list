@@ -178,6 +178,18 @@ export default async function ItemDetailPage({ params }: { params: Promise<{ id:
                 </a>
               )}
 
+              {item.purchase_link && (
+                <a
+                  href={item.purchase_link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-3 block p-3 bg-emerald-50 rounded-xl border border-emerald-200 hover:bg-emerald-100 transition-colors duration-150"
+                >
+                  <p className="text-xs font-semibold text-emerald-700 uppercase tracking-wider mb-0.5">🛒 Buy this book</p>
+                  <p className="text-sm text-emerald-600">Amazon / Flipkart <ExternalLink size={12} className="inline" /></p>
+                </a>
+              )}
+
               {item.city && (
                 <p className="mt-3 text-xs text-olive-light flex items-center gap-1">
                   <MapPin size={12} />

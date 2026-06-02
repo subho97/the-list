@@ -31,6 +31,7 @@ export default function AddPage() {
   const [addedItemId, setAddedItemId] = useState<string | null>(null);
   const [foodPhoto, setFoodPhoto] = useState<File | null>(null);
   const [addedBy, setAddedBy] = useState('');
+  const [purchaseLink, setPurchaseLink] = useState('');
   const [foodData, setFoodData] = useState({ title: '', creator: '', cuisine: '', must_try: '', notes: '', description: '', city: '', year: new Date().getFullYear() });
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
@@ -119,6 +120,7 @@ export default function AddPage() {
       const itemData = type === 'food'
         ? { type: 'food', title: foodData.title, creator: foodData.creator || foodData.cuisine, cuisine: foodData.cuisine || foodData.creator, must_try: foodData.must_try || null, notes: foodData.notes || null, description: foodData.description, city: foodData.city || null, image_url: imageUrl, added_by: addedBy.trim() || 'Anonymous' }
         : { ...selectedItem, image_url: imageUrl, added_by: addedBy.trim() || 'Anonymous' };
+      if (purchaseLink.trim()) itemData.purchase_link = purchaseLink.trim();
       const res = await fetch('/api/items', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(itemData),
@@ -136,6 +138,7 @@ export default function AddPage() {
     setSearchError(''); setSelectedItem(null); setFoodPhoto(null); setAddedBy('');
     setFoodData({ title: '', creator: '', cuisine: '', must_try: '', notes: '', description: '', city: '', year: new Date().getFullYear() });
     setAddedItemId(null);
+    setPurchaseLink('');
   };
 
   if (addedItemId) {
@@ -289,6 +292,12 @@ export default function AddPage() {
               {selectedItem.description && <p className="text-xs text-olive-light mt-2 line-clamp-3">{selectedItem.description}</p>}
             </div>
           </div>
+          {type === 'book' && (
+            <div>
+              <label className="block text-sm font-medium text-stone-700 mb-1.5">Purchase link <span className="text-olive-light font-normal">(Amazon / Flipkart — optional)</span></label>
+              <input type="url" value={purchaseLink} onChange={(e) => setPurchaseLink(e.target.value)} placeholder="https://www.amazon.in/..." className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary" />
+            </div>
+          )}
           {submitError && <div className="p-3 rounded-xl bg-red-50 border border-red-100 text-red-700 text-sm"><AlertCircle size={16} className="inline mr-1" />{submitError}</div>}
           <div className="flex gap-3">
             <button onClick={() => setStep(type === 'food' ? 'detail' : 'search')} className="flex-1 py-3 border border-stone-200 text-stone-600 rounded-xl font-medium text-sm hover:bg-stone-50 transition-colors">Back</button>
