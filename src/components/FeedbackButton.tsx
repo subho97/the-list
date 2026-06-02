@@ -50,7 +50,7 @@ export default function FeedbackButton() {
       {/* Floating button */}
       <button
         onClick={() => setOpen(true)}
-        className="fixed bottom-28 left-4 md:bottom-6 md:left-6 z-30 w-12 h-12 rounded-full bg-stone-200 hover:bg-stone-300 text-stone-500 shadow-sm hover:shadow transition-all duration-150 flex items-center justify-center"
+        className="fixed bottom-24 left-4 md:bottom-6 md:left-6 z-30 w-12 h-12 rounded-full bg-amber-primary text-white shadow-lg hover:bg-amber-dark hover:shadow-xl transition-all duration-150 flex items-center justify-center"
         aria-label="Report an issue"
         title="Report an issue (broken links, wrong info, suggestions)"
       >
