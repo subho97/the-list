@@ -2,21 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { MapPin, Navigation, Star } from 'lucide-react';
-
-interface MapItem {
-  id: string;
-  title: string;
-  cuisine: string | null;
-  city: string | null;
-  lat: number | null;
-  lng: number | null;
-  google_maps_link: string | null;
-  must_try: string | null;
-}
+import { MapPin } from 'lucide-react';
+import { Item } from '@/lib/types';
 
 interface MapViewProps {
-  items: MapItem[];
+  items: Item[];
 }
 
 // Area-level coordinates as fallback
@@ -31,7 +21,7 @@ const areaCoords: Record<string, [number, number]> = {
   'Mysore': [12.2958, 76.6394],
 };
 
-function getCoords(item: MapItem): [number, number] {
+function getCoords(item: Item): [number, number] {
   if (item.lat && item.lng) return [item.lat, item.lng];
   if (item.city && areaCoords[item.city]) return areaCoords[item.city];
   return [12.9716, 77.5946]; // default Bangalore
@@ -40,10 +30,10 @@ function getCoords(item: MapItem): [number, number] {
 const cuisineEmojis: Record<string, string> = {
   pizza: '🍕', italian: '🍝', burger: '🍔', sushi: '🍣', japanese: '🍜',
   dimsum: '🥟', momo: '🥟', bakery: '🥐', cafe: '☕', indian: '🍛',
-  north indian: '🍛', south indian: '🍛', mediterranean: '🥙', shawarma: '🥙',
-  middle eastern: '🧆', mexican: '🌮', ramen: '🍜', chinese: '🥡',
+  'north indian': '🍛', 'south indian': '🍛', mediterranean: '🥙', shawarma: '🥙',
+  'middle eastern': '🧆', mexican: '🌮', ramen: '🍜', chinese: '🥡',
   thai: '🍜', korean: '🥘', steak: '🥩', seafood: '🦐', dessert: '🍨',
-  street food: '🌮', 'food truck': '🚚', bbq: '🍖', breakfast: '🥞',
+  'street food': '🌮', 'food truck': '🚚', bbq: '🍖', breakfast: '🥞',
 };
 
 function getEmoji(cuisine: string | null): string {
@@ -58,7 +48,7 @@ function getEmoji(cuisine: string | null): string {
 export default function MapView({ items }: MapViewProps) {
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [mapError, setMapError] = useState('');
-  const [selectedItem, setSelectedItem] = useState<MapItem | null>(null);
+  const [selectedItem, setSelectedItem] = useState<Item | null>(null);
 
   // Get user's location
   useEffect(() => {
@@ -100,7 +90,7 @@ export default function MapView({ items }: MapViewProps) {
         {/* Quick stats */}
         <div className="px-4 py-3 border-b border-stone-100">
           <div className="flex flex-wrap gap-2">
-            {[...new Set(items.filter(i => i.city).map(i => i.city!))].map(city => (
+            {[...new Set(items.filter((i: Item) => i.city).map((i: Item) => i.city!))].map(city => (
               <span key={city} className="text-xs bg-amber-primary/10 text-amber-primary px-2.5 py-1 rounded-full font-medium">
                 {city} ({items.filter(i => i.city === city).length})
               </span>

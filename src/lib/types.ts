@@ -16,6 +16,8 @@ export interface Item {
   cuisine: string | null;
   must_try: string | null;
   notes: string | null;
+  lat: number | null;
+  lng: number | null;
   city: string | null;
   added_at: string;
   added_by: string;
