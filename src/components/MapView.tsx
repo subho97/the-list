@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { MapPin } from 'lucide-react';
 import { Item } from '@/lib/types';
+import 'leaflet/dist/leaflet.css';
 
 const cuisineEmojis: Record<string, string> = {
   pizza: '🍕', italian: '🍝', burger: '🍔', sushi: '🍣', japanese: '🍜',
