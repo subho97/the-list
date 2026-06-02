@@ -60,6 +60,7 @@ export default function BrowseContent() {
     setCuisineFilter('');
     setGenreFilter('');
     setMinRating('');
+    router.replace(`/browse?type=${tab}`, { scroll: false });
   };
 
   const fetchItems = useCallback(async (tab: TabType, search: string, pageNum: number) => {
