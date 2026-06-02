@@ -65,8 +65,11 @@ export default function Card({ item }: CardProps) {
         {item.creator && (
           <p className="text-[12px] text-olive truncate">{item.creator}</p>
         )}
-        {item.genre && (
+        {item.genre && !item.cuisine && (
           <p className="text-[12px] text-olive-light truncate">{item.genre}</p>
+        )}
+        {item.cuisine && (
+          <p className="text-[12px] text-olive-light truncate">{item.cuisine}</p>
         )}
         {item.year && (
           <p className="text-[12px] text-olive-light">{item.year}</p>

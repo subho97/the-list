@@ -2,11 +2,11 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Compass, Plus, List } from 'lucide-react';
+import { Compass, List, Home } from 'lucide-react';
 
 const navItems = [
-  { href: '/', label: 'Browse', icon: Compass },
-  { href: '/add', label: 'Add', icon: Plus },
+  { href: '/', label: 'Home', icon: Home },
+  { href: '/browse', label: 'Browse', icon: Compass },
   { href: '/lists/new', label: 'Lists', icon: List },
 ];
 
@@ -18,7 +18,7 @@ export default function Nav() {
 
   return (
     <>
-      {/* Mobile bottom nav — cream bg, stone border top */}
+      {/* Mobile bottom nav */}
       <nav className="fixed bottom-0 left-0 right-0 bg-cream border-t border-stone-200 z-50 md:hidden safe-area-bottom">
         <div className="flex items-center justify-around h-16 px-2">
           {navItems.map((item) => {
@@ -47,7 +47,7 @@ export default function Nav() {
         </div>
       </nav>
 
-      {/* Desktop top nav — cream bg, inline links */}
+      {/* Desktop top nav */}
       <nav className="hidden md:flex fixed top-0 left-0 right-0 bg-cream/95 backdrop-blur-md border-b border-stone-200 z-50">
         <div className="max-w-5xl mx-auto w-full flex items-center justify-between px-6 h-14">
           <Link

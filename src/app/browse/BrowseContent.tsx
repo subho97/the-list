@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Item } from '@/lib/types';
-import { Film, BookOpen, UtensilsCrossed, Loader2, MapPin, Star, Filter } from 'lucide-react';
+import { Film, BookOpen, UtensilsCrossed, Loader2, MapPin, Star, Filter, Plus } from 'lucide-react';
 import Card from '@/components/Card';
 import SearchBar from '@/components/SearchBar';
 import EmptyState from '@/components/EmptyState';
@@ -17,7 +17,7 @@ const tabs: { key: TabType; label: string; icon: typeof Film }[] = [
 ];
 
 const RATING_OPTIONS = [
-  { label: 'All', value: '' },
+  { label: 'All ratings', value: '' },
   { label: '7.0+', value: '7' },
   { label: '7.5+', value: '7.5' },
   { label: '8.0+', value: '8' },
@@ -26,6 +26,7 @@ const RATING_OPTIONS = [
 ];
 
 export default function BrowseContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const initialType = searchParams.get('type') as TabType | null;
 
@@ -41,6 +42,19 @@ export default function BrowseContent() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const [error, setError] = useState('');
+
+  // On tab change: clear items immediately, reset page, start loading
+  const handleTabChange = (tab: TabType) => {
+    setActiveTab(tab);
+    setItems([]);
+    setPage(1);
+    setError('');
+    setIsLoading(true);
+    setSearchQuery('');
+    setCityFilter('');
+    setGenreFilter('');
+    setMinRating('');
+  };
 
   const fetchItems = useCallback(async (tab: TabType, search: string, pageNum: number) => {
     setIsLoading(true);
@@ -73,7 +87,6 @@ export default function BrowseContent() {
   }, [cityFilter, genreFilter, minRating]);
 
   useEffect(() => {
-    setPage(1);
     fetchItems(activeTab, searchQuery, 1);
   }, [activeTab, searchQuery, cityFilter, genreFilter, minRating, fetchItems]);
 
@@ -97,8 +110,10 @@ export default function BrowseContent() {
     fetchItems(activeTab, searchQuery, nextPage);
   };
 
+  const addPageUrl = `/add?type=${activeTab}`;
+
   return (
-    <div className="min-h-screen pt-24 md:pt-28 px-4 max-w-5xl mx-auto">
+    <div className="min-h-screen pt-24 md:pt-28 px-4 max-w-5xl mx-auto pb-24">
       <h1 className="font-serif text-3xl md:text-4xl font-bold text-stone-900 mb-2">Browse</h1>
       <p className="text-olive text-sm mb-6">Explore the best of everything.</p>
 
@@ -110,7 +125,7 @@ export default function BrowseContent() {
           return (
             <button
               key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
+              onClick={() => handleTabChange(tab.key)}
               className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-sm font-medium transition-all duration-150 ${
                 isActive
                   ? 'bg-amber-primary text-white shadow-sm'
@@ -159,21 +174,18 @@ export default function BrowseContent() {
             </select>
           </div>
 
-          {/* Rating filter */}
-          <div className="flex gap-1">
-            {RATING_OPTIONS.map(opt => (
-              <button
-                key={opt.value}
-                onClick={() => { setMinRating(opt.value); setPage(1); }}
-                className={`px-3 py-2 rounded-xl text-xs font-medium transition-all duration-150 border ${
-                  minRating === opt.value
-                    ? 'bg-amber-primary text-white border-amber-primary shadow-sm'
-                    : 'bg-white text-stone-600 border-stone-200 hover:border-amber-primary/40'
-                }`}
-              >
-                {opt.label === 'All' ? 'All' : <span className="flex items-center gap-1"><Star size={11} className={minRating === opt.value ? 'fill-white' : ''} />{opt.label}</span>}
-              </button>
-            ))}
+          {/* Rating filter - dropdown */}
+          <div className="relative">
+            <Star size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-olive-light pointer-events-none" />
+            <select
+              value={minRating}
+              onChange={(e) => { setMinRating(e.target.value); setPage(1); }}
+              className="pl-8 pr-3 py-2 bg-white border border-stone-200 rounded-xl text-xs text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none"
+            >
+              {RATING_OPTIONS.map(opt => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
           </div>
         </div>
       )}
@@ -217,7 +229,7 @@ export default function BrowseContent() {
             <div className="flex items-center justify-center py-24">
               <Loader2 size={28} className="animate-spin text-amber-primary" />
             </div>
-          ) : items.length === 0 ? (
+          ) : items.length === 0 && !isLoading ? (
             <EmptyState type="search" />
           ) : (
             <>
@@ -247,6 +259,15 @@ export default function BrowseContent() {
           )}
         </>
       )}
+
+      {/* Floating add button */}
+      <button
+        onClick={() => router.push(addPageUrl)}
+        className="fixed bottom-24 right-4 md:bottom-6 md:right-6 z-40 w-14 h-14 rounded-full bg-amber-primary text-white shadow-lg hover:bg-amber-dark hover:shadow-xl hover:scale-105 transition-all duration-150 flex items-center justify-center"
+        aria-label={`Add ${activeTab}`}
+      >
+        <Plus size={26} />
+      </button>
     </div>
   );
 }
