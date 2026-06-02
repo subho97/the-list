@@ -138,22 +138,17 @@ export default async function ItemDetailPage({ params }: { params: Promise<{ id:
               )}
 
               {item.type === 'food' && item.must_try && (
-                <div className="mt-4 p-3 bg-amber-primary/5 rounded-xl border border-amber-primary/10">
-                  <p className="text-xs font-semibold text-amber-primary uppercase tracking-wider mb-1">✨ Must Try</p>
-                  <p className="text-sm text-stone-700">{item.must_try}</p>
+                <div className="mt-4 p-3 bg-amber-50 rounded-xl border border-amber-200">
+                  <p className="text-xs font-semibold text-amber-700 uppercase tracking-wider mb-0.5">✨ Must Try</p>
+                  <p className="text-sm text-stone-800">{item.must_try}</p>
                 </div>
               )}
 
-              {item.external_link && (
-                <a
-                  href={item.external_link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 mt-4 text-sm text-amber-primary hover:text-amber-dark transition-colors duration-150"
-                >
-                  <ExternalLink size={14} />
-                  View on {item.type === 'movie' ? 'IMDB' : 'Google Books'}
-                </a>
+              {item.type === 'food' && item.notes && (
+                <div className="mt-3 p-3 bg-stone-50 rounded-xl border border-stone-200">
+                  <p className="text-xs font-semibold text-olive uppercase tracking-wider mb-0.5">📝 Note</p>
+                  <p className="text-sm text-stone-600">{item.notes}</p>
+                </div>
               )}
 
               {item.google_maps_link && (
@@ -161,22 +156,33 @@ export default async function ItemDetailPage({ params }: { params: Promise<{ id:
                   href={item.google_maps_link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 mt-3 text-sm text-amber-primary hover:text-amber-dark transition-colors duration-150"
+                  className="mt-3 block p-3 bg-blue-50 rounded-xl border border-blue-200 hover:bg-blue-100 transition-colors duration-150 group"
                 >
-                  <MapPin size={14} />
-                  Open in Google Maps
+                  <p className="text-xs font-semibold text-blue-700 uppercase tracking-wider mb-0.5">🗺️ Location</p>
+                  <p className="text-sm text-blue-600 group-hover:text-blue-800 flex items-center gap-1">
+                    Open in Google Maps
+                    <ExternalLink size={12} className="shrink-0" />
+                  </p>
+                </a>
+              )}
+
+              {item.external_link && (
+                <a
+                  href={item.external_link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-3 inline-flex items-center gap-1.5 text-sm text-amber-primary hover:text-amber-dark transition-colors duration-150"
+                >
+                  <ExternalLink size={14} />
+                  View on {item.type === 'movie' ? 'IMDB' : 'Google Books'}
                 </a>
               )}
 
               {item.city && (
-                <p className="text-xs text-olive-light flex items-center gap-1 mt-3">
+                <p className="mt-3 text-xs text-olive-light flex items-center gap-1">
                   <MapPin size={12} />
                   {item.city}
                 </p>
-              )}
-
-              {item.type === 'food' && item.notes && (
-                <p className="text-xs text-olive-light mt-2 italic">📝 {item.notes}</p>
               )}
             </div>
 
