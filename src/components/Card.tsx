@@ -143,14 +143,16 @@ export default function Card({ item }: CardProps) {
         {item.year && (
           <p className="text-[12px] text-olive-light">{item.year}</p>
         )}
-        {item.city && (
-          <p className="text-[12px] text-olive-light flex items-center gap-1 mt-1">
-            <MapPin size={10} />
-            {item.city}
-          </p>
-        )}
-        <div className="mt-2">
-          <VoteButtons itemId={item.id} initialUpvotes={item.upvotes} initialDownvotes={item.downvotes} />
+        <div className="flex items-center justify-between mt-1">
+          {item.city && (
+            <p className="text-[12px] text-olive-light flex items-center gap-1">
+              <MapPin size={10} />
+              {item.city}
+            </p>
+          )}
+          <div className="ml-auto">
+            <VoteButtons itemId={item.id} initialUpvotes={item.upvotes} initialDownvotes={item.downvotes} />
+          </div>
         </div>
       </div>
     </Link>

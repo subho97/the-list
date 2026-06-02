@@ -61,10 +61,10 @@ export default function FoodListItem({ item }: { item: Item }) {
         )}
       </div>
 
-      {/* Arrow */}
-      <ChevronRight size={18} className="text-olive-light group-hover:text-amber-primary transition-colors duration-150 shrink-0" />
-      <div className="shrink-0">
+      {/* Arrow + Votes */}
+      <div className="flex items-center gap-2 shrink-0">
         <VoteButtons itemId={item.id} initialUpvotes={item.upvotes} initialDownvotes={item.downvotes} />
+        <ChevronRight size={18} className="text-olive-light group-hover:text-amber-primary transition-colors duration-150" />
       </div>
     </Link>
   );

@@ -79,7 +79,7 @@ export default function VoteButtons({ itemId, initialUpvotes = 0, initialDownvot
         } ${animating === 'up' ? 'scale-110' : ''}`}
       >
         <ThumbsUp size={iconSize} />
-        {upvotes > 0 && <span>{upvotes}</span>}
+        <span>{upvotes}</span>
       </button>
       <button
         onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleVote('down'); }}
@@ -90,7 +90,7 @@ export default function VoteButtons({ itemId, initialUpvotes = 0, initialDownvot
         } ${animating === 'down' ? 'scale-110' : ''}`}
       >
         <ThumbsDown size={iconSize} />
-        {downvotes > 0 && <span>{downvotes}</span>}
+        <span>{downvotes}</span>
       </button>
     </div>
   );
