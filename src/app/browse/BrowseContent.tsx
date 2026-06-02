@@ -107,13 +107,21 @@ export default function BrowseContent() {
       </div>
 
       {/* Search */}
-      <div className="mb-4">
+      <div className="mb-2">
         <SearchBar
           value={searchQuery}
           onChange={setSearchQuery}
           placeholder={`Search ${activeTab === 'movie' ? 'movies' : activeTab === 'book' ? 'books' : 'food places'}...`}
         />
       </div>
+
+      {/* Movie disclaimer */}
+      {activeTab === 'movie' && (
+        <p className="text-xs text-olive-light mb-4 flex items-center gap-1.5">
+          <span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-primary" />
+          Only movies with 7.0+ IMDB rating make the cut
+        </p>
+      )}
 
       {/* City filter (food only) */}
       {activeTab === 'food' && cities.length > 0 && (

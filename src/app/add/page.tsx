@@ -75,8 +75,8 @@ export default function AddPage() {
 
   const handleMovieSelect = (result: MovieSearchResult) => {
     const rating = parseFloat(result.imdbRating);
-    if (rating < 8.0) {
-      setSearchError(`"${result.Title}" has a ${rating} IMDB rating — it doesn't meet The List's quality bar of 8.0+.`);
+    if (rating < 7.0) {
+      setSearchError(`"${result.Title}" has a ${rating} IMDB rating — it doesn't meet The List's quality bar of 7.0+.`);
       return;
     }
     setSelectedItem({
@@ -214,7 +214,7 @@ export default function AddPage() {
                 <div className="flex-1">
                   <p className="font-semibold text-stone-900">{config.label}</p>
                   <p className="text-sm text-olive-light mt-0.5">
-                    {key === 'movie' ? 'Search OMDb — only 8.0+ IMDB rated' :
+                    {key === 'movie' ? 'Search OMDb — only 7.0+ IMDB rated' :
                      key === 'book' ? 'Search Google Books' :
                      'Manual entry with photo'}
                   </p>
@@ -452,7 +452,7 @@ export default function AddPage() {
 
           {type === 'movie' && (
             <p className="text-xs text-olive-light text-center">
-              Only movies with 8.0+ IMDB rating are accepted.
+              Only movies with 7.0+ IMDB rating are accepted.
             </p>
           )}
         </div>
