@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Item } from '@/lib/types';
 import { Film, BookOpen, UtensilsCrossed, Loader2, MapPin, Star, Filter, Plus, Map, List } from 'lucide-react';
@@ -128,10 +128,26 @@ export default function BrowseContent() {
   }, [activeTab]);
 
   const handleLoadMore = () => {
+    if (isLoading || !hasMore) return;
     const nextPage = page + 1;
     setPage(nextPage);
     fetchItems(activeTab, searchQuery, nextPage);
   };
+
+  // Infinite scroll — auto-load when near bottom
+  const sentinelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && hasMore && !isLoading) {
+        handleLoadMore();
+      }
+    }, { rootMargin: '300px' });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [hasMore, isLoading, page, activeTab, searchQuery]);
 
   const addPageUrl = `/add?type=${activeTab}`;
 
@@ -292,20 +308,23 @@ export default function BrowseContent() {
               )}
 
               {hasMore && (
-                <div className="mt-8 text-center">
-                  <button
-                    onClick={handleLoadMore}
-                    disabled={isLoading}
-                    className="px-6 py-3 bg-white border border-stone-200 rounded-xl text-sm font-medium text-stone-600 hover:border-amber-primary/40 hover:text-amber-primary transition-all duration-150 disabled:opacity-50 shadow-sm"
-                  >
-                    {isLoading ? (
-                      <span className="flex items-center gap-2">
-                        <Loader2 size={16} className="animate-spin" />
-                        Loading...
-                      </span>
-                    ) : 'Load more'}
-                  </button>
-                </div>
+                <>
+                  <div ref={sentinelRef} className="h-4" />
+                  <div className="mt-4 text-center">
+                    <button
+                      onClick={handleLoadMore}
+                      disabled={isLoading}
+                      className="px-6 py-3 bg-white border border-stone-200 rounded-xl text-sm font-medium text-stone-600 hover:border-amber-primary/40 hover:text-amber-primary transition-all duration-150 disabled:opacity-50 shadow-sm"
+                    >
+                      {isLoading ? (
+                        <span className="flex items-center gap-2">
+                          <Loader2 size={16} className="animate-spin" />
+                          Loading...
+                        </span>
+                      ) : 'Load more'}
+                    </button>
+                  </div>
+                </>
               )}
             </>
           )}
