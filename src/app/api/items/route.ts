@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
 
   const body = await request.json();
 
-  const { type, title, creator, year, description, image_url, external_rating, imdb_id, external_link, added_by, city, google_maps_link, genre, cuisine } = body;
+  const { type, title, creator, year, description, image_url, external_rating, imdb_id, external_link, added_by, city, google_maps_link, genre, cuisine, must_try } = body;
 
   if (!type || !title) {
     return NextResponse.json({ error: 'Type and title are required' }, { status: 400 });
@@ -98,6 +98,7 @@ export async function POST(request: NextRequest) {
       google_maps_link: google_maps_link || null,
       genre: genre || null,
       cuisine: cuisine || null,
+      must_try: must_try || null,
     })
     .select()
     .single();

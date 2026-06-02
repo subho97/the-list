@@ -50,8 +50,11 @@ export default function FoodListItem({ item }: { item: Item }) {
           {item.title}
         </p>
         <p className="text-sm text-olive mt-0.5">{item.cuisine || item.creator}</p>
+        {item.must_try && (
+          <p className="text-xs text-amber-primary mt-0.5">✨ {item.must_try}</p>
+        )}
         {item.city && (
-          <p className="text-xs text-olive-light flex items-center gap-1 mt-1">
+          <p className="text-xs text-olive-light flex items-center gap-1 mt-0.5">
             <MapPin size={11} />
             {item.city}
           </p>
