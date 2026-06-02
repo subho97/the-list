@@ -50,7 +50,7 @@ export default function FeedbackButton() {
       {/* Floating button */}
       <button
         onClick={() => setOpen(true)}
-        className="fixed bottom-20 right-4 md:bottom-6 md:right-6 z-30 w-12 h-12 rounded-full bg-amber-primary text-white shadow-lg hover:bg-amber-dark hover:shadow-xl transition-all duration-150 flex items-center justify-center"
+        className="fixed bottom-28 right-4 md:bottom-6 md:right-20 z-30 w-12 h-12 rounded-full bg-amber-primary text-white shadow-lg hover:bg-amber-dark hover:shadow-xl transition-all duration-150 flex items-center justify-center"
         aria-label="Send feedback"
       >
         <MessageCircle size={20} />
