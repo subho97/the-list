@@ -92,10 +92,26 @@ export default function AddPage() {
           const upRes = await fetch('/api/upload', { method: 'POST', body: fd });
           if (upRes.ok) { const upData = await upRes.json(); imageUrl = upData.url; }
         }
-        // Generate AI image if no photo uploaded
+        // Generate AI food image based on cuisine (not name)
         if (!imageUrl) {
-          const prompt = encodeURIComponent(`clean minimalist food photography ${foodData.title} ${foodData.cuisine || foodData.creator} restaurant dish warm lighting`);
-          imageUrl = `https://image.pollinations.ai/prompt/${prompt}`;
+          const cuisine = (foodData.cuisine || foodData.creator || 'restaurant').toLowerCase();
+          let prompt;
+          if (cuisine.includes('pizza')) prompt = 'delicious wood fired pizza on plate restaurant food photography';
+          else if (cuisine.includes('sushi') || cuisine.includes('japanese')) prompt = 'fresh sushi platter with salmon rolls close up food photography';
+          else if (cuisine.includes('dimsum') || cuisine.includes('dumpling') || cuisine.includes('gyoza') || cuisine.includes('momo') || cuisine.includes('pan asian')) prompt = 'steamed dumplings and dimsum basket food photography';
+          else if (cuisine.includes('bakery') || cuisine.includes('cake') || cuisine.includes('dessert') || cuisine.includes('sweet')) prompt = 'fresh croissants and pastries bakery food photography';
+          else if (cuisine.includes('coffee') || cuisine.includes('cafe') || cuisine.includes('brunch') || cuisine.includes('tea')) prompt = 'iced coffee and brunch plate cafe food photography';
+          else if (cuisine.includes('burger')) prompt = 'juicy gourmet burger with fries food photography';
+          else if (cuisine.includes('steak') || cuisine.includes('grill') || cuisine.includes('meat')) prompt = 'perfectly cooked steak with vegetables food photography';
+          else if (cuisine.includes('indian') || cuisine.includes('curry') || cuisine.includes('litti') || cuisine.includes('paratha') || cuisine.includes('naan')) prompt = 'colorful indian curry and naan bread food photography';
+          else if (cuisine.includes('mediterranean') || cuisine.includes('shawarma') || cuisine.includes('kebab')) prompt = 'mediterranean grilled kebab platter food photography';
+          else if (cuisine.includes('pasta') || cuisine.includes('italian')) prompt = 'creamy pasta dish with basil italian food photography';
+          else if (cuisine.includes('ramen') || cuisine.includes('noodle')) prompt = 'steaming bowl of ramen noodles food photography';
+          else if (cuisine.includes('street') || cuisine.includes('food truck') || cuisine.includes('pani puri')) prompt = 'colorful street food snacks food photography';
+          else if (cuisine.includes('egyptian') || cuisine.includes('middle eastern')) prompt = 'middle eastern mezze platter food photography';
+          else if (cuisine.includes('thai') || cuisine.includes('vietnamese')) prompt = 'thai green curry with rice food photography';
+          else prompt = 'beautiful restaurant dish plated food photography';
+          imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`;
         }
       }
       const itemData = type === 'food'

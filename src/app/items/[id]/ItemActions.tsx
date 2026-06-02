@@ -17,21 +17,30 @@ export default function ItemActions({ itemId, itemType }: ItemActionsProps) {
 
   const handleShare = async () => {
     const url = window.location.href;
+
+    // Try native Web Share API first
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: document.title, url });
+        return;
+      } catch {
+        return;
+      }
+    }
+
+    // Fallback: copy to clipboard
     try {
       await navigator.clipboard.writeText(url);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
     } catch {
-      // Fallback
       const textarea = document.createElement('textarea');
       textarea.value = url;
       document.body.appendChild(textarea);
       textarea.select();
       document.execCommand('copy');
       document.body.removeChild(textarea);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
     }
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   return (

@@ -12,10 +12,23 @@ export default function ListActions({ slug }: ListActionsProps) {
 
   const handleShare = async () => {
     const url = `${window.location.origin}/lists/${slug}`;
+    const title = 'Check out my list on The List';
+    const text = 'A curated collection of the best things.';
+
+    // Try native Web Share API first (opens OS share sheet on phones)
+    if (navigator.share) {
+      try {
+        await navigator.share({ title, text, url });
+        return;
+      } catch {
+        // User cancelled - do nothing
+        return;
+      }
+    }
+
+    // Fallback: copy to clipboard
     try {
       await navigator.clipboard.writeText(url);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
     } catch {
       const textarea = document.createElement('textarea');
       textarea.value = url;
@@ -23,9 +36,9 @@ export default function ListActions({ slug }: ListActionsProps) {
       textarea.select();
       document.execCommand('copy');
       document.body.removeChild(textarea);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
     }
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   return (
