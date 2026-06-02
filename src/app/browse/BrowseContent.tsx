@@ -36,6 +36,8 @@ export default function BrowseContent() {
   const [searchQuery, setSearchQuery] = useState('');
   const [cityFilter, setCityFilter] = useState('');
   const [cities, setCities] = useState<string[]>([]);
+  const [cuisineFilter, setCuisineFilter] = useState('');
+  const [cuisines, setCuisines] = useState<string[]>([]);
   const [genreFilter, setGenreFilter] = useState('');
   const [genres, setGenres] = useState<string[]>([]);
   const [minRating, setMinRating] = useState('');
@@ -66,6 +68,7 @@ export default function BrowseContent() {
       params.set('limit', '20');
       if (search) params.set('search', search);
       if (tab === 'food' && cityFilter) params.set('city', cityFilter);
+      if (tab === 'food' && cuisineFilter) params.set('cuisine', cuisineFilter);
       if (tab === 'movie' && genreFilter) params.set('genre', genreFilter);
       if (tab === 'movie' && minRating) params.set('minRating', minRating);
 
@@ -84,16 +87,17 @@ export default function BrowseContent() {
     } finally {
       setIsLoading(false);
     }
-  }, [cityFilter, genreFilter, minRating]);
+  }, [cityFilter, cuisineFilter, genreFilter, minRating]);
 
   useEffect(() => {
     fetchItems(activeTab, searchQuery, 1);
-  }, [activeTab, searchQuery, cityFilter, genreFilter, minRating, fetchItems]);
+  }, [activeTab, searchQuery, cityFilter, cuisineFilter, genreFilter, minRating, fetchItems]);
 
-  // Fetch cities for food
+  // Fetch cities and cuisines for food
   useEffect(() => {
     if (activeTab === 'food') {
       fetch('/api/cities').then(r => r.json()).then(d => setCities(d.cities || [])).catch(() => {});
+      fetch('/api/cuisines').then(r => r.json()).then(d => setCuisines(d.cuisines || [])).catch(() => {});
     }
   }, [activeTab]);
 
@@ -190,22 +194,35 @@ export default function BrowseContent() {
         </div>
       )}
 
-      {/* City filter (food only) */}
-      {activeTab === 'food' && cities.length > 0 && (
-        <div className="mb-4">
-          <div className="flex items-center gap-2">
-            <MapPin size={16} className="text-olive-light" />
+      {/* City + Cuisine filters (food only) */}
+      {activeTab === 'food' && (
+        <div className="flex flex-wrap gap-2 mb-4">
+          {/* City filter */}
+          <div className="relative">
+            <MapPin size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-olive-light pointer-events-none" />
             <select
               value={cityFilter}
               onChange={(e) => { setCityFilter(e.target.value); setPage(1); }}
-              className="w-full sm:w-auto px-3 py-2 bg-white border border-stone-200 rounded-xl text-sm text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none"
+              className="pl-8 pr-3 py-2 bg-white border border-stone-200 rounded-xl text-xs text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none"
             >
               <option value="">All cities</option>
-              {cities.map(c => (
-                <option key={c} value={c}>{c}</option>
-              ))}
+              {cities.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
           </div>
+          {/* Cuisine filter */}
+          {cuisines.length > 0 && (
+            <div className="relative">
+              <UtensilsCrossed size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-olive-light pointer-events-none" />
+              <select
+                value={cuisineFilter}
+                onChange={(e) => { setCuisineFilter(e.target.value); setPage(1); }}
+                className="pl-8 pr-3 py-2 bg-white border border-stone-200 rounded-xl text-xs text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none"
+              >
+                <option value="">All cuisines</option>
+                {cuisines.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
+          )}
         </div>
       )}
 

@@ -7,6 +7,7 @@ export async function GET(request: NextRequest) {
   const search = searchParams.get('search');
   const city = searchParams.get('city');
   const genre = searchParams.get('genre');
+  const cuisine = searchParams.get('cuisine');
   const minRating = parseFloat(searchParams.get('minRating') || '');
   const page = parseInt(searchParams.get('page') || '1');
   const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 50);
@@ -35,6 +36,10 @@ export async function GET(request: NextRequest) {
 
   if (genre) {
     query = query.ilike('genre', `%${genre}%`);
+  }
+
+  if (cuisine) {
+    query = query.ilike('cuisine', `%${cuisine}%`);
   }
 
   if (!isNaN(minRating)) {
