@@ -39,8 +39,8 @@ export async function DELETE(
         return NextResponse.json({ error: 'Incorrect PIN' }, { status: 403 });
       }
     } else {
-      // List has no PIN — allow deletion without PIN
-      // (anyone can edit an open list anyway)
+      // List has no PIN — cannot be deleted
+      return NextResponse.json({ error: 'Only PIN-protected lists can be deleted. Add a PIN first.' }, { status: 403 });
     }
 
     // Delete the list (cascade will handle list_items)

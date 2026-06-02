@@ -286,13 +286,15 @@ export default function ListPageClient({ list: initialList }: ListPageClientProp
                 </button>
               </div>
               <div className="flex items-center gap-3">
-                <button
-                  onClick={handleDeleteList}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-xl transition-colors"
-                >
-                  <Trash2 size={13} />
-                  Delete list
-                </button>
+                {initialList.has_pin && (
+                  <button
+                    onClick={handleDeleteList}
+                    className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-xl transition-colors"
+                  >
+                    <Trash2 size={13} />
+                    Delete list
+                  </button>
+                )}
                 <span className="text-xs text-olive-light">
                   Hover over an item and click <Trash2 size={11} className="inline text-red-400" /> to remove
                 </span>
