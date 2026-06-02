@@ -13,6 +13,8 @@ export default function CreateListContent() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [createdBy, setCreatedBy] = useState('');
+  const [editPin, setEditPin] = useState('');
+  const [showPin, setShowPin] = useState(false);
   const [step, setStep] = useState<'create' | 'add-items'>('create');
   const [listId, setListId] = useState<string | null>(null);
   const [listSlug, setListSlug] = useState<string | null>(null);
@@ -63,6 +65,7 @@ export default function CreateListContent() {
           name: name.trim(),
           description: description.trim() || null,
           created_by: createdBy.trim() || 'Anonymous',
+          edit_pin: editPin.trim() || null,
         }),
       });
 
@@ -195,6 +198,38 @@ export default function CreateListContent() {
               maxLength={50}
               className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm text-stone-700 placeholder:text-olive-light focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary transition-all duration-150"
             />
+          </div>
+
+          {/* PIN Protection */}
+          <div>
+            <label className="block text-sm font-medium text-stone-700 mb-1.5">
+              Edit PIN <span className="text-olive-light font-normal">(optional)</span>
+            </label>
+            <div className="relative">
+              <input
+                type={showPin ? 'text' : 'password'}
+                value={editPin}
+                onChange={(e) => {
+                  const val = e.target.value.replace(/\D/g, '').slice(0, 4);
+                  setEditPin(val);
+                }}
+                placeholder="4-digit PIN"
+                maxLength={4}
+                inputMode="numeric"
+                pattern="\d{4}"
+                className="w-full px-4 py-3 pr-12 bg-white border border-stone-200 rounded-xl text-sm text-stone-700 placeholder:text-olive-light focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary transition-all duration-150"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPin(!showPin)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-olive-light hover:text-olive text-xs font-medium"
+              >
+                {showPin ? 'Hide' : 'Show'}
+              </button>
+            </div>
+            <p className="mt-1.5 text-xs text-olive-light">
+              {editPin ? '✓ PIN protection enabled — only people with this PIN can edit' : 'Leave blank for open editing'}
+            </p>
           </div>
 
           {/* Selected items preview */}

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase';
+import crypto from 'crypto';
 
 function slugify(text: string): string {
   return text
@@ -8,6 +9,10 @@ function slugify(text: string): string {
     .replace(/[\s_]+/g, '-')
     .replace(/^-+|-+$/g, '')
     .substring(0, 100);
+}
+
+function hashPin(pin: string): string {
+  return crypto.createHash('sha256').update(pin).digest('hex');
 }
 
 export async function GET() {
@@ -25,7 +30,13 @@ export async function GET() {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json({ lists: data || [] });
+  // Strip edit_pin from list data in GET all
+  const lists = (data || []).map(({ edit_pin, ...rest }) => ({
+    ...rest,
+    has_pin: !!edit_pin,
+  }));
+
+  return NextResponse.json({ lists });
 }
 
 export async function POST(request: NextRequest) {
@@ -36,10 +47,18 @@ export async function POST(request: NextRequest) {
 
   const body = await request.json();
 
-  const { name, description, created_by } = body;
+  const { name, description, created_by, edit_pin } = body;
 
   if (!name) {
     return NextResponse.json({ error: 'List name is required' }, { status: 400 });
+  }
+
+  // Validate PIN if provided
+  if (edit_pin !== undefined && edit_pin !== null) {
+    const pinStr = String(edit_pin);
+    if (!/^\d{4}$/.test(pinStr)) {
+      return NextResponse.json({ error: 'PIN must be exactly 4 digits' }, { status: 400 });
+    }
   }
 
   let slug = slugify(name);
@@ -56,14 +75,20 @@ export async function POST(request: NextRequest) {
     slug = `${slug}-${timestamp}`;
   }
 
+  const insertData: Record<string, unknown> = {
+    name,
+    slug,
+    description: description || null,
+    created_by: created_by || 'Anonymous',
+  };
+
+  if (edit_pin !== undefined && edit_pin !== null && edit_pin !== '') {
+    insertData.edit_pin = hashPin(String(edit_pin));
+  }
+
   const { data, error } = await supabase
     .from('lists')
-    .insert({
-      name,
-      slug,
-      description: description || null,
-      created_by: created_by || 'Anonymous',
-    })
+    .insert(insertData)
     .select()
     .single();
 
@@ -71,5 +96,5 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json(data, { status: 201 });
+  return NextResponse.json({ ...data, has_pin: !!data.edit_pin }, { status: 201 });
 }

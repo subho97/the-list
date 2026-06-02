@@ -5,6 +5,7 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const type = searchParams.get('type');
   const search = searchParams.get('search');
+  const city = searchParams.get('city');
   const page = parseInt(searchParams.get('page') || '1');
   const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 50);
   const offset = (page - 1) * limit;
@@ -24,6 +25,10 @@ export async function GET(request: NextRequest) {
 
   if (search) {
     query = query.ilike('title', `%${search}%`);
+  }
+
+  if (city) {
+    query = query.eq('city', city);
   }
 
   const { data, error, count } = await query
@@ -51,7 +56,7 @@ export async function POST(request: NextRequest) {
 
   const body = await request.json();
 
-  const { type, title, creator, year, description, image_url, external_rating, imdb_id, external_link, added_by } = body;
+  const { type, title, creator, year, description, image_url, external_rating, imdb_id, external_link, added_by, city, google_maps_link } = body;
 
   if (!type || !title) {
     return NextResponse.json({ error: 'Type and title are required' }, { status: 400 });
@@ -74,6 +79,8 @@ export async function POST(request: NextRequest) {
       imdb_id: imdb_id || null,
       external_link: external_link || null,
       added_by: added_by || 'Anonymous',
+      city: city || null,
+      google_maps_link: google_maps_link || null,
     })
     .select()
     .single();

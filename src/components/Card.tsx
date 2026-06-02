@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Item } from '@/lib/types';
-import { Film, BookOpen, UtensilsCrossed } from 'lucide-react';
+import { Film, BookOpen, UtensilsCrossed, MapPin } from 'lucide-react';
 import RatingBadge from './RatingBadge';
 
 interface CardProps {
@@ -67,6 +67,12 @@ export default function Card({ item }: CardProps) {
         )}
         {item.year && (
           <p className="text-[12px] text-olive-light">{item.year}</p>
+        )}
+        {item.city && (
+          <p className="text-[12px] text-olive-light flex items-center gap-1 mt-1">
+            <MapPin size={10} />
+            {item.city}
+          </p>
         )}
       </div>
     </Link>

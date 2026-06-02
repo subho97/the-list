@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase';
 import { Item, Review } from '@/lib/types';
-import { Film, BookOpen, UtensilsCrossed, ExternalLink, Star, Share2 } from 'lucide-react';
+import { Film, BookOpen, UtensilsCrossed, ExternalLink, Star, Share2, MapPin } from 'lucide-react';
 import RatingBadge from '@/components/RatingBadge';
 import ItemActions from './ItemActions';
 
@@ -138,6 +138,25 @@ export default async function ItemDetailPage({ params }: { params: Promise<{ id:
                   <ExternalLink size={14} />
                   View on {item.type === 'movie' ? 'IMDB' : 'Google Books'}
                 </a>
+              )}
+
+              {item.google_maps_link && (
+                <a
+                  href={item.google_maps_link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 mt-3 text-sm text-amber-primary hover:text-amber-dark transition-colors duration-150"
+                >
+                  <MapPin size={14} />
+                  Open in Google Maps
+                </a>
+              )}
+
+              {item.city && (
+                <p className="text-xs text-olive-light flex items-center gap-1 mt-3">
+                  <MapPin size={12} />
+                  {item.city}
+                </p>
               )}
             </div>
 

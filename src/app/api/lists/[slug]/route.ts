@@ -38,8 +38,11 @@ export async function GET(
     return NextResponse.json({ error: itemsError.message }, { status: 500 });
   }
 
+  const { edit_pin, ...listWithoutPin } = list;
+
   return NextResponse.json({
-    ...list,
+    ...listWithoutPin,
+    has_pin: !!edit_pin,
     items: listItems?.map((li: { items: unknown; id: string; added_at: string; note: string | null }) => ({
       ...(li.items as object),
       list_item_id: li.id,

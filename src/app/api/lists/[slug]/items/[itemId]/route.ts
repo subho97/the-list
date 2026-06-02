@@ -6,25 +6,20 @@ function hashPin(pin: string): string {
   return crypto.createHash('sha256').update(pin).digest('hex');
 }
 
-export async function POST(
+export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ slug: string }> }
+  { params }: { params: Promise<{ slug: string; itemId: string }> }
 ) {
-  const { slug } = await params;
+  const { slug, itemId } = await params;
   const supabase = await createClient();
   if (!supabase) {
     return NextResponse.json({ error: 'Database not configured' }, { status: 503 });
   }
 
   const body = await request.json();
+  const { pin } = body;
 
-  const { item_id, note, pin } = body;
-
-  if (!item_id) {
-    return NextResponse.json({ error: 'Item ID is required' }, { status: 400 });
-  }
-
-  // Get list by slug — include edit_pin to check PIN
+  // Get the list to verify PIN and check slug
   const { data: list, error: listError } = await supabase
     .from('lists')
     .select('id, edit_pin')
@@ -46,34 +41,26 @@ export async function POST(
     }
   }
 
-  // Verify item exists
-  const { data: item, error: itemError } = await supabase
-    .from('items')
-    .select('id')
-    .eq('id', item_id)
-    .single();
-
-  if (itemError || !item) {
-    return NextResponse.json({ error: 'Item not found' }, { status: 404 });
-  }
-
-  // Add item to list
-  const { data, error } = await supabase
+  // Delete the list item — verify it belongs to this list
+  const { data: listItem, error: findError } = await supabase
     .from('list_items')
-    .insert({
-      list_id: list.id,
-      item_id,
-      note: note || null,
-    })
-    .select()
+    .select('id')
+    .eq('id', itemId)
+    .eq('list_id', list.id)
     .single();
 
-  if (error) {
-    if (error.code === '23505') {
-      return NextResponse.json({ error: 'Item already in this list' }, { status: 409 });
-    }
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  if (findError || !listItem) {
+    return NextResponse.json({ error: 'Item not found in this list' }, { status: 404 });
   }
 
-  return NextResponse.json(data, { status: 201 });
+  const { error: deleteError } = await supabase
+    .from('list_items')
+    .delete()
+    .eq('id', itemId);
+
+  if (deleteError) {
+    return NextResponse.json({ error: deleteError.message }, { status: 500 });
+  }
+
+  return NextResponse.json({ success: true });
 }

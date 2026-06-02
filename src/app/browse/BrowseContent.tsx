@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Item } from '@/lib/types';
-import { Film, BookOpen, UtensilsCrossed, Loader2 } from 'lucide-react';
+import { Film, BookOpen, UtensilsCrossed, Loader2, MapPin } from 'lucide-react';
 import Card from '@/components/Card';
 import SearchBar from '@/components/SearchBar';
 import EmptyState from '@/components/EmptyState';
@@ -24,6 +24,8 @@ export default function BrowseContent() {
   const [items, setItems] = useState<Item[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [cityFilter, setCityFilter] = useState('');
+  const [cities, setCities] = useState<string[]>([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const [error, setError] = useState('');
@@ -37,6 +39,7 @@ export default function BrowseContent() {
       params.set('page', pageNum.toString());
       params.set('limit', '20');
       if (search) params.set('search', search);
+      if (tab === 'food' && cityFilter) params.set('city', cityFilter);
 
       const res = await fetch(`/api/items?${params}`);
       if (!res.ok) throw new Error('Failed to fetch');
@@ -58,7 +61,17 @@ export default function BrowseContent() {
   useEffect(() => {
     setPage(1);
     fetchItems(activeTab, searchQuery, 1);
-  }, [activeTab, searchQuery, fetchItems]);
+  }, [activeTab, searchQuery, cityFilter, fetchItems]);
+
+  // Fetch available cities
+  useEffect(() => {
+    if (activeTab === 'food') {
+      fetch('/api/cities')
+        .then(r => r.json())
+        .then(d => setCities(d.cities || []))
+        .catch(() => {});
+    }
+  }, [activeTab]);
 
   const handleLoadMore = () => {
     const nextPage = page + 1;
@@ -94,13 +107,32 @@ export default function BrowseContent() {
       </div>
 
       {/* Search */}
-      <div className="mb-6">
+      <div className="mb-4">
         <SearchBar
           value={searchQuery}
           onChange={setSearchQuery}
           placeholder={`Search ${activeTab === 'movie' ? 'movies' : activeTab === 'book' ? 'books' : 'food places'}...`}
         />
       </div>
+
+      {/* City filter (food only) */}
+      {activeTab === 'food' && cities.length > 0 && (
+        <div className="mb-4">
+          <div className="flex items-center gap-2">
+            <MapPin size={16} className="text-olive-light" />
+            <select
+              value={cityFilter}
+              onChange={(e) => { setCityFilter(e.target.value); setPage(1); }}
+              className="w-full sm:w-auto px-3 py-2 bg-white border border-stone-200 rounded-xl text-sm text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none"
+            >
+              <option value="">All cities</option>
+              {cities.map(c => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+      )}
 
       {/* Error state */}
       {error && (
