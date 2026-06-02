@@ -140,14 +140,21 @@ export default function BrowseContent() {
   useEffect(() => {
     const el = sentinelRef.current;
     if (!el) return;
+    let busy = false;
     const observer = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting && hasMore && !isLoading) {
-        handleLoadMore();
+      if (entries[0].isIntersecting && !busy) {
+        busy = true;
+        if (hasMore && !isLoading) {
+          const nextPage = page + 1;
+          setPage(nextPage);
+          fetchItems(activeTab, searchQuery, nextPage);
+        }
+        setTimeout(() => { busy = false; }, 1000);
       }
-    }, { rootMargin: '300px' });
+    }, { rootMargin: '400px' });
     observer.observe(el);
     return () => observer.disconnect();
-  }, [hasMore, isLoading, page, activeTab, searchQuery]);
+  }, [hasMore]);
 
   const addPageUrl = `/add?type=${activeTab}`;
 

@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
   }
 
   const { data, error, count } = await query
-    .order('added_at', { ascending: false })
+    .order('title', { ascending: true })
     .range(offset, offset + limit - 1);
 
   if (error) {
