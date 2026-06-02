@@ -30,16 +30,12 @@ const CUISINE_KEYWORDS: [string, string][] = [
   ['tandoor', 'Indian'],
   ['north indian', 'North Indian'],
   ['south indian', 'South Indian'],
-  ['paratha', 'North Indian'],
-  ['naan', 'North Indian'],
-  ['litti', 'Litti Chokha'],
   ['biryani', 'Biryani'],
   ['mediterranean', 'Mediterranean'],
   ['shawarma', 'Shawarma'],
   ['kebab', 'Kebab'],
   ['turkish', 'Turkish'],
   ['middle eastern', 'Middle Eastern'],
-  ['egyptian', 'Middle Eastern'],
   ['mexican', 'Mexican'],
   ['taco', 'Mexican'],
   ['chinese', 'Chinese'],
@@ -66,11 +62,37 @@ export function suggestCuisine(title: string): string {
   return '';
 }
 
+// Comprehensive list of world cuisines — the ONLY options in the dropdown
 export const ALL_CUISINES = [
-  'Bakery', 'Burgers', 'Cafe', 'Dessert', 'Dimsum', 'Food Truck', 'Italian',
-  'Japanese', 'Litti Chokha', 'Mediterranean', 'Middle Eastern', 'Momos',
-  'North Indian', 'Pan Asian', 'Pizza', 'Ramen', 'Restaurant', 'Shawarma',
-  'Steak', 'Street Food',
+  // Indian
+  'North Indian', 'South Indian', 'Mughlai', 'Biryani', 'Litti Chokha',
+  'Indian Street Food',
+
+  // Asian
+  'Chinese', 'Japanese', 'Korean', 'Thai', 'Vietnamese', 'Malaysian',
+  'Indonesian', 'Filipino', 'Taiwanese', 'Tibetan', 'Pan Asian',
+  'Dimsum', 'Noodles', 'Ramen', 'Sushi', 'Momos',
+
+  // Middle Eastern
+  'Middle Eastern', 'Lebanese', 'Turkish', 'Persian', 'Arabian',
+  'Moroccan', 'Kebab', 'Shawarma', 'Mediterranean', 'Greek',
+
+  // European
+  'Italian', 'French', 'Spanish', 'Portuguese', 'German', 'British',
+  'Greek', 'Russian', 'Polish',
+
+  // American
+  'Mexican', 'Brazilian', 'Peruvian', 'Argentinian', 'Caribbean',
+  'American', 'Tex-Mex', 'Cajun', 'BBQ', 'Southern',
+
+  // African
+  'Ethiopian', 'Nigerian', 'North African',
+
+  // By Type / Specialty
+  'Bakery', 'Cafe', 'Brunch', 'Burgers', 'Pizza', 'Steak',
+  'Seafood', 'Grill', 'Street Food', 'Food Truck', 'Breakfast',
+  'Sandwiches', 'Dessert', 'Ice Cream', 'Vegan', 'Vegetarian',
+  'Healthy',
 ].sort();
 
 export const ALL_CITIES = [
