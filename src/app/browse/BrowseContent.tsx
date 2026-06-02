@@ -48,18 +48,28 @@ export default function BrowseContent() {
   const [hasMore, setHasMore] = useState(false);
   const [error, setError] = useState('');
 
-  // Restore scroll position when coming back from item detail
+  // Restore scroll position and active tab when coming back
   useEffect(() => {
-    const saved = sessionStorage.getItem('browseScrollY');
-    if (saved) {
-      const y = parseInt(saved);
+    const savedScroll = sessionStorage.getItem('browseScrollY');
+    const savedTab = sessionStorage.getItem('browseActiveTab') as TabType | null;
+    
+    // Restore tab if one was saved and no URL param is set
+    if (savedTab && !searchParams.get('type')) {
+      setActiveTab(savedTab);
+    }
+    
+    // Restore scroll position
+    if (savedScroll) {
+      const y = parseInt(savedScroll);
       if (!isNaN(y)) requestAnimationFrame(() => window.scrollTo(0, y));
       sessionStorage.removeItem('browseScrollY');
     }
-  }, []);
+    sessionStorage.removeItem('browseActiveTab');
+  }, [searchParams]);
 
-  const saveScroll = () => {
+  const saveScrollAndTab = () => {
     sessionStorage.setItem('browseScrollY', String(window.scrollY));
+    sessionStorage.setItem('browseActiveTab', activeTab);
   };
 
   // On tab change: clear items immediately, reset page, start loading
@@ -303,7 +313,7 @@ export default function BrowseContent() {
               {activeTab === 'food' && viewMode === 'map' ? (
                 <MapView items={items} />
               ) : (
-                <div onClick={saveScroll} className={activeTab === 'food' ? 'space-y-3' : 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 items-stretch'}>
+                <div onClick={saveScrollAndTab} className={activeTab === 'food' ? 'space-y-3' : 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 items-stretch'}>
                   {items.map((item) =>
                     activeTab === 'food' ? (
                       <FoodListItem key={item.id} item={item} />

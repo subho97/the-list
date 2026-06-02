@@ -229,7 +229,14 @@ export default function CreateListContent() {
               </button>
             </div>
             <p className="mt-1.5 text-xs text-olive-light">
-              {editPin ? '✓ PIN protection enabled — 6-character alphanumeric' : 'Leave blank for open editing'}
+              {editPin ? (
+                <div>
+                  <p className="text-xs text-emerald-600 font-medium">✓ PIN protection enabled</p>
+                  <p className="text-xs text-olive-light mt-0.5">Edit and delete require this PIN. Cannot be added later. Viewing is always open.</p>
+                </div>
+              ) : (
+                <p className="text-xs text-olive-light">Leave blank for open viewing. PIN is required for edit/delete and cannot be added later.</p>
+              )}
             </p>
           </div>
 

@@ -16,16 +16,21 @@ export default function VoteButtons({ itemId, initialUpvotes = 0, initialDownvot
   const [myVote, setMyVote] = useState<'up' | 'down' | null>(null);
   const [animating, setAnimating] = useState<'up' | 'down' | null>(null);
 
-  // Load existing vote from localStorage
+  // Load existing vote from localStorage and adjust counts
   useEffect(() => {
     try {
       const stored = localStorage.getItem('thelist_votes');
       if (stored) {
         const votes = JSON.parse(stored);
-        if (votes[itemId]) setMyVote(votes[itemId]);
+        if (votes[itemId]) {
+          setMyVote(votes[itemId]);
+          // Account for user's vote when coming back from detail page
+          if (votes[itemId] === 'up' && initialUpvotes === 0) setUpvotes(1);
+          if (votes[itemId] === 'down' && initialDownvotes === 0) setDownvotes(1);
+        }
       }
     } catch {}
-  }, [itemId]);
+  }, [itemId, initialUpvotes, initialDownvotes]);
 
   const handleVote = async (vote: 'up' | 'down') => {
     // If already voted this way, undo
