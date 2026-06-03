@@ -1,12 +1,24 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Info, X, Lock, Share2, Plus, Layers } from 'lucide-react';
+import { Info, X, Lock, Share2, Layers } from 'lucide-react';
+
+const LS_KEY = 'list-onboarding-seen';
 
 export default function ListOnboardingPopover() {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return !sessionStorage.getItem(LS_KEY);
+    }
+    return false;
+  });
   const popoverRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+
+  const dismiss = () => {
+    setIsOpen(false);
+    try { sessionStorage.setItem(LS_KEY, '1'); } catch {}
+  };
 
   // Close on click outside and Escape
   useEffect(() => {
@@ -14,11 +26,11 @@ export default function ListOnboardingPopover() {
     const handleClick = (e: MouseEvent) => {
       if (popoverRef.current && !popoverRef.current.contains(e.target as Node) &&
           buttonRef.current && !buttonRef.current.contains(e.target as Node)) {
-        setIsOpen(false);
+        dismiss();
       }
     };
     const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setIsOpen(false);
+      if (e.key === 'Escape') dismiss();
     };
     document.addEventListener('mousedown', handleClick);
     document.addEventListener('keydown', handleKey);
@@ -32,7 +44,13 @@ export default function ListOnboardingPopover() {
     <div className="relative inline-block">
       <button
         ref={buttonRef}
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => {
+          const next = !isOpen;
+          setIsOpen(next);
+          if (!next) {
+            try { sessionStorage.setItem(LS_KEY, '1'); } catch {}
+          }
+        }}
         className="w-6 h-6 rounded-full bg-amber-primary/10 text-amber-primary flex items-center justify-center hover:bg-amber-primary/20 transition-colors duration-150"
         title="How lists work"
         aria-label="How lists work"
@@ -48,7 +66,7 @@ export default function ListOnboardingPopover() {
           <div className="flex items-center justify-between">
             <h3 className="font-serif font-bold text-stone-900 text-base">How lists work</h3>
             <button
-              onClick={() => setIsOpen(false)}
+              onClick={dismiss}
               className="text-olive-light hover:text-stone-600 transition-colors"
             >
               <X size={14} />
@@ -79,7 +97,7 @@ export default function ListOnboardingPopover() {
           </div>
 
           <button
-            onClick={() => setIsOpen(false)}
+            onClick={dismiss}
             className="w-full py-2.5 bg-amber-primary text-white rounded-xl text-sm font-medium hover:bg-amber-dark transition-colors duration-150 shadow-sm"
           >
             Got it
