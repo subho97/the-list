@@ -50,8 +50,14 @@ export default function FoodListItem({ item }: { item: Item }) {
         <p className="font-medium text-stone-900 group-hover:text-amber-primary transition-colors duration-150">
           {item.title}
         </p>
+        {item.cuisine && (
+          <p className="text-xs text-olive mt-0.5">{item.cuisine}</p>
+        )}
         {item.must_try && (
           <p className="text-xs text-amber-primary mt-0.5">✨ {item.must_try}</p>
+        )}
+        {item.notes && (
+          <p className="text-xs text-stone-500 mt-0.5 line-clamp-1">📝 {item.notes}</p>
         )}
         {item.city && (
           <p className="text-xs text-olive-light flex items-center gap-1 mt-0.5">
