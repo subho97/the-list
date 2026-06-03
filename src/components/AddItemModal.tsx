@@ -29,7 +29,11 @@ export default function AddItemModal({ isOpen, onClose, onAddToList }: AddItemMo
   const [foodPhoto, setFoodPhoto] = useState<File | null>(null);
   const [foodData, setFoodData] = useState({
     title: '',
-    creator: '',
+    cuisine: '',
+    must_try: '',
+    notes: '',
+    city: '',
+    google_maps_link: '',
     description: '',
     year: new Date().getFullYear(),
     image_url: '',
@@ -184,7 +188,7 @@ export default function AddItemModal({ isOpen, onClose, onAddToList }: AddItemMo
     setSearchError('');
     setSelectedItem(null);
     setFoodPhoto(null);
-    setFoodData({ title: '', cuisine: '', must_try: '', notes: '', description: '', city: '', google_maps_link: '', year: new Date().getFullYear() });
+    setFoodData({ title: '', cuisine: '', must_try: '', notes: '', description: '', city: '', google_maps_link: '', year: new Date().getFullYear(), image_url: '' });
     onClose();
   };
 
