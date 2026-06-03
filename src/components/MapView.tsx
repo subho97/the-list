@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { MapPin, AlertTriangle } from 'lucide-react';
@@ -23,6 +23,20 @@ const Popup = dynamic(
   () => import('react-leaflet').then((m) => m.Popup),
   { ssr: false }
 );
+
+// Lazy load leaflet CSS once
+function useLeafletCSS() {
+  useEffect(() => {
+    const id = 'leaflet-css';
+    if (!document.getElementById(id) && typeof document !== 'undefined') {
+      const link = document.createElement('link');
+      link.id = id;
+      link.rel = 'stylesheet';
+      link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+      document.head.appendChild(link);
+    }
+  }, []);
+}
 
 const cuisineEmojis: Record<string, string> = {
   pizza: '🍕', italian: '🍝', burger: '🍔', sushi: '🍣', japanese: '🍜',
@@ -71,54 +85,61 @@ function haversine(lat1: number, lon1: number, lat2: number, lon2: number): numb
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-// Map content component (renders inside MapContainer)
-function MapContent({ items, userLocation, onReady }: {
-  items: Item[];
-  userLocation: [number, number] | null;
-  onReady: () => void;
-}) {
-  const [L, setL] = useState<any>(null);
+// Fix default marker icon (runs once)
+let iconFixed = false;
+function ensureLeafletIcons() {
+  if (iconFixed || typeof window === 'undefined') return;
+  iconFixed = true;
+  // Dynamically import leaflet just for icon fix
+  import('leaflet').then((L) => {
+    delete (L.Icon.Default.prototype as any)._getIconUrl;
+    L.Icon.Default.prototype.options.iconRetinaUrl = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png';
+    L.Icon.Default.prototype.options.iconUrl = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png';
+    L.Icon.Default.prototype.options.shadowUrl = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png';
+  }).catch(() => {});
+}
 
+// Internal component that uses react-leaflet hooks
+function MapLayers({ items, userLocation }: { items: Item[]; userLocation: [number, number] | null }) {
+  // Fix icons on mount
+  useEffect(() => { ensureLeafletIcons(); }, []);
+
+  // Fit bounds using a separate lazy effect
   useEffect(() => {
-    import('leaflet').then((leaflet) => {
-      // Fix default marker icon
-      delete (leaflet.Icon.Default.prototype as any)._getIconUrl;
-      leaflet.Icon.Default.prototype.options.iconRetinaUrl = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png';
-      leaflet.Icon.Default.prototype.options.iconUrl = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png';
-      leaflet.Icon.Default.prototype.options.shadowUrl = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png';
-      setL(leaflet);
-      onReady();
-    }).catch((err) => {
-      console.error('Failed to load leaflet:', err);
-    });
-  }, []);
+    // Dynamically import to avoid circular issues
+    let map: any = null;
+    // Try to find the map from the container
+    const findAndFit = () => {
+      const container = document.querySelector('.leaflet-container') as any;
+      if (!container || !container._leaflet_id) { setTimeout(findAndFit, 100); return; }
+      const el = document.querySelector(`.leaflet-map-pane`);
+      if (!el) { setTimeout(findAndFit, 100); return; }
 
-  // Need leaflet and map ref to fit bounds
-  useEffect(() => {
-    if (!L) return;
-    const mapEl = document.querySelector('.leaflet-container') as any;
-    if (!mapEl || !mapEl._leaflet_map) return;
-    const map = mapEl._leaflet_map;
-
-    const allCoords = items.map(i => getCoords(i));
-    if (userLocation) allCoords.push(userLocation);
-
-    if (allCoords.length > 1) {
-      const bounds = L.latLngBounds(allCoords);
-      map.fitBounds(bounds, { padding: [50, 50] });
-    } else if (allCoords.length === 1) {
-      map.setView(allCoords[0], 13);
-    }
-  }, [L, items, userLocation]);
-
-  if (!L) return null;
+      import('leaflet').then((L) => {
+        const allCoords = items.map(i => getCoords(i));
+        if (userLocation) allCoords.push(userLocation);
+        if (allCoords.length > 1) {
+          const bounds = L.latLngBounds(allCoords);
+          // Access map through the container's _leaflet_map
+          const mapEl = document.querySelector('.leaflet-container') as any;
+          if (mapEl && mapEl._leaflet_map) {
+            mapEl._leaflet_map.fitBounds(bounds, { padding: [50, 50] });
+          }
+        }
+      }).catch(() => {});
+    };
+    // Delay to let map render
+    const timer = setTimeout(findAndFit, 300);
+    return () => clearTimeout(timer);
+  }, [items, userLocation]);
 
   return (
     <>
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        maxZoom={18}
+        maxNativeZoom={18}
+        maxZoom={19}
       />
       {items.map((item) => {
         const coords = getCoords(item);
@@ -160,17 +181,7 @@ function MapContent({ items, userLocation, onReady }: {
         );
       })}
       {userLocation && (
-        <Marker
-          position={userLocation}
-          icon={L ? L.divIcon({
-            className: '',
-            html: '<div style="background:#3B82F6;width:16px;height:16px;border-radius:50%;border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3)"></div>',
-            iconSize: [16, 16],
-            iconAnchor: [8, 8],
-          }) : undefined}
-        >
-          <Popup>📍 Your location</Popup>
-        </Marker>
+        <Marker position={userLocation} />
       )}
     </>
   );
@@ -180,6 +191,8 @@ export default function MapView({ items }: { items: Item[] }) {
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [mapError, setMapError] = useState<string | null>(null);
   const [mapReady, setMapReady] = useState(false);
+
+  useLeafletCSS();
 
   // Get user's location
   useEffect(() => {
@@ -191,7 +204,10 @@ export default function MapView({ items }: { items: Item[] }) {
     }
   }, []);
 
-  // Calculate default center
+  const handleMapReady = useCallback(() => {
+    setMapReady(true);
+  }, []);
+
   const defaultCenter: [number, number] = items.length > 0
     ? getCoords(items[0])
     : [12.9716, 77.5946];
@@ -239,12 +255,9 @@ export default function MapView({ items }: { items: Item[] }) {
           className="w-full h-full"
           zoomControl={true}
           scrollWheelZoom={true}
+          whenReady={handleMapReady}
         >
-          <MapContent
-            items={items}
-            userLocation={userLocation}
-            onReady={() => setMapReady(true)}
-          />
+          <MapLayers items={items} userLocation={userLocation} />
         </MapContainer>
       </div>
 
