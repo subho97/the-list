@@ -33,6 +33,10 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://covers.openlibrary.org" />
+        <link rel="preconnect" href="https://books.google.com" />
+        <link rel="dns-prefetch" href="https://covers.openlibrary.org" />
+        <link rel="dns-prefetch" href="https://books.google.com" />
       </head>
       <body className="min-h-full flex flex-col bg-cream text-stone-800">
         <main className="flex-1 pb-20 md:pb-0">{children}</main>

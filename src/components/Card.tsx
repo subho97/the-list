@@ -3,6 +3,7 @@ import { Item } from '@/lib/types';
 import { Film, BookOpen, UtensilsCrossed, MapPin } from 'lucide-react';
 import RatingBadge from './RatingBadge';
 import VoteButtons from './VoteButtons';
+import { thumbnailUrl } from '@/lib/images';
 
 interface CardProps {
   item: Item;
@@ -101,7 +102,7 @@ export default function Card({ item }: CardProps) {
       <div className="aspect-[3/4] bg-stone-100 relative overflow-hidden">
         {item.image_url ? (
           <img
-            src={item.image_url}
+            src={thumbnailUrl(item.image_url) || item.image_url}
             alt={item.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             loading="lazy"

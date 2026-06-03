@@ -51,6 +51,9 @@ export default function BrowseContent() {
   const [error, setError] = useState('');
   const restoredScroll = useRef(false);
 
+  // Tab cache: instantly restore items when switching back to a previously viewed tab
+  const tabCache = useRef<Record<string, { items: Item[]; hasMore: boolean; page: number }>>({});
+
   // Disable browser's automatic scroll restoration — we handle it ourselves
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -112,10 +115,34 @@ export default function BrowseContent() {
 
   // On tab change: clear items immediately, reset page, start loading
   const handleTabChange = (tab: TabType) => {
+    // Save current tab's items to cache before switching
+    if (activeTab !== tab && items.length > 0) {
+      tabCache.current[activeTab] = { items, hasMore, page };
+    }
+
     // Clear saved scroll — user is navigating to a new tab, not coming back
     sessionStorage.removeItem('browseScrollY');
     sessionStorage.removeItem('browseActiveTab');
     restoredScroll.current = false;
+
+    // Check if we have cached items for this tab
+    const cached = tabCache.current[tab];
+    if (cached && cached.items.length > 0) {
+      // Restore instantly from cache — no loading state
+      setActiveTab(tab);
+      setItems(cached.items);
+      setPage(cached.page);
+      setHasMore(cached.hasMore);
+      setError('');
+      setSearchQuery('');
+      setCityFilter('');
+      setCuisineFilter('');
+      setGenreFilter('');
+      setMoodFilter('');
+      setMinRating('');
+      router.replace(`/browse?type=${tab}`, { scroll: false });
+      return;
+    }
     
     setActiveTab(tab);
     setItems([]);
@@ -150,12 +177,15 @@ export default function BrowseContent() {
       if (!res.ok) throw new Error('Failed to fetch');
       const data = await res.json();
 
+      const newItems = pageNum === 1 ? data.items : [...items, ...data.items];
       if (pageNum === 1) {
-        setItems(data.items);
+        setItems(newItems);
       } else {
         setItems(prev => [...prev, ...data.items]);
       }
       setHasMore(data.hasMore);
+      // Cache for instant tab switch back
+      tabCache.current[tab] = { items: newItems, hasMore: data.hasMore, page: pageNum };
     } catch {
       setError('Failed to load items. Try again.');
     } finally {
