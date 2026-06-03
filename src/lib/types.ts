@@ -21,6 +21,7 @@ export interface Item {
   lat: number | null;
   lng: number | null;
   city: string | null;
+  area: string | null;
   added_at: string;
   added_by: string;
   upvotes: number;

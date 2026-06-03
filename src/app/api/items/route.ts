@@ -6,9 +6,11 @@ export async function GET(request: NextRequest) {
   const type = searchParams.get('type');
   const search = searchParams.get('search');
   const city = searchParams.get('city');
+  const area = searchParams.get('area');
   const genre = searchParams.get('genre');
   const mood = searchParams.get('mood');
   const cuisine = searchParams.get('cuisine');
+  const creator = searchParams.get('creator');
   const minRating = parseFloat(searchParams.get('minRating') || '');
   const page = parseInt(searchParams.get('page') || '1');
   const limit = Math.min(parseInt(searchParams.get('limit') || '50'), 100);
@@ -33,6 +35,14 @@ export async function GET(request: NextRequest) {
 
   if (city) {
     query = query.eq('city', city);
+  }
+
+  if (area) {
+    query = query.ilike('area', `%${area}%`);
+  }
+
+  if (creator) {
+    query = query.ilike('creator', `%${creator}%`);
   }
 
   if (genre) {
@@ -76,7 +86,7 @@ export async function POST(request: NextRequest) {
 
   const body = await request.json();
 
-  const { type, title, creator, year, description, image_url, external_rating, imdb_id, external_link, added_by, city, google_maps_link, genre, mood, cuisine, must_try, notes, purchase_link, lat, lng } = body;
+  const { type, title, creator, year, description, image_url, external_rating, imdb_id, external_link, added_by, city, area, google_maps_link, genre, mood, cuisine, must_try, notes, purchase_link, lat, lng } = body;
 
   if (!type || !title) {
     return NextResponse.json({ error: 'Type and title are required' }, { status: 400 });
@@ -100,6 +110,7 @@ export async function POST(request: NextRequest) {
       external_link: external_link || null,
       added_by: added_by || 'Anonymous',
       city: city || null,
+      area: area || null,
       google_maps_link: google_maps_link || null,
       genre: genre || null,
       mood: mood || null,

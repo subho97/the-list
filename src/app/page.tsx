@@ -144,7 +144,7 @@ export default async function Home() {
                         className="block text-sm text-stone-700 hover:text-amber-primary transition-colors duration-150"
                       >
                         <span className="font-medium">{item.title}</span>
-                        {item.external_rating && (
+                        {item.external_rating && item.type !== 'book' && (
                           <span className="text-xs text-olive-light ml-2">
                             ⭐ {item.external_rating.toFixed(1)}
                           </span>

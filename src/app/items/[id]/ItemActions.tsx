@@ -56,7 +56,7 @@ export default function ItemActions({ itemId, itemType }: ItemActionsProps) {
             onClick={() => router.push(`/items/${itemId}/review`)}
             className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-rust/10 text-rust rounded-xl font-medium text-sm hover:bg-rust/20 transition-colors"
           >
-            Review this place
+            Add Review
           </button>
         )}
         <button

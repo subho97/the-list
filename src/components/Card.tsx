@@ -7,6 +7,7 @@ import { thumbnailUrl } from '@/lib/images';
 
 interface CardProps {
   item: Item;
+  index?: number;
 }
 
 const typeIcons = {
@@ -90,7 +91,7 @@ function getCuisineGradient(cuisine: string | null): string {
   return cuisineGradients[key] || 'from-stone-200/60 to-stone-300/30';
 }
 
-export default function Card({ item }: CardProps) {
+export default function Card({ item, index = 99 }: CardProps) {
   const Icon = typeIcons[item.type];
 
   return (
@@ -105,7 +106,9 @@ export default function Card({ item }: CardProps) {
             src={thumbnailUrl(item.image_url) || item.image_url}
             alt={item.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-            loading="lazy"
+            loading={index < 10 ? 'eager' : 'lazy'}
+            decoding={index < 10 ? 'sync' : 'async'}
+            fetchPriority={index < 6 ? 'high' : 'auto'}
             onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
           />
         ) : item.type === 'food' ? (
@@ -118,10 +121,12 @@ export default function Card({ item }: CardProps) {
             <Icon size={48} strokeWidth={1} />
           </div>
         )}
-        {/* Rating badge overlay — top-right */}
-        <div className="absolute top-2 right-2 z-10">
-          <RatingBadge rating={item.external_rating} />
-        </div>
+        {/* Rating badge overlay — top-right (movies only, not books) */}
+        {item.type !== 'book' && (
+          <div className="absolute top-2 right-2 z-10">
+            <RatingBadge rating={item.external_rating} />
+          </div>
+        )}
         {/* Type badge — top-left with gradient */}
         <div className={`absolute top-2 left-2 ${typeBadgeGradients[item.type]} rounded-full px-2.5 py-0.5 text-[11px] font-medium text-white shadow-sm`}>
           {typeLabels[item.type]}
@@ -146,10 +151,10 @@ export default function Card({ item }: CardProps) {
           <p className="text-[12px] text-olive-light">{item.year}</p>
         )}
         <div className="flex items-center justify-between mt-1">
-          {item.city && (
+          {(item.area || item.city) && (
             <p className="text-[12px] text-olive-light flex items-center gap-1">
               <MapPin size={10} />
-              {item.city}
+              {item.area || item.city}
             </p>
           )}
           <div className="ml-auto">

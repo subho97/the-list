@@ -59,10 +59,10 @@ export default function FoodListItem({ item }: { item: Item }) {
         {item.notes && (
           <p className="text-xs text-stone-500 mt-0.5 line-clamp-1">📝 {item.notes}</p>
         )}
-        {item.city && (
+        {(item.area || item.city) && (
           <p className="text-xs text-olive-light flex items-center gap-1 mt-0.5">
             <MapPin size={11} />
-            {item.city}
+            {item.area || item.city}
           </p>
         )}
       </div>

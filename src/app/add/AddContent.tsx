@@ -32,7 +32,7 @@ export default function AddPage() {
   const [foodPhoto, setFoodPhoto] = useState<File | null>(null);
   const [addedBy, setAddedBy] = useState('');
   const [purchaseLink, setPurchaseLink] = useState('');
-  const [foodData, setFoodData] = useState({ title: '', creator: '', cuisine: '', must_try: '', notes: '', description: '', city: '', google_maps_link: '', year: new Date().getFullYear() });
+  const [foodData, setFoodData] = useState({ title: '', creator: '', cuisine: '', must_try: '', notes: '', description: '', city: '', area: '', google_maps_link: '', year: new Date().getFullYear() });
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   useEffect(() => {
@@ -120,7 +120,7 @@ export default function AddPage() {
         }
       }
       const itemData = type === 'food'
-        ? { type: 'food', title: foodData.title, creator: foodData.creator || foodData.cuisine, cuisine: foodData.cuisine || foodData.creator, must_try: foodData.must_try || null, notes: foodData.notes || null, description: foodData.description, city: foodData.city || null, google_maps_link: foodData.google_maps_link || null, image_url: imageUrl, added_by: addedBy.trim() || 'Anonymous' }
+        ? { type: 'food', title: foodData.title, creator: foodData.creator || foodData.cuisine, cuisine: foodData.cuisine || foodData.creator, must_try: foodData.must_try || null, notes: foodData.notes || null, description: foodData.description, city: foodData.city || null, area: foodData.area || null, google_maps_link: foodData.google_maps_link || null, image_url: imageUrl, added_by: addedBy.trim() || 'Anonymous' }
         : { ...selectedItem, image_url: imageUrl, added_by: addedBy.trim() || 'Anonymous' };
       if (purchaseLink.trim()) itemData.purchase_link = purchaseLink.trim();
       const res = await fetch('/api/items', {
@@ -138,7 +138,7 @@ export default function AddPage() {
   const resetForm = () => {
     setStep('choose-type'); setType(null); setSearchQuery(''); setSearchResults([]);
     setSearchError(''); setSelectedItem(null); setFoodPhoto(null); setAddedBy('');
-    setFoodData({ title: '', creator: '', cuisine: '', must_try: '', notes: '', description: '', city: '', google_maps_link: '', year: new Date().getFullYear() });
+    setFoodData({ title: '', creator: '', cuisine: '', must_try: '', notes: '', description: '', city: '', area: '', google_maps_link: '', year: new Date().getFullYear() });
     setAddedItemId(null);
     setPurchaseLink('');
   };
@@ -271,6 +271,15 @@ export default function AddPage() {
             </div>
           </div>
           <div>
+            <label className="block text-sm font-medium text-stone-700 mb-1.5">📍 Area / Neighborhood <span className="text-olive-light font-normal">(e.g. HSR Layout, Koramangala)</span></label>
+            <div className="relative">
+              <input type="text" value={foodData.area} onChange={(e) => setFoodData({ ...foodData, area: e.target.value })} placeholder="Type or select area..." className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary" list="area-list" />
+              <datalist id="area-list">
+                <option value="HSR Layout" /><option value="BTM Layout" /><option value="Koramangala" /><option value="Indiranagar" /><option value="Jayanagar" /><option value="JP Nagar" /><option value="Whitefield" /><option value="Marathahalli" /><option value="Electronic City" /><option value="Banashankari" /><option value="MG Road" /><option value="Brigade Road" /><option value="Church Street" /><option value="Commercial Street" /><option value="Lavelle Road" /><option value="Residency Road" /><option value="Basavanagudi" /><option value="Malleshwaram" /><option value="Rajajinagar" /><option value="Yelahanka" /><option value="Hebbal" /><option value="Kalyan Nagar" /><option value="HAL" /><option value="Sarjapur Road" /><option value="Bellandur" /><option value="Hennur" /><option value="Kamanahalli" /><option value="RT Nagar" /><option value="Seshadripuram" /><option value="Ulsoor" /><option value="Cooke Town" /><option value="Sadashivanagar" /><option value="Cunningham Road" /><option value="Vasanth Nagar" /><option value="Domlur" /><option value="Jakkur" /><option value="Kengeri" /><option value="Vijayanagar" /><option value="Rajajinagar" /><option value="Chamrajpet" /><option value="Mysore City" /><option value="Kuvempunagar" /><option value="Vijayanagar (Mysore)" /><option value="Gokulam" /><option value="JayaLakshmipuram" /><option value="Hebbal (Mysore)" />
+              </datalist>
+            </div>
+          </div>
+          <div>
             <label className="block text-sm font-medium text-stone-700 mb-1.5">
               🗺️ Google Maps link <span className="text-olive-light font-normal">(optional)</span>
             </label>
@@ -325,9 +334,45 @@ export default function AddPage() {
             </div>
           </div>
           {type === 'book' && (
-            <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1.5">Purchase link <span className="text-olive-light font-normal">(Amazon / Flipkart — optional)</span></label>
-              <input type="url" value={purchaseLink} onChange={(e) => setPurchaseLink(e.target.value)} placeholder="https://www.amazon.in/..." className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary" />
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-stone-700 mb-1.5">Genre</label>
+                <select
+                  value={selectedItem.genre || ''}
+                  onChange={(e) => setSelectedItem({ ...selectedItem, genre: e.target.value || null })}
+                  className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none"
+                >
+                  <option value="">Select genre (optional)</option>
+                  <option value="Classic Literature">Classic Literature</option>
+                  <option value="Fiction">Fiction</option>
+                  <option value="Non-Fiction">Non-Fiction</option>
+                  <option value="Mystery">Mystery</option>
+                  <option value="Thriller">Thriller</option>
+                  <option value="Romance">Romance</option>
+                  <option value="Science Fiction">Science Fiction</option>
+                  <option value="Fantasy">Fantasy</option>
+                  <option value="Horror">Horror</option>
+                  <option value="Biography">Biography</option>
+                  <option value="Memoir">Memoir</option>
+                  <option value="History">History</option>
+                  <option value="Philosophy">Philosophy</option>
+                  <option value="Poetry">Poetry</option>
+                  <option value="Self-Help">Self-Help</option>
+                  <option value="Business">Business</option>
+                  <option value="Psychology">Psychology</option>
+                  <option value="Drama">Drama</option>
+                  <option value="Adventure">Adventure</option>
+                  <option value="Young Adult">Young Adult</option>
+                  <option value="Children">Children</option>
+                  <option value="Graphic Novel">Graphic Novel</option>
+                  <option value="Travel">Travel</option>
+                  <option value="Literary Fiction">Literary Fiction</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-stone-700 mb-1.5">Purchase link <span className="text-olive-light font-normal">(Amazon / Flipkart — optional)</span></label>
+                <input type="url" value={purchaseLink} onChange={(e) => setPurchaseLink(e.target.value)} placeholder="https://www.amazon.in/..." className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary" />
+              </div>
             </div>
           )}
           {submitError && <div className="p-3 rounded-xl bg-red-50 border border-red-100 text-red-700 text-sm"><AlertCircle size={16} className="inline mr-1" />{submitError}</div>}

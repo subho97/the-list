@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Item } from '@/lib/types';
-import { Film, BookOpen, UtensilsCrossed, Loader2, MapPin, Star, Filter, Plus, Map, List } from 'lucide-react';
+import { Film, BookOpen, UtensilsCrossed, Loader2, Plus, Map, List } from 'lucide-react';
 import Card from '@/components/Card';
 import FoodListItem from '@/components/FoodListItem';
 import MapView from '@/components/MapView';
@@ -38,6 +38,8 @@ export default function BrowseContent() {
   const [searchQuery, setSearchQuery] = useState('');
   const [cityFilter, setCityFilter] = useState('');
   const [cities, setCities] = useState<string[]>([]);
+  const [areaFilter, setAreaFilter] = useState('');
+  const [areas, setAreas] = useState<string[]>([]);
   const [cuisineFilter, setCuisineFilter] = useState('');
   const [cuisines, setCuisines] = useState<string[]>([]);
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
@@ -45,6 +47,8 @@ export default function BrowseContent() {
   const [genres, setGenres] = useState<string[]>([]);
   const [moodFilter, setMoodFilter] = useState('');
   const [moods, setMoods] = useState<string[]>([]);
+  const [authorFilter, setAuthorFilter] = useState('');
+  const [authors, setAuthors] = useState<string[]>([]);
   const [minRating, setMinRating] = useState('');
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
@@ -133,12 +137,15 @@ export default function BrowseContent() {
       setItems(cached.items);
       setPage(cached.page);
       setHasMore(cached.hasMore);
+      setIsLoading(false);
       setError('');
       setSearchQuery('');
       setCityFilter('');
+      setAreaFilter('');
       setCuisineFilter('');
       setGenreFilter('');
       setMoodFilter('');
+      setAuthorFilter('');
       setMinRating('');
       router.replace(`/browse?type=${tab}`, { scroll: false });
       return;
@@ -151,9 +158,11 @@ export default function BrowseContent() {
     setIsLoading(true);
     setSearchQuery('');
     setCityFilter('');
+    setAreaFilter('');
     setCuisineFilter('');
     setGenreFilter('');
     setMoodFilter('');
+    setAuthorFilter('');
     setMinRating('');
     router.replace(`/browse?type=${tab}`, { scroll: false });
   };
@@ -168,10 +177,13 @@ export default function BrowseContent() {
       params.set('limit', '50');
       if (search) params.set('search', search);
       if (tab === 'food' && cityFilter) params.set('city', cityFilter);
+      if (tab === 'food' && areaFilter) params.set('area', areaFilter);
       if (tab === 'food' && cuisineFilter) params.set('cuisine', cuisineFilter);
       if (tab === 'movie' && genreFilter) params.set('genre', genreFilter);
       if (tab === 'movie' && moodFilter) params.set('mood', moodFilter);
       if (tab === 'movie' && minRating) params.set('minRating', minRating);
+      if (tab === 'book' && genreFilter) params.set('genre', genreFilter);
+      if (tab === 'book' && authorFilter) params.set('creator', authorFilter);
 
       const res = await fetch(`/api/items?${params}`);
       if (!res.ok) throw new Error('Failed to fetch');
@@ -191,16 +203,23 @@ export default function BrowseContent() {
     } finally {
       setIsLoading(false);
     }
-  }, [cityFilter, cuisineFilter, genreFilter, moodFilter, minRating]);
+  }, [cityFilter, areaFilter, cuisineFilter, genreFilter, moodFilter, minRating, authorFilter]);
 
+  // Fetch on tab/filter change — uses ref to avoid re-fetch after tab cache restore
   useEffect(() => {
+    // Skip if switching to a tab we already have cached — handleTabChange already restored it
+    const cached = tabCache.current[activeTab];
+    if (cached && cached.items.length > 0 && !searchQuery && !cityFilter && !areaFilter && !cuisineFilter && !genreFilter && !moodFilter && !authorFilter && !minRating) {
+      return;
+    }
     fetchItems(activeTab, searchQuery, 1);
-  }, [activeTab, searchQuery, cityFilter, cuisineFilter, genreFilter, moodFilter, minRating, fetchItems]);
+  }, [activeTab, searchQuery, cityFilter, areaFilter, cuisineFilter, genreFilter, moodFilter, minRating, authorFilter]);
 
-  // Fetch cities and cuisines for food
+  // Fetch cities, cuisines, and areas for food
   useEffect(() => {
     if (activeTab === 'food') {
       fetch('/api/cities').then(r => r.json()).then(d => setCities(d.cities || [])).catch(() => {});
+      fetch('/api/areas').then(r => r.json()).then(d => setAreas(d.areas || [])).catch(() => {});
       fetch('/api/cuisines').then(r => r.json()).then(d => setCuisines(d.cuisines || [])).catch(() => {});
     }
   }, [activeTab]);
@@ -212,6 +231,9 @@ export default function BrowseContent() {
     }
     if (activeTab === 'movie') {
       fetch('/api/moods').then(r => r.json()).then(d => setMoods(d.moods || [])).catch(() => {});
+    }
+    if (activeTab === 'book') {
+      fetch('/api/authors').then(r => r.json()).then(d => setAuthors(d.authors || [])).catch(() => {});
     }
   }, [activeTab]);
 
@@ -297,125 +319,119 @@ export default function BrowseContent() {
         />
       </div>
 
-      {/* Movie filters */}
+      {/* Movie filters — compact, no scroll, responsive sizing */}
       {activeTab === 'movie' && (
-        <div className="flex items-center gap-2 overflow-x-auto mb-4 pb-1 -mx-1 px-1">
+        <div className="flex flex-nowrap gap-1.5 mb-4 pb-1">
           {/* Genre filter */}
-          <div className="relative shrink-0">
-            <Filter size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-olive-light pointer-events-none" />
-            <select
-              value={genreFilter}
-              onChange={(e) => { setGenreFilter(e.target.value); setPage(1); }}
-              className="pl-7 pr-2.5 py-1.5 bg-white border border-stone-200 rounded-xl text-[11px] text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none"
-            >
-              <option value="">All genres</option>
-              {genres.map(g => (
-                <option key={g} value={g}>{g}</option>
-              ))}
-            </select>
-          </div>
+          <select
+            value={genreFilter}
+            onChange={(e) => { setGenreFilter(e.target.value); setPage(1); }}
+            className="min-w-0 flex-1 px-2 py-1.5 bg-white border border-stone-200 rounded-xl text-[10px] sm:text-[11px] text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none truncate"
+          >
+            <option value="">🎬 Genre</option>
+            {genres.map(g => (
+              <option key={g} value={g}>{g}</option>
+            ))}
+          </select>
 
-          {/* Rating filter - dropdown */}
-          <div className="relative shrink-0">
-            <Star size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-olive-light pointer-events-none" />
-            <select
-              value={minRating}
-              onChange={(e) => { setMinRating(e.target.value); setPage(1); }}
-              className="pl-7 pr-2.5 py-1.5 bg-white border border-stone-200 rounded-xl text-[11px] text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none"
-            >
-              {RATING_OPTIONS.map(opt => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
-              ))}
-            </select>
-          </div>
+          {/* Rating filter */}
+          <select
+            value={minRating}
+            onChange={(e) => { setMinRating(e.target.value); setPage(1); }}
+            className="min-w-0 flex-1 px-2 py-1.5 bg-white border border-stone-200 rounded-xl text-[10px] sm:text-[11px] text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none truncate"
+          >
+            <option value="">⭐ Rating</option>
+            {RATING_OPTIONS.filter(o => o.value).map(opt => (
+              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            ))}
+          </select>
 
-          {/* Mood filter - dropdown */}
-          <div className="relative shrink-0">
-            <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[11px] text-olive-light pointer-events-none">🎭</span>
-            <select
-              value={moodFilter}
-              onChange={(e) => { setMoodFilter(e.target.value); setPage(1); }}
-              className="pl-7 pr-2.5 py-1.5 bg-white border border-stone-200 rounded-xl text-[11px] text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none"
-            >
-              <option value="">All moods</option>
-              {moods.map(m => (
-                <option key={m} value={m}>{m}</option>
-              ))}
-            </select>
-          </div>
+          {/* Mood filter */}
+          <select
+            value={moodFilter}
+            onChange={(e) => { setMoodFilter(e.target.value); setPage(1); }}
+            className="min-w-0 flex-1 px-2 py-1.5 bg-white border border-stone-200 rounded-xl text-[10px] sm:text-[11px] text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none truncate"
+          >
+            <option value="">🎭 Mood</option>
+            {moods.map(m => (
+              <option key={m} value={m}>{m}</option>
+            ))}
+          </select>
         </div>
       )}
 
       {/* Book filters */}
       {activeTab === 'book' && (
-        <div className="flex items-center gap-2 overflow-x-auto mb-4 pb-1 -mx-1 px-1">
+        <div className="flex flex-nowrap gap-1.5 mb-4 pb-1">
           {/* Genre filter */}
-          <div className="relative shrink-0">
-            <Filter size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-olive-light pointer-events-none" />
-            <select
-              value={genreFilter}
-              onChange={(e) => { setGenreFilter(e.target.value); setPage(1); }}
-              className="pl-7 pr-2.5 py-1.5 bg-white border border-stone-200 rounded-xl text-[11px] text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none"
-            >
-              <option value="">All genres</option>
-              {genres.map(g => (
-                <option key={g} value={g}>{g}</option>
-              ))}
-            </select>
-          </div>
+          <select
+            value={genreFilter}
+            onChange={(e) => { setGenreFilter(e.target.value); setPage(1); }}
+            className="min-w-0 flex-1 px-2 py-1.5 bg-white border border-stone-200 rounded-xl text-[10px] sm:text-[11px] text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none truncate"
+          >
+            <option value="">📚 Genre</option>
+            {genres.map(g => (
+              <option key={g} value={g}>{g}</option>
+            ))}
+          </select>
 
-          {/* Rating filter - dropdown */}
-          <div className="relative shrink-0">
-            <Star size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-olive-light pointer-events-none" />
+          {/* Author filter */}
+          {authors.length > 0 && (
             <select
-              value={minRating}
-              onChange={(e) => { setMinRating(e.target.value); setPage(1); }}
-              className="pl-7 pr-2.5 py-1.5 bg-white border border-stone-200 rounded-xl text-[11px] text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none"
+              value={authorFilter}
+              onChange={(e) => { setAuthorFilter(e.target.value); setPage(1); }}
+              className="min-w-0 flex-1 px-2 py-1.5 bg-white border border-stone-200 rounded-xl text-[10px] sm:text-[11px] text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none truncate"
             >
-              {RATING_OPTIONS.map(opt => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              <option value="">✍️ Author</option>
+              {authors.map(a => (
+                <option key={a} value={a}>{a}</option>
               ))}
             </select>
-          </div>
+          )}
         </div>
       )}
 
-      {/* City + Cuisine filters (food only) */}
+      {/* City + Area + Cuisine filters (food only) */}
       {activeTab === 'food' && (
-        <div className="flex items-center gap-2 overflow-x-auto mb-4 pb-1 -mx-1 px-1">
+        <div className="flex flex-nowrap gap-1.5 mb-4 pb-1">
           {/* City filter */}
-          <div className="relative shrink-0">
-            <MapPin size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-olive-light pointer-events-none" />
+          <select
+            value={cityFilter}
+            onChange={(e) => { setCityFilter(e.target.value); setPage(1); }}
+            className="min-w-0 flex-1 px-2 py-1.5 bg-white border border-stone-200 rounded-xl text-[10px] sm:text-[11px] text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none truncate"
+          >
+            <option value="">🏙️ City</option>
+            {cities.map(c => <option key={c} value={c}>{c}</option>)}
+          </select>
+          {/* Area filter */}
+          {areas.length > 0 && (
             <select
-              value={cityFilter}
-              onChange={(e) => { setCityFilter(e.target.value); setPage(1); }}
-              className="pl-7 pr-2.5 py-1.5 bg-white border border-stone-200 rounded-xl text-[11px] text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none"
+              value={areaFilter}
+              onChange={(e) => { setAreaFilter(e.target.value); setPage(1); }}
+              className="min-w-0 flex-1 px-2 py-1.5 bg-white border border-stone-200 rounded-xl text-[10px] sm:text-[11px] text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none truncate"
             >
-              <option value="">All cities</option>
-              {cities.map(c => <option key={c} value={c}>{c}</option>)}
+              <option value="">📍 Area</option>
+              {areas.map(a => <option key={a} value={a}>{a}</option>)}
             </select>
-          </div>
+          )}
           {/* Cuisine filter */}
           {cuisines.length > 0 && (
-            <div className="relative shrink-0">
-              <UtensilsCrossed size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-olive-light pointer-events-none" />
-              <select
-                value={cuisineFilter}
-                onChange={(e) => { setCuisineFilter(e.target.value); setPage(1); }}
-                className="pl-7 pr-2.5 py-1.5 bg-white border border-stone-200 rounded-xl text-[11px] text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none"
-              >
-                <option value="">All cuisines</option>
-                {cuisines.map(c => <option key={c} value={c}>{c}</option>)}
-              </select>
-            </div>
+            <select
+              value={cuisineFilter}
+              onChange={(e) => { setCuisineFilter(e.target.value); setPage(1); }}
+              className="min-w-0 flex-1 px-2 py-1.5 bg-white border border-stone-200 rounded-xl text-[10px] sm:text-[11px] text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none truncate"
+            >
+              <option value="">🍽️ Cuisine</option>
+              {cuisines.map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
           )}
 
           {/* Map/List toggle */}
           <button
             onClick={() => setViewMode(viewMode === 'list' ? 'map' : 'list')}
-            className="ml-auto flex items-center gap-1.5 px-3 py-2 bg-white border border-stone-200 rounded-xl text-xs font-medium text-stone-600 hover:border-amber-primary/40 hover:text-amber-primary transition-all duration-150"
+            className="shrink-0 flex items-center gap-1 px-2.5 py-1.5 bg-white border border-stone-200 rounded-xl text-[10px] sm:text-xs font-medium text-stone-600 hover:border-amber-primary/40 hover:text-amber-primary transition-all duration-150"
           >
-            {viewMode === 'list' ? <><Map size={14} /> Map</> : <><List size={14} /> List</>}
+            {viewMode === 'list' ? <><Map size={13} /> Map</> : <><List size={13} /> List</>}
           </button>
         </div>
       )}
@@ -448,11 +464,11 @@ export default function BrowseContent() {
                 <MapView items={items} />
               ) : (
                 <div className={activeTab === 'food' ? 'space-y-3' : 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 items-stretch'}>
-                  {items.map((item) =>
+                  {items.map((item, idx) =>
                     activeTab === 'food' ? (
                       <FoodListItem key={item.id} item={item} />
                     ) : (
-                      <Card key={item.id} item={item} />
+                      <Card key={item.id} item={item} index={idx} />
                     )
                   )}
                 </div>
