@@ -13,6 +13,7 @@ export interface Item {
   external_link: string | null;
   google_maps_link: string | null;
   genre: string | null;
+  mood: string | null;
   cuisine: string | null;
   must_try: string | null;
   notes: string | null;

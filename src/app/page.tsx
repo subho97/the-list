@@ -50,15 +50,16 @@ export default async function Home() {
             The List
           </h1>
           <p className="mt-5 text-xl md:text-2xl text-olive font-medium">
-            Where the good things live.
+            Discover what your people love.
           </p>
           <p className="mt-3 text-sm text-olive-light max-w-md mx-auto leading-relaxed">
-            A shared collection of the best movies, books, and food places.
-            Curated by everyone, for everyone.
+            A community-driven lifestyle platform — real people sharing the movies that moved them,
+            the books that stayed with them, and the food spots worth the trip.
+            No algorithms. No ads. Just word-of-mouth, amplified.
           </p>
           <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 rounded-full border border-emerald-200/50">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-            <span className="text-[11px] text-emerald-700 font-medium tracking-wide">Zero ads. Real reviews.</span>
+            <span className="text-[11px] text-emerald-700 font-medium tracking-wide">Community-curated. Zero ads.</span>
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-3 mt-8">
@@ -81,7 +82,7 @@ export default async function Home() {
       {/* How It Works */}
       <section className="px-4 pb-20 max-w-3xl mx-auto">
         <h2 className="font-serif text-2xl font-bold text-stone-900 text-center mb-10">
-          How it works
+          A community lifestyle platform
         </h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
@@ -89,9 +90,9 @@ export default async function Home() {
             <div className="w-12 h-12 mx-auto rounded-full bg-amber-primary/10 flex items-center justify-center mb-4">
               <Star size={22} className="text-amber-primary" />
             </div>
-            <h3 className="font-semibold text-stone-900 text-sm mb-2">Only the best</h3>
+            <h3 className="font-semibold text-stone-900 text-sm mb-2">Real people, real picks</h3>
             <p className="text-xs text-olive-light leading-relaxed">
-              No ads, no sponsorships. Every movie, book, and food place is here because someone genuinely loved it. Real reviews from real people.
+              Every entry is someone&apos;s genuine recommendation — a movie that wrecked them, a book that changed them, a meal they&apos;re still thinking about. No sponsors, no paid placements.
             </p>
           </div>
 
@@ -99,9 +100,9 @@ export default async function Home() {
             <div className="w-12 h-12 mx-auto rounded-full bg-amber-primary/10 flex items-center justify-center mb-4">
               <Share2 size={22} className="text-amber-primary" />
             </div>
-            <h3 className="font-semibold text-stone-900 text-sm mb-2">Share with anyone</h3>
+            <h3 className="font-semibold text-stone-900 text-sm mb-2">Build your lifestyle</h3>
             <p className="text-xs text-olive-light leading-relaxed">
-              Create custom lists and share them via link. No login required. Everyone can add, everyone can explore.
+              Create curated lists for every mood — weekend binges, cozy reads, late-night eats. Share them with friends, or keep them as your personal taste archive.
             </p>
           </div>
 
@@ -109,9 +110,9 @@ export default async function Home() {
             <div className="w-12 h-12 mx-auto rounded-full bg-amber-primary/10 flex items-center justify-center mb-4">
               <Lock size={22} className="text-amber-primary" />
             </div>
-            <h3 className="font-semibold text-stone-900 text-sm mb-2">You control your lists</h3>
+            <h3 className="font-semibold text-stone-900 text-sm mb-2">Your taste, your rules</h3>
             <p className="text-xs text-olive-light leading-relaxed">
-              Protect your lists with a PIN. Anyone can view, but only you can edit. Your collection, your rules.
+              Protect your lists with a PIN. Browse by mood, genre, or city. Everything you love, organized how you want it.
             </p>
           </div>
         </div>
@@ -182,7 +183,7 @@ export default async function Home() {
       {/* Footer note */}
       <section className="px-4 pb-20 text-center">
         <p className="text-xs text-olive-light">
-          Made with ❤️ by people who love good things.
+          The List — where your taste meets the world&apos;s. Built by the community, for the community.
         </p>
       </section>
     </div>

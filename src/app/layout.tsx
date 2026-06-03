@@ -16,8 +16,8 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "The List — Where the good things live.",
-  description: "A shared repository of the best movies, books, and food places. Curated by everyone, for everyone.",
+  title: "The List — Discover what your people love.",
+  description: "A community-driven lifestyle platform. Real people sharing the movies that moved them, the books that stayed with them, and the food spots worth the trip.",
 };
 
 export default function RootLayout({

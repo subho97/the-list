@@ -65,7 +65,7 @@ export default function AddItemModal({ isOpen, onClose, onAddToList }: AddItemMo
         const res = await fetch(`/api/items/search?q=${encodeURIComponent(query)}`);
         if (!res.ok) throw new Error('Search failed');
         const data = await res.json();
-        setSearchResults(data.results?.filter((r: MovieSearchResult) => r.imdbRating && parseFloat(r.imdbRating) >= 7.0) || []);
+        setSearchResults(data.results || []);
       } else if (type === 'book') {
         const res = await fetch(`/api/items/search-books?q=${encodeURIComponent(query)}`);
         if (!res.ok) throw new Error('Search failed');
@@ -81,10 +81,6 @@ export default function AddItemModal({ isOpen, onClose, onAddToList }: AddItemMo
 
   const handleMovieSelect = async (result: MovieSearchResult) => {
     const rating = parseFloat(result.imdbRating);
-    if (rating < 7.0) {
-      setSearchError(`"${result.Title}" has a ${rating} IMDB rating, which doesn't meet The List's quality bar (7.0+).`);
-      return;
-    }
     setSelectedItem({
       type: 'movie',
       title: result.Title,
@@ -92,9 +88,10 @@ export default function AddItemModal({ isOpen, onClose, onAddToList }: AddItemMo
       year: parseInt(result.Year),
       description: result.Plot,
       image_url: result.Poster !== 'N/A' ? result.Poster : null,
-      external_rating: rating,
+      external_rating: isNaN(rating) ? null : rating,
       imdb_id: result.imdbID,
       genre: result.Genre ? result.Genre.split(',')[0].trim() : null,
+      mood: null,
       external_link: `https://www.imdb.com/title/${result.imdbID}`,
     });
     setStep('confirm');
@@ -225,7 +222,7 @@ export default function AddItemModal({ isOpen, onClose, onAddToList }: AddItemMo
               </div>
               <div>
                 <p className="font-medium text-stone-900">Movie</p>
-                <p className="text-sm text-olive-light">Search OMDb — only 7.0+ IMDB rated</p>
+                <p className="text-sm text-olive-light">Search OMDb to find any movie</p>
               </div>
             </button>
             <button
@@ -467,8 +464,32 @@ export default function AddItemModal({ isOpen, onClose, onAddToList }: AddItemMo
                 {selectedItem.creator && (
                   <p className="text-sm text-olive mt-0.5">{selectedItem.creator}</p>
                 )}
+                {selectedItem.type === 'movie' && (
+                  <div className="mt-2">
+                    <label className="text-xs font-medium text-stone-500 block mb-1">What mood fits this movie?</label>
+                    <select
+                      value={selectedItem.mood || ''}
+                      onChange={(e) => setSelectedItem({ ...selectedItem, mood: e.target.value || null })}
+                      className="w-full px-3 py-2 bg-white border border-stone-200 rounded-xl text-xs text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none"
+                    >
+                      <option value="">No specific mood</option>
+                      <option value="Feel Good">Feel Good</option>
+                      <option value="Thriller">Thriller</option>
+                      <option value="Dark">Dark</option>
+                      <option value="Romantic">Romantic</option>
+                      <option value="Thought-Provoking">Thought-Provoking</option>
+                      <option value="Funny">Funny</option>
+                      <option value="Scary">Scary</option>
+                      <option value="Inspiring">Inspiring</option>
+                      <option value="Action-packed">Action-packed</option>
+                      <option value="Mind-bending">Mind-bending</option>
+                      <option value="Heartwarming">Heartwarming</option>
+                      <option value="Suspenseful">Suspenseful</option>
+                    </select>
+                  </div>
+                )}
                 {selectedItem.external_rating && (
-                  <p className="text-xs font-bold text-amber-primary bg-amber-primary/10 inline-block px-2 py-0.5 rounded-full mt-1">
+                  <p className="text-xs font-bold text-amber-primary bg-amber-primary/10 inline-block px-2 py-0.5 rounded-full mt-2">
                     Rating: {selectedItem.external_rating.toFixed(1)}
                   </p>
                 )}

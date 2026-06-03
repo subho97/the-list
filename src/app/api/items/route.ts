@@ -7,6 +7,7 @@ export async function GET(request: NextRequest) {
   const search = searchParams.get('search');
   const city = searchParams.get('city');
   const genre = searchParams.get('genre');
+  const mood = searchParams.get('mood');
   const cuisine = searchParams.get('cuisine');
   const minRating = parseFloat(searchParams.get('minRating') || '');
   const page = parseInt(searchParams.get('page') || '1');
@@ -36,6 +37,10 @@ export async function GET(request: NextRequest) {
 
   if (genre) {
     query = query.ilike('genre', `%${genre}%`);
+  }
+
+  if (mood) {
+    query = query.eq('mood', mood);
   }
 
   if (cuisine) {
@@ -71,7 +76,7 @@ export async function POST(request: NextRequest) {
 
   const body = await request.json();
 
-  const { type, title, creator, year, description, image_url, external_rating, imdb_id, external_link, added_by, city, google_maps_link, genre, cuisine, must_try, notes, purchase_link, lat, lng } = body;
+  const { type, title, creator, year, description, image_url, external_rating, imdb_id, external_link, added_by, city, google_maps_link, genre, mood, cuisine, must_try, notes, purchase_link, lat, lng } = body;
 
   if (!type || !title) {
     return NextResponse.json({ error: 'Type and title are required' }, { status: 400 });
@@ -97,6 +102,7 @@ export async function POST(request: NextRequest) {
       city: city || null,
       google_maps_link: google_maps_link || null,
       genre: genre || null,
+      mood: mood || null,
       cuisine: cuisine || null,
       must_try: must_try || null,
       notes: notes || null,

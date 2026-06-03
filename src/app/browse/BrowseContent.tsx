@@ -43,6 +43,8 @@ export default function BrowseContent() {
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
   const [genreFilter, setGenreFilter] = useState('');
   const [genres, setGenres] = useState<string[]>([]);
+  const [moodFilter, setMoodFilter] = useState('');
+  const [moods, setMoods] = useState<string[]>([]);
   const [minRating, setMinRating] = useState('');
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
@@ -124,6 +126,7 @@ export default function BrowseContent() {
     setCityFilter('');
     setCuisineFilter('');
     setGenreFilter('');
+    setMoodFilter('');
     setMinRating('');
     router.replace(`/browse?type=${tab}`, { scroll: false });
   };
@@ -140,6 +143,7 @@ export default function BrowseContent() {
       if (tab === 'food' && cityFilter) params.set('city', cityFilter);
       if (tab === 'food' && cuisineFilter) params.set('cuisine', cuisineFilter);
       if (tab === 'movie' && genreFilter) params.set('genre', genreFilter);
+      if (tab === 'movie' && moodFilter) params.set('mood', moodFilter);
       if (tab === 'movie' && minRating) params.set('minRating', minRating);
 
       const res = await fetch(`/api/items?${params}`);
@@ -157,11 +161,11 @@ export default function BrowseContent() {
     } finally {
       setIsLoading(false);
     }
-  }, [cityFilter, cuisineFilter, genreFilter, minRating]);
+  }, [cityFilter, cuisineFilter, genreFilter, moodFilter, minRating]);
 
   useEffect(() => {
     fetchItems(activeTab, searchQuery, 1);
-  }, [activeTab, searchQuery, cityFilter, cuisineFilter, genreFilter, minRating, fetchItems]);
+  }, [activeTab, searchQuery, cityFilter, cuisineFilter, genreFilter, moodFilter, minRating, fetchItems]);
 
   // Fetch cities and cuisines for food
   useEffect(() => {
@@ -171,10 +175,11 @@ export default function BrowseContent() {
     }
   }, [activeTab]);
 
-  // Fetch genres for movies
+  // Fetch genres and moods for movies
   useEffect(() => {
     if (activeTab === 'movie') {
       fetch('/api/genres').then(r => r.json()).then(d => setGenres(d.genres || [])).catch(() => {});
+      fetch('/api/moods').then(r => r.json()).then(d => setMoods(d.moods || [])).catch(() => {});
     }
   }, [activeTab]);
 
@@ -288,6 +293,21 @@ export default function BrowseContent() {
             >
               {RATING_OPTIONS.map(opt => (
                 <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Mood filter - dropdown */}
+          <div className="relative">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-olive-light pointer-events-none">🎭</span>
+            <select
+              value={moodFilter}
+              onChange={(e) => { setMoodFilter(e.target.value); setPage(1); }}
+              className="pl-8 pr-3 py-2 bg-white border border-stone-200 rounded-xl text-xs text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none"
+            >
+              <option value="">All moods</option>
+              {moods.map(m => (
+                <option key={m} value={m}>{m}</option>
               ))}
             </select>
           </div>
