@@ -112,11 +112,16 @@ function getL() {
 }
 
 // Orange map pin SVG matching the website's amber theme
-const ORANGE_PIN = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="40" viewBox="0 0 28 40">
-  <path d="M14 0C6.268 0 0 6.268 0 14c0 10.5 14 26 14 26s14-15.5 14-26C28 6.268 21.732 0 14 0z" fill="#D97706"/>
-  <circle cx="14" cy="14" r="8" fill="#FFFDE7"/>
-  <text x="14" y="17" text-anchor="middle" font-size="10" fill="#D97706" font-weight="bold">🍽</text>
-</svg>`;
+// Create an orange map pin HTML for divIcon (avoids Leaflet's shadow rendering with data URI SVGs)
+function orangePinHTML() {
+  return `<div style="position:relative;width:28px;height:40px">
+    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="40" viewBox="0 0 28 40">
+      <path d="M14 0C6.268 0 0 6.268 0 14c0 10.5 14 26 14 26s14-15.5 14-26C28 6.268 21.732 0 14 0z" fill="#D97706"/>
+      <circle cx="14" cy="14" r="8" fill="#FFFDE7"/>
+      <text x="14" y="17" text-anchor="middle" font-size="10" fill="#D97706" font-weight="bold">🍽</text>
+    </svg>
+  </div>`;
+}
 
 // Internal component that renders map layers
 function MapLayers({ items, userLocation }: { items: Item[]; userLocation: [number, number] | null }) {
@@ -134,15 +139,13 @@ function MapLayers({ items, userLocation }: { items: Item[]; userLocation: [numb
         iconSize: [16, 16],
         iconAnchor: [8, 8],
       }));
-      // Food markers: orange pin matching theme color
-      const encoded = encodeURIComponent(ORANGE_PIN);
-      setFoodIcon(L.icon({
-        iconUrl: 'data:image/svg+xml,' + encoded,
+      // Food markers: orange pin matching theme color (divIcon avoids shadow rendering)
+      setFoodIcon(L.divIcon({
+        className: '',
+        html: orangePinHTML(),
         iconSize: [28, 40],
         iconAnchor: [14, 40],
         popupAnchor: [0, -40],
-        shadowUrl: '',
-        shadowSize: [0, 0],
       }));
     });
   }, []);
