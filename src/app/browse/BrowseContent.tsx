@@ -260,14 +260,6 @@ export default function BrowseContent() {
         />
       </div>
 
-      {/* Movie disclaimer */}
-      {activeTab === 'movie' && (
-        <p className="text-xs text-olive-light mb-4 flex items-center gap-1.5">
-          <span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-primary" />
-          Only movies with 7.0+ IMDB rating make the cut
-        </p>
-      )}
-
       {/* Movie filters */}
       {activeTab === 'movie' && (
         <div className="flex flex-wrap gap-2 mb-4">
