@@ -156,7 +156,7 @@ export default function ReviewPage() {
 
         {/* Photo (required) */}
         <div className="p-3 bg-amber-50/50 rounded-xl border border-amber-200/50">
-          <PhotoUpload onFileSelect={setPhoto} />
+          <PhotoUpload onFileSelect={setPhoto} required={true} />
           <p className="text-xs text-amber-700 mt-2">📸 Photo is required — prevents fake reviews from bots.</p>
         </div>
 

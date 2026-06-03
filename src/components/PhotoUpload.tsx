@@ -6,9 +6,10 @@ import { Camera, Upload, X } from 'lucide-react';
 interface PhotoUploadProps {
   onFileSelect: (file: File | null) => void;
   currentPreview?: string | null;
+  required?: boolean;
 }
 
-export default function PhotoUpload({ onFileSelect, currentPreview }: PhotoUploadProps) {
+export default function PhotoUpload({ onFileSelect, currentPreview, required = false }: PhotoUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(currentPreview || null);
 
@@ -33,7 +34,7 @@ export default function PhotoUpload({ onFileSelect, currentPreview }: PhotoUploa
   return (
     <div className="space-y-2">
       <label className="block text-sm font-medium text-stone-700">
-        Photo <span className="text-rust">*</span>
+        Photo{required && <span className="text-rust"> *</span>}
       </label>
 
       {preview ? (
