@@ -32,7 +32,7 @@ export default function AddPage() {
   const [foodPhoto, setFoodPhoto] = useState<File | null>(null);
   const [addedBy, setAddedBy] = useState('');
   const [purchaseLink, setPurchaseLink] = useState('');
-  const [foodData, setFoodData] = useState({ title: '', creator: '', cuisine: '', must_try: '', notes: '', description: '', city: '', year: new Date().getFullYear() });
+  const [foodData, setFoodData] = useState({ title: '', creator: '', cuisine: '', must_try: '', notes: '', description: '', city: '', google_maps_link: '', year: new Date().getFullYear() });
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   useEffect(() => {
@@ -86,6 +86,7 @@ export default function AddPage() {
       image_url: result.volumeInfo.imageLinks?.thumbnail?.replace('http:', 'https:') || null,
       external_rating: result.volumeInfo.averageRating || null,
       external_link: result.volumeInfo.infoLink || null,
+      genre: result.volumeInfo.categories?.[0] || null,
     });
     setStep('confirm');
   };
@@ -118,7 +119,7 @@ export default function AddPage() {
         }
       }
       const itemData = type === 'food'
-        ? { type: 'food', title: foodData.title, creator: foodData.creator || foodData.cuisine, cuisine: foodData.cuisine || foodData.creator, must_try: foodData.must_try || null, notes: foodData.notes || null, description: foodData.description, city: foodData.city || null, image_url: imageUrl, added_by: addedBy.trim() || 'Anonymous' }
+        ? { type: 'food', title: foodData.title, creator: foodData.creator || foodData.cuisine, cuisine: foodData.cuisine || foodData.creator, must_try: foodData.must_try || null, notes: foodData.notes || null, description: foodData.description, city: foodData.city || null, google_maps_link: foodData.google_maps_link || null, image_url: imageUrl, added_by: addedBy.trim() || 'Anonymous' }
         : { ...selectedItem, image_url: imageUrl, added_by: addedBy.trim() || 'Anonymous' };
       if (purchaseLink.trim()) itemData.purchase_link = purchaseLink.trim();
       const res = await fetch('/api/items', {
@@ -136,7 +137,7 @@ export default function AddPage() {
   const resetForm = () => {
     setStep('choose-type'); setType(null); setSearchQuery(''); setSearchResults([]);
     setSearchError(''); setSelectedItem(null); setFoodPhoto(null); setAddedBy('');
-    setFoodData({ title: '', creator: '', cuisine: '', must_try: '', notes: '', description: '', city: '', year: new Date().getFullYear() });
+    setFoodData({ title: '', creator: '', cuisine: '', must_try: '', notes: '', description: '', city: '', google_maps_link: '', year: new Date().getFullYear() });
     setAddedItemId(null);
     setPurchaseLink('');
   };
@@ -211,7 +212,7 @@ export default function AddPage() {
                 return (
                   <button key={result.imdbID} onClick={() => isQualified && handleMovieSelect(result)} disabled={!isQualified}
                     className={`w-full flex items-center gap-3 p-3 rounded-xl border transition-all text-left ${isQualified ? 'border-stone-100 hover:border-amber-primary/30 hover:bg-stone-50 cursor-pointer' : 'border-red-100 bg-red-50/30 cursor-not-allowed opacity-70'}`}>
-                    <img src={result.Poster !== 'N/A' ? result.Poster : '/placeholder.svg'} alt={result.Title} className="w-12 h-16 object-cover rounded-lg bg-stone-100 shrink-0" onError={(e) => { e.target.src = '/placeholder.svg'; }} />
+                    <img src={result.Poster !== 'N/A' ? result.Poster : '/placeholder.svg'} alt={result.Title} className="w-12 h-16 object-cover rounded-lg bg-stone-100 shrink-0" loading="lazy" onError={(e) => { e.target.src = '/placeholder.svg'; }} />
                     <div className="flex-1 min-w-0 text-left">
                       <p className="font-medium text-stone-800 text-sm truncate">{result.Title}</p>
                       <p className="text-xs text-olive">{result.Year} · {result.Genre?.split(',')[0]}</p>
@@ -223,7 +224,7 @@ export default function AddPage() {
               }
               return (
                 <button key={result.id} onClick={() => handleBookSelect(result)} className="w-full flex items-center gap-3 p-3 rounded-xl border border-stone-100 hover:border-amber-primary/30 hover:bg-stone-50 transition-all text-left">
-                  {result.volumeInfo.imageLinks?.thumbnail ? <img src={result.volumeInfo.imageLinks.thumbnail.replace('http:', 'https:')} alt={result.volumeInfo.title} className="w-12 h-16 object-cover rounded-lg shrink-0 bg-stone-100" /> : <div className="w-12 h-16 rounded-lg bg-stone-100 flex items-center justify-center text-olive-light text-[10px] uppercase shrink-0">Book</div>}
+                  {result.volumeInfo.imageLinks?.thumbnail ? <img src={result.volumeInfo.imageLinks.thumbnail.replace('http:', 'https:')} alt={result.volumeInfo.title} className="w-12 h-16 object-cover rounded-lg shrink-0 bg-stone-100" loading="lazy" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} /> : <div className="w-12 h-16 rounded-lg bg-stone-100 flex items-center justify-center text-olive-light text-[10px] uppercase shrink-0">Book</div>}
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-stone-800 text-sm truncate">{result.volumeInfo.title}</p>
                     <p className="text-xs text-olive truncate">{result.volumeInfo.authors?.join(', ')}</p>
@@ -269,6 +270,12 @@ export default function AddPage() {
             </div>
           </div>
           <div>
+            <label className="block text-sm font-medium text-stone-700 mb-1.5">
+              🗺️ Google Maps link <span className="text-olive-light font-normal">(optional)</span>
+            </label>
+            <input type="url" value={foodData.google_maps_link} onChange={(e) => setFoodData({ ...foodData, google_maps_link: e.target.value })} placeholder="https://maps.app.goo.gl/..." className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary" />
+          </div>
+          <div>
             <label className="block text-sm font-medium text-stone-700 mb-1.5">Description <span className="text-olive-light font-normal">(optional)</span></label>
             <textarea value={foodData.description} onChange={(e) => setFoodData({ ...foodData, description: e.target.value })} placeholder="What makes this place special?" rows={3} className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary resize-none" />
           </div>
@@ -284,7 +291,7 @@ export default function AddPage() {
       {step === 'confirm' && selectedItem && (
         <div className="space-y-4">
           <div className="flex gap-4 p-4 rounded-xl bg-white border border-stone-200">
-            {selectedItem.image_url && <img src={selectedItem.image_url} alt={selectedItem.title || ''} className="w-20 h-28 object-cover rounded-lg shrink-0 bg-stone-100" />}
+            {selectedItem.image_url && <img src={selectedItem.image_url} alt={selectedItem.title || ''} className="w-20 h-28 object-cover rounded-lg shrink-0 bg-stone-100" loading="lazy" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />}
             <div className="flex-1 min-w-0">
               <h3 className="font-semibold text-stone-800">{selectedItem.title}</h3>
               {selectedItem.creator && <p className="text-sm text-olive mt-0.5">{selectedItem.creator}</p>}

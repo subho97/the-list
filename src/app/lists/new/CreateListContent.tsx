@@ -350,7 +350,7 @@ export default function CreateListContent() {
                 className="w-full flex items-center gap-3 p-3 rounded-xl border border-stone-100 hover:border-amber-primary/30 hover:bg-stone-50 transition-all duration-150 text-left"
               >
                 {item.image_url ? (
-                  <img src={item.image_url} alt={item.title} className="w-10 h-14 object-cover rounded-lg shrink-0 bg-stone-100" />
+                  <img src={item.image_url} alt={item.title} className="w-10 h-14 object-cover rounded-lg shrink-0 bg-stone-100" loading="lazy" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
                 ) : (
                   <div className="w-10 h-14 rounded-lg bg-stone-100 flex items-center justify-center text-olive-light text-[10px] shrink-0 uppercase tracking-wider">
                     {item.type}

@@ -40,7 +40,7 @@ export async function POST(
       if (updateError) throw updateError;
     }
 
-    // Get updated counts
+    // Get updated counts — already incremented by the update above
     const { data: updated } = await supabase
       .from('items')
       .select('upvotes, downvotes')
@@ -48,8 +48,8 @@ export async function POST(
       .single();
 
     return NextResponse.json({
-      upvotes: (updated?.upvotes || 0) + (vote === 'up' ? 1 : 0),
-      downvotes: (updated?.downvotes || 0) + (vote === 'down' ? 1 : 0),
+      upvotes: updated?.upvotes || 0,
+      downvotes: updated?.downvotes || 0,
     });
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : 'Vote failed';

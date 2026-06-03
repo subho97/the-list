@@ -78,5 +78,6 @@ export interface BookSearchResult {
     };
     averageRating?: number;
     infoLink?: string;
+    categories?: string[];
   };
 }

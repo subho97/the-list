@@ -61,7 +61,7 @@ export default function AddItemModal({ isOpen, onClose, onAddToList }: AddItemMo
         const res = await fetch(`/api/items/search?q=${encodeURIComponent(query)}`);
         if (!res.ok) throw new Error('Search failed');
         const data = await res.json();
-        setSearchResults(data.results?.filter((r: MovieSearchResult) => r.imdbRating && parseFloat(r.imdbRating) >= 8.0) || []);
+        setSearchResults(data.results?.filter((r: MovieSearchResult) => r.imdbRating && parseFloat(r.imdbRating) >= 7.0) || []);
       } else if (type === 'book') {
         const res = await fetch(`/api/items/search-books?q=${encodeURIComponent(query)}`);
         if (!res.ok) throw new Error('Search failed');
@@ -106,6 +106,7 @@ export default function AddItemModal({ isOpen, onClose, onAddToList }: AddItemMo
       image_url: result.volumeInfo.imageLinks?.thumbnail?.replace('http:', 'https:') || null,
       external_rating: result.volumeInfo.averageRating || null,
       external_link: result.volumeInfo.infoLink || null,
+      genre: result.volumeInfo.categories?.[0] || null,
     });
     setStep('confirm');
   };
@@ -136,8 +137,11 @@ export default function AddItemModal({ isOpen, onClose, onAddToList }: AddItemMo
         ? {
             type: 'food',
             title: foodData.title,
-            creator: foodData.creator,
-            year: foodData.year,
+            cuisine: foodData.cuisine || null,
+            must_try: foodData.must_try || null,
+            notes: foodData.notes || null,
+            city: foodData.city || null,
+            google_maps_link: foodData.google_maps_link || null,
             description: foodData.description,
             image_url: imageUrl,
             added_by: 'Anonymous',
@@ -180,7 +184,7 @@ export default function AddItemModal({ isOpen, onClose, onAddToList }: AddItemMo
     setSearchError('');
     setSelectedItem(null);
     setFoodPhoto(null);
-    setFoodData({ title: '', creator: '', description: '', year: new Date().getFullYear(), image_url: '' });
+    setFoodData({ title: '', cuisine: '', must_try: '', notes: '', description: '', city: '', google_maps_link: '', year: new Date().getFullYear() });
     onClose();
   };
 
@@ -217,7 +221,7 @@ export default function AddItemModal({ isOpen, onClose, onAddToList }: AddItemMo
               </div>
               <div>
                 <p className="font-medium text-stone-900">Movie</p>
-                <p className="text-sm text-olive-light">Search OMDb — only 8.0+ IMDB rated</p>
+                <p className="text-sm text-olive-light">Search OMDb — only 7.0+ IMDB rated</p>
               </div>
             </button>
             <button
@@ -299,6 +303,8 @@ export default function AddItemModal({ isOpen, onClose, onAddToList }: AddItemMo
                         src={movieResult.Poster !== 'N/A' ? movieResult.Poster : '/placeholder.svg'}
                         alt={movieResult.Title}
                         className="w-12 h-16 object-cover rounded-lg bg-stone-100 shrink-0"
+                        loading="lazy"
+                        onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.svg'; }}
                       />
                       <div className="flex-1 min-w-0">
                         <p className="font-medium text-stone-900 text-sm truncate">{movieResult.Title}</p>
@@ -323,6 +329,8 @@ export default function AddItemModal({ isOpen, onClose, onAddToList }: AddItemMo
                       src={bookResult.volumeInfo.imageLinks?.thumbnail?.replace('http:', 'https:') || '/placeholder.svg'}
                       alt={bookResult.volumeInfo.title}
                       className="w-12 h-16 object-cover rounded-lg bg-stone-100 shrink-0"
+                      loading="lazy"
+                      onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                     />
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-stone-900 text-sm truncate">{bookResult.volumeInfo.title}</p>
@@ -344,22 +352,66 @@ export default function AddItemModal({ isOpen, onClose, onAddToList }: AddItemMo
         {step === 'detail' && type === 'food' && (
           <div className="p-5 space-y-4">
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">Restaurant Name *</label>
+              <label className="block text-sm font-medium text-stone-700 mb-1">Name *</label>
               <input
                 type="text"
                 value={foodData.title}
                 onChange={(e) => setFoodData({ ...foodData, title: e.target.value })}
-                placeholder="e.g. The Bombay Canteen"
+                placeholder="Restaurant or place name"
                 className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm text-stone-700 placeholder:text-olive-light focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary transition-all duration-150"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">Cuisine / Location</label>
+              <label className="block text-sm font-medium text-stone-700 mb-1">Cuisine / Category</label>
               <input
                 type="text"
-                value={foodData.creator}
-                onChange={(e) => setFoodData({ ...foodData, creator: e.target.value })}
-                placeholder="e.g. Indian, Mumbai"
+                value={foodData.cuisine}
+                onChange={(e) => setFoodData({ ...foodData, cuisine: e.target.value })}
+                placeholder="e.g. Indian, Italian, Cafe"
+                className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm text-stone-700 placeholder:text-olive-light focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary transition-all duration-150"
+                list="modal-cuisine-list"
+              />
+              <datalist id="modal-cuisine-list">
+                <option value="BBQ" /><option value="Bakery" /><option value="Biryani" /><option value="Breakfast" /><option value="Brunch" /><option value="Burgers" /><option value="Cafe" /><option value="Chinese" /><option value="Dessert" /><option value="Dimsum" /><option value="Food Truck" /><option value="French" /><option value="Grill" /><option value="Ice Cream" /><option value="Italian" /><option value="Japanese" /><option value="Kebab" /><option value="Korean" /><option value="Mediterranean" /><option value="Mexican" /><option value="Middle Eastern" /><option value="Momos" /><option value="Noodles" /><option value="North Indian" /><option value="Pan Asian" /><option value="Pizza" /><option value="Ramen" /><option value="Shawarma" /><option value="South Indian" /><option value="Steak" /><option value="Street Food" /><option value="Sushi" /><option value="Thai" /><option value="Vegan" /><option value="Vietnamese" />
+              </datalist>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-stone-700 mb-1">✨ Must try</label>
+              <input
+                type="text"
+                value={foodData.must_try}
+                onChange={(e) => setFoodData({ ...foodData, must_try: e.target.value })}
+                placeholder="e.g. Butter Chicken, Sushi Platter"
+                className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm text-stone-700 placeholder:text-olive-light focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary transition-all duration-150"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-stone-700 mb-1">📝 Notes</label>
+              <input
+                type="text"
+                value={foodData.notes}
+                onChange={(e) => setFoodData({ ...foodData, notes: e.target.value })}
+                placeholder="Timings, hints, etc."
+                className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm text-stone-700 placeholder:text-olive-light focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary transition-all duration-150"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-stone-700 mb-1">City</label>
+              <input
+                type="text"
+                value={foodData.city}
+                onChange={(e) => setFoodData({ ...foodData, city: e.target.value })}
+                placeholder="e.g. Bangalore"
+                className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm text-stone-700 placeholder:text-olive-light focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary transition-all duration-150"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-stone-700 mb-1">🗺️ Google Maps link</label>
+              <input
+                type="url"
+                value={foodData.google_maps_link}
+                onChange={(e) => setFoodData({ ...foodData, google_maps_link: e.target.value })}
+                placeholder="https://maps.app.goo.gl/..."
                 className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm text-stone-700 placeholder:text-olive-light focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary transition-all duration-150"
               />
             </div>
@@ -379,7 +431,7 @@ export default function AddItemModal({ isOpen, onClose, onAddToList }: AddItemMo
                 setSelectedItem({
                   type: 'food',
                   title: foodData.title,
-                  creator: foodData.creator,
+                  cuisine: foodData.cuisine,
                   description: foodData.description,
                   image_url: null,
                 });
@@ -402,6 +454,8 @@ export default function AddItemModal({ isOpen, onClose, onAddToList }: AddItemMo
                   src={selectedItem.image_url}
                   alt={selectedItem.title || ''}
                   className="w-20 h-28 object-cover rounded-lg shrink-0"
+                  loading="lazy"
+                  onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                 />
               )}
               <div className="flex-1 min-w-0">

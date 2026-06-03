@@ -68,8 +68,8 @@ export default function ListPageClient({ list: initialList }: ListPageClientProp
   };
 
   const handleVerifyPin = async () => {
-    if (!/^\d{4}$/.test(pinInput)) {
-      setPinError('PIN must be exactly 4 digits');
+    if (!/^[a-zA-Z0-9]{4,6}$/.test(pinInput)) {
+      setPinError('PIN must be 4-6 alphanumeric characters');
       return;
     }
 
@@ -286,7 +286,7 @@ export default function ListPageClient({ list: initialList }: ListPageClientProp
                 </button>
               </div>
               <div className="flex items-center gap-3">
-                {initialList.has_pin && (
+                {initialList.has_pin ? (
                   <button
                     onClick={handleDeleteList}
                     className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-xl transition-colors"
@@ -294,6 +294,10 @@ export default function ListPageClient({ list: initialList }: ListPageClientProp
                     <Trash2 size={13} />
                     Delete list
                   </button>
+                ) : (
+                  <span className="text-xs text-olive-light italic" title="Only PIN-protected lists can be deleted. This keeps public lists safe from accidental removal.">
+                    💡 Add a PIN to enable deletion
+                  </span>
                 )}
                 <span className="text-xs text-olive-light">
                   Hover over an item and click <Trash2 size={11} className="inline text-red-400" /> to remove
@@ -365,7 +369,7 @@ export default function ListPageClient({ list: initialList }: ListPageClientProp
             </div>
 
             <p className="text-sm text-olive mb-4">
-              This list is PIN-protected. Enter the 4-digit PIN to edit it.
+              This list is PIN-protected. Enter the 4-6 character PIN to edit it.
             </p>
 
             {pinError && (
@@ -380,14 +384,14 @@ export default function ListPageClient({ list: initialList }: ListPageClientProp
                 type="password"
                 value={pinInput}
                 onChange={(e) => {
-                  const val = e.target.value.replace(/\D/g, '').slice(0, 4);
+                  const val = e.target.value.replace(/[^a-zA-Z0-9]/g, '').slice(0, 6);
                   setPinInput(val);
                   setPinError('');
                 }}
-                placeholder="Enter PIN"
-                maxLength={4}
-                inputMode="numeric"
-                pattern="\d{4}"
+                placeholder="Enter PIN (4-6 chars)"
+                maxLength={6}
+                inputMode="text"
+                pattern="[a-zA-Z0-9]{4,6}"
                 className="w-full text-center text-2xl tracking-[0.5em] px-4 py-4 bg-white border border-stone-200 rounded-xl text-stone-900 placeholder:text-olive-light/50 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary transition-all duration-150"
                 autoFocus
                 onKeyDown={(e) => {
@@ -405,7 +409,7 @@ export default function ListPageClient({ list: initialList }: ListPageClientProp
               </button>
               <button
                 onClick={handleVerifyPin}
-                disabled={pinInput.length !== 4 || isVerifying}
+                disabled={pinInput.length < 4 || isVerifying}
                 className="flex-1 py-3 bg-amber-primary text-white rounded-xl font-medium text-sm hover:bg-amber-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm"
               >
                 {isVerifying ? (
@@ -463,7 +467,7 @@ export default function ListPageClient({ list: initialList }: ListPageClientProp
                     className="w-full flex items-center gap-3 p-3 rounded-xl border border-stone-100 hover:border-amber-primary/30 hover:bg-stone-50 transition-all duration-150 text-left"
                   >
                     {item.image_url ? (
-                      <img src={item.image_url} alt={item.title} className="w-10 h-14 object-cover rounded-lg shrink-0 bg-stone-100" />
+                      <img src={item.image_url} alt={item.title} className="w-10 h-14 object-cover rounded-lg shrink-0 bg-stone-100" loading="lazy" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
                     ) : (
                       <div className="w-10 h-14 rounded-lg bg-stone-100 flex items-center justify-center text-olive-light text-[10px] shrink-0 uppercase tracking-wider">
                         {item.type}

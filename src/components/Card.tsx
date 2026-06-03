@@ -105,6 +105,7 @@ export default function Card({ item }: CardProps) {
             alt={item.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             loading="lazy"
+            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
           />
         ) : item.type === 'food' ? (
           <div className={`w-full h-full bg-gradient-to-br ${getCuisineGradient(item.cuisine)} flex flex-col items-center justify-center`}>

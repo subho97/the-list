@@ -185,6 +185,21 @@ export default function BrowseContent() {
     fetchItems(activeTab, searchQuery, nextPage);
   };
 
+  // Refs for IntersectionObserver to avoid stale closures
+  const pageRef = useRef(page);
+  const hasMoreRef = useRef(hasMore);
+  const isLoadingRef = useRef(isLoading);
+  const activeTabRef = useRef(activeTab);
+  const searchQueryRef = useRef(searchQuery);
+  const fetchItemsRef = useRef(fetchItems);
+
+  pageRef.current = page;
+  hasMoreRef.current = hasMore;
+  isLoadingRef.current = isLoading;
+  activeTabRef.current = activeTab;
+  searchQueryRef.current = searchQuery;
+  fetchItemsRef.current = fetchItems;
+
   // Infinite scroll — auto-load when near bottom
   const sentinelRef = useRef<HTMLDivElement>(null);
 
@@ -195,17 +210,17 @@ export default function BrowseContent() {
     const observer = new IntersectionObserver((entries) => {
       if (entries[0].isIntersecting && !busy) {
         busy = true;
-        if (hasMore && !isLoading) {
-          const nextPage = page + 1;
+        if (hasMoreRef.current && !isLoadingRef.current) {
+          const nextPage = pageRef.current + 1;
           setPage(nextPage);
-          fetchItems(activeTab, searchQuery, nextPage);
+          fetchItemsRef.current(activeTabRef.current, searchQueryRef.current, nextPage);
         }
         setTimeout(() => { busy = false; }, 1000);
       }
     }, { rootMargin: '400px' });
     observer.observe(el);
     return () => observer.disconnect();
-  }, [hasMore]);
+  }, []); // Only mount/unmount — refs keep callback current
 
   const addPageUrl = `/add?type=${activeTab}`;
 
@@ -344,7 +359,7 @@ export default function BrowseContent() {
       {!error && (
         <>
           {isLoading && items.length === 0 ? (
-            <div className="flex items-center justify-center py-24">
+            <div className="min-h-[400px] flex items-center justify-center py-24">
               <Loader2 size={28} className="animate-spin text-amber-primary" />
             </div>
           ) : items.length === 0 && !isLoading ? (
