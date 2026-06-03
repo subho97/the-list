@@ -816,31 +816,37 @@ export default function AddPage() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1.5">📍 Area / Neighborhood <span className="text-olive-light font-normal">(e.g. HSR Layout, Koramangala)</span></label>
+            <label className="block text-sm font-medium text-stone-700 mb-1.5">
+              🗺️ Google Maps link * <span className="text-olive-light font-normal">(paste link — area auto-detected)</span>
+            </label>
+            <input type="url" value={foodData.google_maps_link} onChange={(e) => {
+              const link = e.target.value;
+              setFoodData({
+                ...foodData,
+                google_maps_link: link,
+                area: extractAreaFromLink(link) || foodData.area,
+              });
+            }} placeholder="https://maps.app.goo.gl/..." className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary" required />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-stone-700 mb-1.5">📍 Area / Neighborhood <span className="text-olive-light font-normal">(auto-filled from link, editable)</span></label>
             <div className="relative">
-              <input type="text" value={foodData.area} onChange={(e) => setFoodData({ ...foodData, area: e.target.value })} placeholder="Type or select area..." className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary" list="area-list" />
+              <input type="text" value={foodData.area} onChange={(e) => setFoodData({ ...foodData, area: e.target.value })} placeholder="Auto-detected from Google Maps link" className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary" list="area-list" />
               <datalist id="area-list">
                 <option value="HSR Layout" /><option value="BTM Layout" /><option value="Koramangala" /><option value="Indiranagar" /><option value="Jayanagar" /><option value="JP Nagar" /><option value="Whitefield" /><option value="Marathahalli" /><option value="Electronic City" /><option value="Banashankari" /><option value="MG Road" /><option value="Brigade Road" /><option value="Church Street" /><option value="Commercial Street" /><option value="Lavelle Road" /><option value="Residency Road" /><option value="Basavanagudi" /><option value="Malleshwaram" /><option value="Rajajinagar" /><option value="Yelahanka" /><option value="Hebbal" /><option value="Kalyan Nagar" /><option value="HAL" /><option value="Sarjapur Road" /><option value="Bellandur" /><option value="Hennur" /><option value="Kamanahalli" /><option value="RT Nagar" /><option value="Seshadripuram" /><option value="Ulsoor" /><option value="Cooke Town" /><option value="Sadashivanagar" /><option value="Cunningham Road" /><option value="Vasanth Nagar" /><option value="Domlur" /><option value="Jakkur" /><option value="Kengeri" /><option value="Vijayanagar" /><option value="Rajajinagar" /><option value="Chamrajpet" /><option value="Mysore City" /><option value="Kuvempunagar" /><option value="Vijayanagar (Mysore)" /><option value="Gokulam" /><option value="JayaLakshmipuram" /><option value="Hebbal (Mysore)" />
               </datalist>
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1.5">
-              🗺️ Google Maps link * <span className="text-olive-light font-normal">(required — used to extract location)</span>
-            </label>
-            <input type="url" value={foodData.google_maps_link} onChange={(e) => setFoodData({ ...foodData, google_maps_link: e.target.value })} placeholder="https://maps.app.goo.gl/..." className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary" required />
-          </div>
-          <div>
             <label className="block text-sm font-medium text-stone-700 mb-1.5">Description <span className="text-olive-light font-normal">(optional)</span></label>
             <textarea value={foodData.description} onChange={(e) => setFoodData({ ...foodData, description: e.target.value })} placeholder="What makes this place special?" rows={3} className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary resize-none" />
           </div>
           <PhotoUpload onFileSelect={setFoodPhoto} />
-          <p className="text-xs text-olive-light">No photo? We&apos;ll show a cuisine emoji on a gradient background.</p>
           <div className="flex gap-3 pt-2">
             <button onClick={() => { setStep('choose-type'); setType(null); }} className="flex-1 py-3 border border-stone-200 text-stone-600 rounded-xl font-medium text-sm hover:bg-stone-50 transition-colors">Back</button>
             <button onClick={() => { setSelectedItem({ type: 'food', title: foodData.title, creator: foodData.cuisine || foodData.creator, must_try: foodData.must_try || null, notes: foodData.notes || null, description: foodData.description, city: foodData.city }); setStep('confirm'); }} disabled={!foodData.title || !foodData.cuisine || !foodData.city || !foodData.google_maps_link} className="flex-1 py-3 bg-amber-primary text-white rounded-xl font-medium text-sm hover:bg-amber-dark disabled:opacity-50 disabled:cursor-not-allowed">Preview & Add</button>
-          </div>
         </div>
+          </div>
       )}
 
       {step === 'confirm' && selectedItem && (

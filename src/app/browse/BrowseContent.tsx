@@ -375,19 +375,17 @@ export default function BrowseContent() {
             ))}
           </select>
 
-          {/* Author filter */}
-          {authors.length > 0 && (
-            <select
-              value={authorFilter}
-              onChange={(e) => { setAuthorFilter(e.target.value); setPage(1); }}
-              className="min-w-0 flex-1 px-2 py-1.5 bg-white border border-stone-200 rounded-xl text-[10px] sm:text-[11px] text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none truncate"
-            >
-              <option value="">✍️ Author</option>
-              {authors.map(a => (
-                <option key={a} value={a}>{a}</option>
-              ))}
-            </select>
-          )}
+          {/* Author filter — always rendered to prevent layout shift */}
+          <select
+            value={authorFilter}
+            onChange={(e) => { setAuthorFilter(e.target.value); setPage(1); }}
+            className="min-w-0 flex-1 px-2 py-1.5 bg-white border border-stone-200 rounded-xl text-[10px] sm:text-[11px] text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none truncate"
+          >
+            <option value="">✍️ Author</option>
+            {authors.map(a => (
+              <option key={a} value={a}>{a}</option>
+            ))}
+          </select>
         </div>
       )}
 
@@ -402,26 +400,22 @@ export default function BrowseContent() {
             <option value="">🏙️ City</option>
             {cities.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
-          {areas.length > 0 && (
-            <select
-              value={areaFilter}
-              onChange={(e) => { setAreaFilter(e.target.value); setPage(1); }}
-              className="flex-1 min-w-0 px-2 py-1.5 bg-white border border-stone-200 rounded-xl text-[10px] sm:text-[11px] text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none truncate"
-            >
-              <option value="">📍 Area</option>
-              {areas.map(a => <option key={a} value={a}>{a}</option>)}
-            </select>
-          )}
-          {cuisines.length > 0 && (
-            <select
-              value={cuisineFilter}
-              onChange={(e) => { setCuisineFilter(e.target.value); setPage(1); }}
-              className="flex-1 min-w-0 px-2 py-1.5 bg-white border border-stone-200 rounded-xl text-[10px] sm:text-[11px] text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none truncate"
-            >
-              <option value="">🍽️ Cuisine</option>
-              {cuisines.map(c => <option key={c} value={c}>{c}</option>)}
-            </select>
-          )}
+          <select
+            value={areaFilter}
+            onChange={(e) => { setAreaFilter(e.target.value); setPage(1); }}
+            className="flex-1 min-w-0 px-2 py-1.5 bg-white border border-stone-200 rounded-xl text-[10px] sm:text-[11px] text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none truncate"
+          >
+            <option value="">📍 Area</option>
+            {areas.map(a => <option key={a} value={a}>{a}</option>)}
+          </select>
+          <select
+            value={cuisineFilter}
+            onChange={(e) => { setCuisineFilter(e.target.value); setPage(1); }}
+            className="flex-1 min-w-0 px-2 py-1.5 bg-white border border-stone-200 rounded-xl text-[10px] sm:text-[11px] text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none truncate"
+          >
+            <option value="">🍽️ Cuisine</option>
+            {cuisines.map(c => <option key={c} value={c}>{c}</option>)}
+          </select>
           <button
             onClick={() => setViewMode(viewMode === 'list' ? 'map' : 'list')}
             className="shrink-0 flex items-center gap-1 px-3 py-1.5 bg-white border border-stone-200 rounded-xl text-[10px] sm:text-[11px] font-medium text-stone-600 hover:border-amber-primary/40 hover:text-amber-primary transition-all duration-150"
