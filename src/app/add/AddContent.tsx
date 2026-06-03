@@ -80,7 +80,12 @@ export default function AddPage() {
 
   // Click outside to close suggestions
   useEffect(() => {
-    const handler = () => setShowFoodSuggestions(false);
+    const handler = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest('.food-name-autocomplete')) {
+        setShowFoodSuggestions(false);
+      }
+    };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, []);
@@ -330,7 +335,7 @@ export default function AddPage() {
 
       {step === 'detail' && type === 'food' && (
         <div className="space-y-4">
-          <div className="relative">
+          <div className="relative food-name-autocomplete">
             <label className="block text-sm font-medium text-stone-700 mb-1.5">Name *</label>
             <input
               type="text"
