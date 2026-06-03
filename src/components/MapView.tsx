@@ -58,6 +58,7 @@ export default function MapView({ items }: { items: Item[] }) {
   const mapInstance = useRef<any>(null);
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
   const [mapError, setMapError] = useState<string | null>(null);
+  const [mapReady, setMapReady] = useState(false);
 
   // Get user's location
   useEffect(() => {
@@ -106,8 +107,15 @@ export default function MapView({ items }: { items: Item[] }) {
           maxZoom: 18,
         }).addTo(map);
 
-        // Invalidate size to handle the loading overlay
-        setTimeout(() => map.invalidateSize(), 100);
+        // Remove the loading overlay and invalidate size
+        if (mapRef.current) {
+          const overlay = mapRef.current.querySelector('.map-loading-overlay');
+          if (overlay) overlay.remove();
+        }
+        setTimeout(() => {
+          map.invalidateSize();
+          setMapReady(true);
+        }, 100);
 
         mapInstance.current = map;
       } catch (err) {
@@ -128,12 +136,13 @@ export default function MapView({ items }: { items: Item[] }) {
 
   // Add markers when items or user location change
   useEffect(() => {
-    if (!mapInstance.current) return;
+    if (!mapInstance.current || !mapReady) return;
     const map = mapInstance.current;
 
-    // Clear existing markers
+    // Clear existing markers (keep tile layer)
     map.eachLayer((layer: any) => {
-      if (layer instanceof (map as any).constructor.Marker) {
+      const L = (map as any).constructor;
+      if (layer instanceof L.Marker) {
         map.removeLayer(layer);
       }
     });
@@ -183,9 +192,9 @@ export default function MapView({ items }: { items: Item[] }) {
       }
     }
 
-    // Recalculate map size (handles the loading overlay being removed)
+    // Recalculate map size
     setTimeout(() => map.invalidateSize(), 50);
-  }, [items, userLocation, mapInstance.current]);
+  }, [items, userLocation, mapInstance.current, mapReady]);
 
   if (mapError) {
     return (
@@ -216,12 +225,14 @@ export default function MapView({ items }: { items: Item[] }) {
     <div className="space-y-3">
       {/* Map */}
       <div ref={mapRef} className="w-full h-[400px] rounded-xl border border-stone-200 shadow-sm z-0 relative">
-        <div className="absolute inset-0 flex items-center justify-center bg-stone-50 rounded-xl">
-          <div className="text-center">
-            <MapPin size={24} className="mx-auto text-olive-light animate-pulse" />
-            <p className="text-xs text-olive-light mt-2">Loading map...</p>
+        {!mapReady && (
+          <div className="map-loading-overlay absolute inset-0 flex items-center justify-center bg-stone-50 rounded-xl z-[1000]">
+            <div className="text-center">
+              <MapPin size={24} className="mx-auto text-olive-light animate-pulse" />
+              <p className="text-xs text-olive-light mt-2">Loading map...</p>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Legend */}
