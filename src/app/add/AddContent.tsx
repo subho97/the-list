@@ -2,6 +2,27 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+
+// Extract area/neighborhood from Google Maps URL
+function extractAreaFromLink(url) {
+  if (!url) return '';
+  // Try to extract from place name in URL
+  const match = url.match(/place\/([^/]+)/i) || url.match(/\/([^/]+)\/@/);
+  if (match) {
+    const place = decodeURIComponent(match[1].replace(/\+/g, ' '));
+    // Check for common Bangalore area names
+    const areas = ['HSR Layout', 'BTM Layout', 'Koramangala', 'Indiranagar', 'Jayanagar',
+      'JP Nagar', 'Whitefield', 'Marathahalli', 'Electronic City', 'Banashankari',
+      'MG Road', 'Brigade Road', 'Church Street', 'Basavanagudi', 'Malleshwaram',
+      'Rajajinagar', 'Yelahanka', 'Hebbal', 'Kalyan Nagar', 'Sarjapur Road',
+      'Bellandur', 'Hennur', 'RT Nagar', 'Sadashivanagar', 'Domlur',
+      'Vijayanagar', 'Mysore City', 'Gokulam', 'Kuvempunagar', 'Jayanagar (Mysore)'];
+    for (const area of areas) {
+      if (place.toLowerCase().includes(area.toLowerCase())) return area;
+    }
+  }
+  return '';
+}
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Film, BookOpen, UtensilsCrossed, Search, X, AlertCircle, Loader2, Check } from 'lucide-react';
 import { ItemType, MovieSearchResult, BookSearchResult, Item } from '@/lib/types';
@@ -61,11 +82,6 @@ export default function AddPage() {
   };
 
   const handleMovieSelect = (result: MovieSearchResult) => {
-    const rating = parseFloat(result.imdbRating);
-    if (rating < 7.0) {
-      setSearchError(`"${result.Title}" has IMDB ${rating} — doesn't meet The List's 7.0+ bar.`);
-      return;
-    }
     setSelectedItem({
       type: 'movie', title: result.Title, creator: result.Director || 'Unknown',
       year: parseInt(result.Year), description: result.Plot || null,
@@ -120,7 +136,7 @@ export default function AddPage() {
         }
       }
       const itemData = type === 'food'
-        ? { type: 'food', title: foodData.title, creator: foodData.creator || foodData.cuisine, cuisine: foodData.cuisine || foodData.creator, must_try: foodData.must_try || null, notes: foodData.notes || null, description: foodData.description, city: foodData.city || null, area: foodData.area || null, google_maps_link: foodData.google_maps_link || null, image_url: imageUrl, added_by: addedBy.trim() || 'Anonymous' }
+        ? { type: 'food', title: foodData.title, creator: foodData.creator || foodData.cuisine, cuisine: foodData.cuisine || foodData.creator, must_try: foodData.must_try || null, notes: foodData.notes || null, description: foodData.description, city: foodData.city || null, area: (foodData.area || extractAreaFromLink(foodData.google_maps_link)), google_maps_link: foodData.google_maps_link || null, image_url: imageUrl, added_by: addedBy.trim() || 'Anonymous' }
         : { ...selectedItem, image_url: imageUrl, added_by: addedBy.trim() || 'Anonymous' };
       if (purchaseLink.trim()) itemData.purchase_link = purchaseLink.trim();
       const res = await fetch('/api/items', {
@@ -187,7 +203,7 @@ export default function AddPage() {
                 <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${config.gradient} flex items-center justify-center text-white shadow-sm group-hover:scale-105 transition-transform`}><Icon size={26} /></div>
                 <div className="flex-1">
                   <p className="font-semibold text-stone-800">{config.label}</p>
-                  <p className="text-sm text-olive-light mt-0.5">{key === 'movie' ? 'Search OMDb — only 7.0+ IMDB rated' : key === 'book' ? 'Search Google Books' : 'Manual entry with photo'}</p>
+                  <p className="text-sm text-olive-light mt-0.5">{key === 'movie' ? 'Search movies by title' : key === 'book' ? 'Search books by title' : 'Manual entry with photo'}</p>
                 </div>
               </button>
             );
@@ -209,16 +225,14 @@ export default function AddPage() {
             {searchResults.map((result) => {
               if (type === 'movie') {
                 const rating = parseFloat(result.imdbRating);
-                const isQualified = !isNaN(rating) && rating >= 7.0;
                 return (
-                  <button key={result.imdbID} onClick={() => isQualified && handleMovieSelect(result)} disabled={!isQualified}
-                    className={`w-full flex items-center gap-3 p-3 rounded-xl border transition-all text-left ${isQualified ? 'border-stone-100 hover:border-amber-primary/30 hover:bg-stone-50 cursor-pointer' : 'border-red-100 bg-red-50/30 cursor-not-allowed opacity-70'}`}>
+                  <button key={result.imdbID} onClick={() => handleMovieSelect(result)}
+                    className="w-full flex items-center gap-3 p-3 rounded-xl border border-stone-100 hover:border-amber-primary/30 hover:bg-stone-50 transition-all text-left cursor-pointer">
                     <img src={result.Poster !== 'N/A' ? result.Poster : '/placeholder.svg'} alt={result.Title} className="w-12 h-16 object-cover rounded-lg bg-stone-100 shrink-0" loading="lazy" onError={(e) => { e.target.src = '/placeholder.svg'; }} />
                     <div className="flex-1 min-w-0 text-left">
                       <p className="font-medium text-stone-800 text-sm truncate">{result.Title}</p>
                       <p className="text-xs text-olive">{result.Year} · {result.Genre?.split(',')[0]}</p>
-                      {isQualified && <p className="text-xs font-bold text-amber-primary mt-1">⭐ {rating.toFixed(1)}</p>}
-                      {!isQualified && <p className="text-xs text-red-500 mt-1">IMDB {rating} — below 7.0</p>}
+                      {!isNaN(rating) && <p className="text-xs font-bold text-amber-primary mt-1">⭐ {rating.toFixed(1)}</p>}
                     </div>
                   </button>
                 );
@@ -245,13 +259,84 @@ export default function AddPage() {
             <input type="text" value={foodData.title} onChange={(e) => setFoodData({ ...foodData, title: e.target.value })} placeholder="Restaurant or place name" className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary" autoFocus />
           </div>
           <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1.5">Cuisine / Category</label>
-            <div className="relative">
-              <input type="text" value={foodData.cuisine} onChange={(e) => setFoodData({ ...foodData, cuisine: e.target.value })} placeholder="Type or select cuisine..." className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary" list="cuisine-list" />
-              <datalist id="cuisine-list">
-                <option value="American" /><option value="Arabian" /><option value="Argentinian" /><option value="BBQ" /><option value="Bakery" /><option value="Biryani" /><option value="Brazilian" /><option value="Breakfast" /><option value="British" /><option value="Brunch" /><option value="Burgers" /><option value="Cafe" /><option value="Cajun" /><option value="Caribbean" /><option value="Chinese" /><option value="Dessert" /><option value="Dimsum" /><option value="Ethiopian" /><option value="Filipino" /><option value="Food Truck" /><option value="French" /><option value="German" /><option value="Greek" /><option value="Grill" /><option value="Healthy" /><option value="Ice Cream" /><option value="Indian Street Food" /><option value="Indonesian" /><option value="Italian" /><option value="Japanese" /><option value="Kebab" /><option value="Korean" /><option value="Lebanese" /><option value="Litti Chokha" /><option value="Malaysian" /><option value="Mediterranean" /><option value="Mexican" /><option value="Middle Eastern" /><option value="Momos" /><option value="Moroccan" /><option value="Mughlai" /><option value="Nigerian" /><option value="Noodles" /><option value="North African" /><option value="North Indian" /><option value="Pan Asian" /><option value="Persian" /><option value="Peruvian" /><option value="Pizza" /><option value="Polish" /><option value="Portuguese" /><option value="Ramen" /><option value="Russian" /><option value="Sandwiches" /><option value="Seafood" /><option value="Shawarma" /><option value="South Indian" /><option value="Southern" /><option value="Spanish" /><option value="Steak" /><option value="Street Food" /><option value="Sushi" /><option value="Taiwanese" /><option value="Tex-Mex" /><option value="Thai" /><option value="Tibetan" /><option value="Turkish" /><option value="Vegan" /><option value="Vegetarian" /><option value="Vietnamese" />
-              </datalist>
-            </div>
+            <label className="block text-sm font-medium text-stone-700 mb-1.5">Cuisine / Category *</label>
+            <select
+              value={foodData.cuisine}
+              onChange={(e) => setFoodData({ ...foodData, cuisine: e.target.value })}
+              className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none"
+            >
+              <option value="">Select cuisine...</option>
+              <option value="American">American</option>
+              <option value="Arabian">Arabian</option>
+              <option value="Argentinian">Argentinian</option>
+              <option value="BBQ">BBQ</option>
+              <option value="Bakery">Bakery</option>
+              <option value="Biryani">Biryani</option>
+              <option value="Brazilian">Brazilian</option>
+              <option value="Breakfast">Breakfast</option>
+              <option value="British">British</option>
+              <option value="Brunch">Brunch</option>
+              <option value="Burgers">Burgers</option>
+              <option value="Cafe">Cafe</option>
+              <option value="Cajun">Cajun</option>
+              <option value="Caribbean">Caribbean</option>
+              <option value="Chinese">Chinese</option>
+              <option value="Dessert">Dessert</option>
+              <option value="Dimsum">Dimsum</option>
+              <option value="Ethiopian">Ethiopian</option>
+              <option value="Filipino">Filipino</option>
+              <option value="Food Truck">Food Truck</option>
+              <option value="French">French</option>
+              <option value="German">German</option>
+              <option value="Greek">Greek</option>
+              <option value="Grill">Grill</option>
+              <option value="Healthy">Healthy</option>
+              <option value="Ice Cream">Ice Cream</option>
+              <option value="Indian Street Food">Indian Street Food</option>
+              <option value="Indonesian">Indonesian</option>
+              <option value="Italian">Italian</option>
+              <option value="Japanese">Japanese</option>
+              <option value="Kebab">Kebab</option>
+              <option value="Korean">Korean</option>
+              <option value="Lebanese">Lebanese</option>
+              <option value="Litti Chokha">Litti Chokha</option>
+              <option value="Malaysian">Malaysian</option>
+              <option value="Mediterranean">Mediterranean</option>
+              <option value="Mexican">Mexican</option>
+              <option value="Middle Eastern">Middle Eastern</option>
+              <option value="Momos">Momos</option>
+              <option value="Moroccan">Moroccan</option>
+              <option value="Mughlai">Mughlai</option>
+              <option value="Nigerian">Nigerian</option>
+              <option value="Noodles">Noodles</option>
+              <option value="North African">North African</option>
+              <option value="North Indian">North Indian</option>
+              <option value="Pan Asian">Pan Asian</option>
+              <option value="Persian">Persian</option>
+              <option value="Peruvian">Peruvian</option>
+              <option value="Pizza">Pizza</option>
+              <option value="Polish">Polish</option>
+              <option value="Portuguese">Portuguese</option>
+              <option value="Ramen">Ramen</option>
+              <option value="Russian">Russian</option>
+              <option value="Sandwiches">Sandwiches</option>
+              <option value="Seafood">Seafood</option>
+              <option value="Shawarma">Shawarma</option>
+              <option value="South Indian">South Indian</option>
+              <option value="Southern">Southern</option>
+              <option value="Spanish">Spanish</option>
+              <option value="Steak">Steak</option>
+              <option value="Street Food">Street Food</option>
+              <option value="Sushi">Sushi</option>
+              <option value="Taiwanese">Taiwanese</option>
+              <option value="Tex-Mex">Tex-Mex</option>
+              <option value="Thai">Thai</option>
+              <option value="Tibetan">Tibetan</option>
+              <option value="Turkish">Turkish</option>
+              <option value="Vegan">Vegan</option>
+              <option value="Vegetarian">Vegetarian</option>
+              <option value="Vietnamese">Vietnamese</option>
+            </select>
           </div>
           <div>
             <label className="block text-sm font-medium text-stone-700 mb-1.5">✨ Must try <span className="text-olive-light font-normal">(dish to order)</span></label>
@@ -262,13 +347,347 @@ export default function AddPage() {
             <input type="text" value={foodData.notes} onChange={(e) => setFoodData({ ...foodData, notes: e.target.value })} placeholder="e.g. No Dine-in. Only Order. Opens at 4AM." className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1.5">City</label>
-            <div className="relative">
-              <input type="text" value={foodData.city} onChange={(e) => setFoodData({ ...foodData, city: e.target.value })} placeholder="Type or select city..." className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary" list="city-list" />
-              <datalist id="city-list">
-                <option value="Bangalore" /><option value="Mysore" /><option value="Mumbai" /><option value="Delhi" /><option value="Hyderabad" /><option value="Chennai" /><option value="Kolkata" /><option value="Pune" /><option value="Ahmedabad" /><option value="Jaipur" /><option value="Goa" /><option value="Chandigarh" /><option value="Kochi" /><option value="Thiruvananthapuram" /><option value="Mangalore" /><option value="Udaipur" /><option value="Jodhpur" /><option value="Amritsar" /><option value="Nagpur" /><option value="Indore" /><option value="Visakhapatnam" /><option value="Coimbatore" /><option value="Guwahati" /><option value="Pondicherry" /><option value="Panaji" /><option value="Shimla" /><option value="Lucknow" /><option value="Surat" />
-              </datalist>
-            </div>
+            <label className="block text-sm font-medium text-stone-700 mb-1.5">City *</label>
+            <select
+              value={foodData.city}
+              onChange={(e) => setFoodData({ ...foodData, city: e.target.value })}
+              className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none"
+            >
+              <option value="">Select city...</option>
+              <option value="Adilabad">Adilabad</option>
+              <option value="Agartala">Agartala</option>
+              <option value="Agra">Agra</option>
+              <option value="Ahmedabad">Ahmedabad</option>
+              <option value="Ahmednagar">Ahmednagar</option>
+              <option value="Aizawl">Aizawl</option>
+              <option value="Ajmer">Ajmer</option>
+              <option value="Akola">Akola</option>
+              <option value="Alappuzha">Alappuzha</option>
+              <option value="Aligarh">Aligarh</option>
+              <option value="Allahabad">Allahabad</option>
+              <option value="Alwar">Alwar</option>
+              <option value="Amaravati">Amaravati</option>
+              <option value="Amravati">Amravati</option>
+              <option value="Amritsar">Amritsar</option>
+              <option value="Anantapur">Anantapur</option>
+              <option value="Angul">Angul</option>
+              <option value="Arrah">Arrah</option>
+              <option value="Asansol">Asansol</option>
+              <option value="Aurangabad">Aurangabad</option>
+              <option value="Avadi">Avadi</option>
+              <option value="Bahadurgarh">Bahadurgarh</option>
+              <option value="Baharampur">Baharampur</option>
+              <option value="Bahraich">Bahraich</option>
+              <option value="Balasore">Balasore</option>
+              <option value="Ballia">Ballia</option>
+              <option value="Banda">Banda</option>
+              <option value="Bangalore">Bangalore</option>
+              <option value="Bankura">Bankura</option>
+              <option value="Baranagar">Baranagar</option>
+              <option value="Barasat">Barasat</option>
+              <option value="Bardhaman">Bardhaman</option>
+              <option value="Bareilly">Bareilly</option>
+              <option value="Barrackpore">Barrackpore</option>
+              <option value="Bathinda">Bathinda</option>
+              <option value="Begusarai">Begusarai</option>
+              <option value="Belagavi">Belagavi</option>
+              <option value="Bellary">Bellary</option>
+              <option value="Bengaluru">Bengaluru</option>
+              <option value="Berhampur">Berhampur</option>
+              <option value="Bettiah">Bettiah</option>
+              <option value="Bhagalpur">Bhagalpur</option>
+              <option value="Bharatpur">Bharatpur</option>
+              <option value="Bharuch">Bharuch</option>
+              <option value="Bhavnagar">Bhavnagar</option>
+              <option value="Bhilai">Bhilai</option>
+              <option value="Bhilwara">Bhilwara</option>
+              <option value="Bhiwandi">Bhiwandi</option>
+              <option value="Bhiwani">Bhiwani</option>
+              <option value="Bhopal">Bhopal</option>
+              <option value="Bhubaneswar">Bhubaneswar</option>
+              <option value="Bhuj">Bhuj</option>
+              <option value="Bidar">Bidar</option>
+              <option value="Bihar Sharif">Bihar Sharif</option>
+              <option value="Bijapur">Bijapur</option>
+              <option value="Bikaner">Bikaner</option>
+              <option value="Bilaspur">Bilaspur</option>
+              <option value="Bokaro">Bokaro</option>
+              <option value="Bulandshahr">Bulandshahr</option>
+              <option value="Burhanpur">Burhanpur</option>
+              <option value="Calicut">Calicut</option>
+              <option value="Chandigarh">Chandigarh</option>
+              <option value="Chandrapur">Chandrapur</option>
+              <option value="Chapra">Chapra</option>
+              <option value="Chennai">Chennai</option>
+              <option value="Chhindwara">Chhindwara</option>
+              <option value="Chittoor">Chittoor</option>
+              <option value="Churu">Churu</option>
+              <option value="Coimbatore">Coimbatore</option>
+              <option value="Cuddalore">Cuddalore</option>
+              <option value="Cuttack">Cuttack</option>
+              <option value="Dahod">Dahod</option>
+              <option value="Daman">Daman</option>
+              <option value="Damoh">Damoh</option>
+              <option value="Darbhanga">Darbhanga</option>
+              <option value="Darjeeling">Darjeeling</option>
+              <option value="Davanagere">Davanagere</option>
+              <option value="Dehradun">Dehradun</option>
+              <option value="Delhi">Delhi</option>
+              <option value="Deoghar">Deoghar</option>
+              <option value="Dewas">Dewas</option>
+              <option value="Dhanbad">Dhanbad</option>
+              <option value="Dharamshala">Dharamshala</option>
+              <option value="Dharwad">Dharwad</option>
+              <option value="Dholpur">Dholpur</option>
+              <option value="Dhule">Dhule</option>
+              <option value="Dibrugarh">Dibrugarh</option>
+              <option value="Dindigul">Dindigul</option>
+              <option value="Diu">Diu</option>
+              <option value="Dombivli">Dombivli</option>
+              <option value="Durgapur">Durgapur</option>
+              <option value="Dwarka">Dwarka</option>
+              <option value="Eluru">Eluru</option>
+              <option value="Erode">Erode</option>
+              <option value="Etawah">Etawah</option>
+              <option value="Faizabad">Faizabad</option>
+              <option value="Firozabad">Firozabad</option>
+              <option value="Firozpur">Firozpur</option>
+              <option value="Gandhinagar">Gandhinagar</option>
+              <option value="Gandhidham">Gandhidham</option>
+              <option value="Gangtok">Gangtok</option>
+              <option value="Gaya">Gaya</option>
+              <option value="Ghaziabad">Ghaziabad</option>
+              <option value="Ghazipur">Ghazipur</option>
+              <option value="Giridih">Giridih</option>
+              <option value="Goa">Goa</option>
+              <option value="Gonda">Gonda</option>
+              <option value="Gorakhpur">Gorakhpur</option>
+              <option value="Gulbarga">Gulbarga</option>
+              <option value="Guntur">Guntur</option>
+              <option value="Gurugram">Gurugram</option>
+              <option value="Guwahati">Guwahati</option>
+              <option value="Gwalior">Gwalior</option>
+              <option value="Hajipur">Hajipur</option>
+              <option value="Haldwani">Haldwani</option>
+              <option value="Haldia">Haldia</option>
+              <option value="Hamirpur">Hamirpur</option>
+              <option value="Haridwar">Haridwar</option>
+              <option value="Hassan">Hassan</option>
+              <option value="Hathras">Hathras</option>
+              <option value="Hazaribagh">Hazaribagh</option>
+              <option value="Hingoli">Hingoli</option>
+              <option value="Hisar">Hisar</option>
+              <option value="Hospet">Hospet</option>
+              <option value="Howrah">Howrah</option>
+              <option value="Hubli">Hubli</option>
+              <option value="Hyderabad">Hyderabad</option>
+              <option value="Ichalkaranji">Ichalkaranji</option>
+              <option value="Imphal">Imphal</option>
+              <option value="Indore">Indore</option>
+              <option value="Itanagar">Itanagar</option>
+              <option value="Jabalpur">Jabalpur</option>
+              <option value="Jaipur">Jaipur</option>
+              <option value="Jalgaon">Jalgaon</option>
+              <option value="Jalna">Jalna</option>
+              <option value="Jalandhar">Jalandhar</option>
+              <option value="Jalpaiguri">Jalpaiguri</option>
+              <option value="Jammu">Jammu</option>
+              <option value="Jamnagar">Jamnagar</option>
+              <option value="Jamshedpur">Jamshedpur</option>
+              <option value="Jaunpur">Jaunpur</option>
+              <option value="Jhansi">Jhansi</option>
+              <option value="Jharsuguda">Jharsuguda</option>
+              <option value="Jodhpur">Jodhpur</option>
+              <option value="Jorhat">Jorhat</option>
+              <option value="Junagadh">Junagadh</option>
+              <option value="Kadapa">Kadapa</option>
+              <option value="Kakinada">Kakinada</option>
+              <option value="Kanchipuram">Kanchipuram</option>
+              <option value="Kannur">Kannur</option>
+              <option value="Kanpur">Kanpur</option>
+              <option value="Kapurthala">Kapurthala</option>
+              <option value="Karaikal">Karaikal</option>
+              <option value="Karauli">Karauli</option>
+              <option value="Kargil">Kargil</option>
+              <option value="Karimnagar">Karimnagar</option>
+              <option value="Karnal">Karnal</option>
+              <option value="Karur">Karur</option>
+              <option value="Kasaragod">Kasaragod</option>
+              <option value="Kathua">Kathua</option>
+              <option value="Katihar">Katihar</option>
+              <option value="Kavaratti">Kavaratti</option>
+              <option value="Khammam">Khammam</option>
+              <option value="Kharagpur">Kharagpur</option>
+              <option value="Kishanganj">Kishanganj</option>
+              <option value="Kochi">Kochi</option>
+              <option value="Kohima">Kohima</option>
+              <option value="Kolar">Kolar</option>
+              <option value="Kolhapur">Kolhapur</option>
+              <option value="Kolkata">Kolkata</option>
+              <option value="Kollam">Kollam</option>
+              <option value="Koppal">Koppal</option>
+              <option value="Kota">Kota</option>
+              <option value="Kottayam">Kottayam</option>
+              <option value="Kozhikode">Kozhikode</option>
+              <option value="Kullu">Kullu</option>
+              <option value="Kumbakonam">Kumbakonam</option>
+              <option value="Kurnool">Kurnool</option>
+              <option value="Latur">Latur</option>
+              <option value="Leh">Leh</option>
+              <option value="Lucknow">Lucknow</option>
+              <option value="Ludhiana">Ludhiana</option>
+              <option value="Machilipatnam">Machilipatnam</option>
+              <option value="Madurai">Madurai</option>
+              <option value="Mahbubnagar">Mahbubnagar</option>
+              <option value="Malappuram">Malappuram</option>
+              <option value="Mandi">Mandi</option>
+              <option value="Mandya">Mandya</option>
+              <option value="Mangalore">Mangalore</option>
+              <option value="Mangaluru">Mangaluru</option>
+              <option value="Mathura">Mathura</option>
+              <option value="Mau">Mau</option>
+              <option value="Meerut">Meerut</option>
+              <option value="Mehsana">Mehsana</option>
+              <option value="Mira-Bhayandar">Mira-Bhayandar</option>
+              <option value="Mirzapur">Mirzapur</option>
+              <option value="Mohali">Mohali</option>
+              <option value="Moga">Moga</option>
+              <option value="Moradabad">Moradabad</option>
+              <option value="Morena">Morena</option>
+              <option value="Motihari">Motihari</option>
+              <option value="Mumbai">Mumbai</option>
+              <option value="Munger">Munger</option>
+              <option value="Murthal">Murthal</option>
+              <option value="Muzaffarnagar">Muzaffarnagar</option>
+              <option value="Muzaffarpur">Muzaffarpur</option>
+              <option value="Mysore">Mysore</option>
+              <option value="Nadiad">Nadiad</option>
+              <option value="Nagaon">Nagaon</option>
+              <option value="Nagapattinam">Nagapattinam</option>
+              <option value="Nagaur">Nagaur</option>
+              <option value="Nagpur">Nagpur</option>
+              <option value="Nagercoil">Nagercoil</option>
+              <option value="Nalgonda">Nalgonda</option>
+              <option value="Namakkal">Namakkal</option>
+              <option value="Nanded">Nanded</option>
+              <option value="Nandyal">Nandyal</option>
+              <option value="Nashik">Nashik</option>
+              <option value="Nathdwara">Nathdwara</option>
+              <option value="Navi Mumbai">Navi Mumbai</option>
+              <option value="Nellore">Nellore</option>
+              <option value="New Delhi">New Delhi</option>
+              <option value="Nizamabad">Nizamabad</option>
+              <option value="Noida">Noida</option>
+              <option value="Ongole">Ongole</option>
+              <option value="Ooty">Ooty</option>
+              <option value="Orai">Orai</option>
+              <option value="Osmanabad">Osmanabad</option>
+              <option value="Palakkad">Palakkad</option>
+              <option value="Palanpur">Palanpur</option>
+              <option value="Palghar">Palghar</option>
+              <option value="Pali">Pali</option>
+              <option value="Panaji">Panaji</option>
+              <option value="Panchkula">Panchkula</option>
+              <option value="Panipat">Panipat</option>
+              <option value="Parbhani">Parbhani</option>
+              <option value="Patan">Patan</option>
+              <option value="Pathankot">Pathankot</option>
+              <option value="Patiala">Patiala</option>
+              <option value="Patna">Patna</option>
+              <option value="Phagwara">Phagwara</option>
+              <option value="Pilibhit">Pilibhit</option>
+              <option value="Pimpri-Chinchwad">Pimpri-Chinchwad</option>
+              <option value="Pondicherry">Pondicherry</option>
+              <option value="Porbandar">Porbandar</option>
+              <option value="Port Blair">Port Blair</option>
+              <option value="Puducherry">Puducherry</option>
+              <option value="Pune">Pune</option>
+              <option value="Puri">Puri</option>
+              <option value="Purnia">Purnia</option>
+              <option value="Raebareli">Raebareli</option>
+              <option value="Raichur">Raichur</option>
+              <option value="Raigarh">Raigarh</option>
+              <option value="Raipur">Raipur</option>
+              <option value="Rajahmundry">Rajahmundry</option>
+              <option value="Rajkot">Rajkot</option>
+              <option value="Rajnandgaon">Rajnandgaon</option>
+              <option value="Rajouri">Rajouri</option>
+              <option value="Ramgarh">Ramgarh</option>
+              <option value="Rampur">Rampur</option>
+              <option value="Ranchi">Ranchi</option>
+              <option value="Ranipet">Ranipet</option>
+              <option value="Ratlam">Ratlam</option>
+              <option value="Ratnagiri">Ratnagiri</option>
+              <option value="Rewa">Rewa</option>
+              <option value="Rewari">Rewari</option>
+              <option value="Rohtak">Rohtak</option>
+              <option value="Roorkee">Roorkee</option>
+              <option value="Rourkela">Rourkela</option>
+              <option value="Sagar">Sagar</option>
+              <option value="Saharanpur">Saharanpur</option>
+              <option value="Salem">Salem</option>
+              <option value="Samastipur">Samastipur</option>
+              <option value="Sambalpur">Sambalpur</option>
+              <option value="Sangli">Sangli</option>
+              <option value="Sangrur">Sangrur</option>
+              <option value="Satara">Satara</option>
+              <option value="Satna">Satna</option>
+              <option value="Sawai Madhopur">Sawai Madhopur</option>
+              <option value="Secunderabad">Secunderabad</option>
+              <option value="Shahjahanpur">Shahjahanpur</option>
+              <option value="Shillong">Shillong</option>
+              <option value="Shimla">Shimla</option>
+              <option value="Shimoga">Shimoga</option>
+              <option value="Silchar">Silchar</option>
+              <option value="Siliguri">Siliguri</option>
+              <option value="Silvassa">Silvassa</option>
+              <option value="Sindri">Sindri</option>
+              <option value="Singrauli">Singrauli</option>
+              <option value="Sitapur">Sitapur</option>
+              <option value="Siwan">Siwan</option>
+              <option value="Solapur">Solapur</option>
+              <option value="Sonipat">Sonipat</option>
+              <option value="Srikakulam">Srikakulam</option>
+              <option value="Srinagar">Srinagar</option>
+              <option value="Sultanpur">Sultanpur</option>
+              <option value="Surat">Surat</option>
+              <option value="Surendranagar">Surendranagar</option>
+              <option value="Tadepalligudem">Tadepalligudem</option>
+              <option value="Tenali">Tenali</option>
+              <option value="Thane">Thane</option>
+              <option value="Thanjavur">Thanjavur</option>
+              <option value="Thiruvananthapuram">Thiruvananthapuram</option>
+              <option value="Thoothukudi">Thoothukudi</option>
+              <option value="Thrissur">Thrissur</option>
+              <option value="Tinsukia">Tinsukia</option>
+              <option value="Tiruchirappalli">Tiruchirappalli</option>
+              <option value="Tirunelveli">Tirunelveli</option>
+              <option value="Tirupati">Tirupati</option>
+              <option value="Tirupur">Tirupur</option>
+              <option value="Tiruvannamalai">Tiruvannamalai</option>
+              <option value="Tumkur">Tumkur</option>
+              <option value="Udaipur">Udaipur</option>
+              <option value="Udgir">Udgir</option>
+              <option value="Udupi">Udupi</option>
+              <option value="Ujjain">Ujjain</option>
+              <option value="Ulhasnagar">Ulhasnagar</option>
+              <option value="Unnao">Unnao</option>
+              <option value="Uttarakhand">Uttarakhand</option>
+              <option value="Vadodara">Vadodara</option>
+              <option value="Valsad">Valsad</option>
+              <option value="Vapi">Vapi</option>
+              <option value="Varanasi">Varanasi</option>
+              <option value="Vellore">Vellore</option>
+              <option value="Veraval">Veraval</option>
+              <option value="Vidisha">Vidisha</option>
+              <option value="Vijayawada">Vijayawada</option>
+              <option value="Visakhapatnam">Visakhapatnam</option>
+              <option value="Vizianagaram">Vizianagaram</option>
+              <option value="Warangal">Warangal</option>
+              <option value="Wardha">Wardha</option>
+              <option value="Yamunanagar">Yamunanagar</option>
+              <option value="Yavatmal">Yavatmal</option>
+            </select>
           </div>
           <div>
             <label className="block text-sm font-medium text-stone-700 mb-1.5">📍 Area / Neighborhood <span className="text-olive-light font-normal">(e.g. HSR Layout, Koramangala)</span></label>
@@ -281,9 +700,9 @@ export default function AddPage() {
           </div>
           <div>
             <label className="block text-sm font-medium text-stone-700 mb-1.5">
-              🗺️ Google Maps link <span className="text-olive-light font-normal">(optional)</span>
+              🗺️ Google Maps link * <span className="text-olive-light font-normal">(required — used to extract location)</span>
             </label>
-            <input type="url" value={foodData.google_maps_link} onChange={(e) => setFoodData({ ...foodData, google_maps_link: e.target.value })} placeholder="https://maps.app.goo.gl/..." className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary" />
+            <input type="url" value={foodData.google_maps_link} onChange={(e) => setFoodData({ ...foodData, google_maps_link: e.target.value })} placeholder="https://maps.app.goo.gl/..." className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary" required />
           </div>
           <div>
             <label className="block text-sm font-medium text-stone-700 mb-1.5">Description <span className="text-olive-light font-normal">(optional)</span></label>
@@ -293,7 +712,7 @@ export default function AddPage() {
           <p className="text-xs text-olive-light">No photo? We&apos;ll show a cuisine emoji on a gradient background.</p>
           <div className="flex gap-3 pt-2">
             <button onClick={() => { setStep('choose-type'); setType(null); }} className="flex-1 py-3 border border-stone-200 text-stone-600 rounded-xl font-medium text-sm hover:bg-stone-50 transition-colors">Back</button>
-            <button onClick={() => { setSelectedItem({ type: 'food', title: foodData.title, creator: foodData.cuisine || foodData.creator, must_try: foodData.must_try || null, notes: foodData.notes || null, description: foodData.description, city: foodData.city }); setStep('confirm'); }} disabled={!foodData.title} className="flex-1 py-3 bg-amber-primary text-white rounded-xl font-medium text-sm hover:bg-amber-dark disabled:opacity-50 disabled:cursor-not-allowed">Preview & Add</button>
+            <button onClick={() => { setSelectedItem({ type: 'food', title: foodData.title, creator: foodData.cuisine || foodData.creator, must_try: foodData.must_try || null, notes: foodData.notes || null, description: foodData.description, city: foodData.city }); setStep('confirm'); }} disabled={!foodData.title || !foodData.cuisine || !foodData.city || !foodData.google_maps_link} className="flex-1 py-3 bg-amber-primary text-white rounded-xl font-medium text-sm hover:bg-amber-dark disabled:opacity-50 disabled:cursor-not-allowed">Preview & Add</button>
           </div>
         </div>
       )}
@@ -382,7 +801,7 @@ export default function AddPage() {
               {isSubmitting ? <><Loader2 size={16} className="animate-spin" /> Adding...</> : 'Add to The List'}
             </button>
           </div>
-          {type === 'movie' && <p className="text-[11px] text-olive-light text-center">Only movies with 7.0+ IMDB rating are accepted.</p>}
+
           {type === 'food' && <p className="text-[11px] text-olive-light text-center">Cuisine emoji + gradient shown if no photo.</p>}
         </div>
       )}

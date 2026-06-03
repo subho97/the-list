@@ -109,6 +109,7 @@ export default function Card({ item, index = 99 }: CardProps) {
             loading={index < 10 ? 'eager' : 'lazy'}
             decoding={index < 10 ? 'sync' : 'async'}
             fetchPriority={index < 6 ? 'high' : 'auto'}
+            crossOrigin="anonymous"
             onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
           />
         ) : item.type === 'food' ? (

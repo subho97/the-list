@@ -393,14 +393,14 @@ export default function BrowseContent() {
 
       {/* City + Area + Cuisine filters (food only) */}
       {activeTab === 'food' && (
-        <div className="flex flex-nowrap gap-1.5 mb-4 pb-1">
+        <div className="flex flex-nowrap gap-1 mb-4 pb-1">
           {/* City filter */}
           <select
             value={cityFilter}
             onChange={(e) => { setCityFilter(e.target.value); setPage(1); }}
-            className="min-w-0 flex-1 px-2 py-1.5 bg-white border border-stone-200 rounded-xl text-[10px] sm:text-[11px] text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none truncate"
+            className="min-w-0 flex-[1.2] sm:flex-1 px-1.5 sm:px-2 py-1.5 bg-white border border-stone-200 rounded-xl text-[9px] sm:text-[11px] text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none truncate"
           >
-            <option value="">🏙️ City</option>
+            <option value="">City</option>
             {cities.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
           {/* Area filter */}
@@ -408,9 +408,9 @@ export default function BrowseContent() {
             <select
               value={areaFilter}
               onChange={(e) => { setAreaFilter(e.target.value); setPage(1); }}
-              className="min-w-0 flex-1 px-2 py-1.5 bg-white border border-stone-200 rounded-xl text-[10px] sm:text-[11px] text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none truncate"
+              className="min-w-0 flex-1 px-1.5 sm:px-2 py-1.5 bg-white border border-stone-200 rounded-xl text-[9px] sm:text-[11px] text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none truncate"
             >
-              <option value="">📍 Area</option>
+              <option value="">Area</option>
               {areas.map(a => <option key={a} value={a}>{a}</option>)}
             </select>
           )}
@@ -419,9 +419,9 @@ export default function BrowseContent() {
             <select
               value={cuisineFilter}
               onChange={(e) => { setCuisineFilter(e.target.value); setPage(1); }}
-              className="min-w-0 flex-1 px-2 py-1.5 bg-white border border-stone-200 rounded-xl text-[10px] sm:text-[11px] text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none truncate"
+              className="min-w-0 flex-1 px-1.5 sm:px-2 py-1.5 bg-white border border-stone-200 rounded-xl text-[9px] sm:text-[11px] text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none truncate"
             >
-              <option value="">🍽️ Cuisine</option>
+              <option value="">Cuisine</option>
               {cuisines.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
           )}
