@@ -2,9 +2,8 @@
 
 import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
-import { MapPin } from 'lucide-react';
+import { MapPin, AlertTriangle } from 'lucide-react';
 import { Item } from '@/lib/types';
-import 'leaflet/dist/leaflet.css';
 
 const cuisineEmojis: Record<string, string> = {
   pizza: '🍕', italian: '🍝', burger: '🍔', sushi: '🍣', japanese: '🍜',
@@ -58,6 +57,7 @@ export default function MapView({ items }: { items: Item[] }) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<any>(null);
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
+  const [mapError, setMapError] = useState<string | null>(null);
 
   // Get user's location
   useEffect(() => {
@@ -69,33 +69,51 @@ export default function MapView({ items }: { items: Item[] }) {
     }
   }, []);
 
+  // Inject Leaflet CSS dynamically
+  useEffect(() => {
+    const linkId = 'leaflet-css';
+    if (!document.getElementById(linkId)) {
+      const link = document.createElement('link');
+      link.id = linkId;
+      link.rel = 'stylesheet';
+      link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+      document.head.appendChild(link);
+    }
+  }, []);
+
   // Initialize Leaflet map
   useEffect(() => {
     if (!mapRef.current || mapInstance.current) return;
 
     const initMap = async () => {
-      const L = await import('leaflet');
-      
-      // Fix default marker icon
-      delete (L.Icon.Default.prototype as any)._getIconUrl;
-      L.Icon.Default.mergeOptions({
-        iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
-        iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
-        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
-      });
+      try {
+        const L = await import('leaflet');
 
-      const map = L.map(mapRef.current!, {
-        center: [12.9716, 77.5946],
-        zoom: 11,
-        zoomControl: true,
-      });
+        // Fix default marker icon
+        delete (L.Icon.Default.prototype as any)._getIconUrl;
+        L.Icon.Default.prototype.options.iconRetinaUrl = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png';
+        L.Icon.Default.prototype.options.iconUrl = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png';
+        L.Icon.Default.prototype.options.shadowUrl = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png';
 
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-        maxZoom: 18,
-      }).addTo(map);
+        const map = L.map(mapRef.current!, {
+          center: [12.9716, 77.5946],
+          zoom: 11,
+          zoomControl: true,
+        });
 
-      mapInstance.current = map;
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+          maxZoom: 18,
+        }).addTo(map);
+
+        // Invalidate size to handle the loading overlay
+        setTimeout(() => map.invalidateSize(), 100);
+
+        mapInstance.current = map;
+      } catch (err) {
+        console.error('Failed to load map:', err);
+        setMapError('Map failed to load. Try reloading the page.');
+      }
     };
 
     initMap();
@@ -152,10 +170,38 @@ export default function MapView({ items }: { items: Item[] }) {
       // Fit bounds to show all markers + user
       const allCoords = items.map(i => getCoords(i));
       allCoords.push(userLocation);
-      const bounds = (map as any).constructor.latLngBounds(allCoords);
-      map.fitBounds(bounds, { padding: [50, 50] });
+      if (allCoords.length > 1) {
+        const bounds = (map as any).constructor.latLngBounds(allCoords);
+        map.fitBounds(bounds, { padding: [50, 50] });
+      }
+    } else if (items.length > 0) {
+      // User location unavailable, fit to items
+      const allCoords = items.map(i => getCoords(i));
+      if (allCoords.length > 1) {
+        const bounds = (map as any).constructor.latLngBounds(allCoords);
+        map.fitBounds(bounds, { padding: [50, 50] });
+      }
     }
+
+    // Recalculate map size (handles the loading overlay being removed)
+    setTimeout(() => map.invalidateSize(), 50);
   }, [items, userLocation, mapInstance.current]);
+
+  if (mapError) {
+    return (
+      <div className="text-center py-12 bg-white rounded-xl border border-stone-200">
+        <AlertTriangle size={32} className="mx-auto text-red-400 mb-3" />
+        <p className="text-sm text-stone-700 font-medium mb-1">Map couldn't load</p>
+        <p className="text-xs text-olive-light mb-4">{mapError}</p>
+        <button
+          onClick={() => { setMapError(null); window.location.reload(); }}
+          className="px-4 py-2 bg-amber-primary text-white rounded-lg text-xs font-medium hover:bg-amber-dark transition-colors"
+        >
+          Reload
+        </button>
+      </div>
+    );
+  }
 
   if (items.length === 0) {
     return (
@@ -169,7 +215,14 @@ export default function MapView({ items }: { items: Item[] }) {
   return (
     <div className="space-y-3">
       {/* Map */}
-      <div ref={mapRef} className="w-full h-[400px] rounded-xl border border-stone-200 shadow-sm z-0" />
+      <div ref={mapRef} className="w-full h-[400px] rounded-xl border border-stone-200 shadow-sm z-0 relative">
+        <div className="absolute inset-0 flex items-center justify-center bg-stone-50 rounded-xl">
+          <div className="text-center">
+            <MapPin size={24} className="mx-auto text-olive-light animate-pulse" />
+            <p className="text-xs text-olive-light mt-2">Loading map...</p>
+          </div>
+        </div>
+      </div>
 
       {/* Legend */}
       <div className="flex flex-wrap gap-2 text-xs text-olive-light">
