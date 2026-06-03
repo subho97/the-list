@@ -243,7 +243,19 @@ export default function AddPage() {
           <div className="relative">
             <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-olive-light" />
             <input type="text" value={searchQuery} onChange={(e) => { if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current); searchTimeoutRef.current = setTimeout(() => handleSearch(e.target.value), 400); setSearchQuery(e.target.value); }}
-              placeholder={`Search ${type === 'movie' ? 'movies' : 'books'}...`} className="w-full pl-10 pr-4 py-3 bg-white border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary" autoFocus />
+              placeholder={`Search ${type === 'movie' ? 'movies' : 'books'}...`} className="w-full pl-10 pr-10 py-3 bg-white border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary" autoFocus />
+            {searchQuery && (
+              <button
+                onClick={() => {
+                  setSearchQuery('');
+                  setSearchResults([]);
+                  setSearchError('');
+                }}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-olive-light hover:text-stone-600 transition-colors"
+              >
+                <X size={16} />
+              </button>
+            )}
           </div>
           {searchError && <div className="flex items-start gap-2 p-4 rounded-xl bg-red-50 border border-red-100 text-red-700 text-sm"><AlertCircle size={18} className="mt-0.5 shrink-0" /><p>{searchError}</p></div>}
           {isSearching && <div className="flex items-center justify-center py-12"><Loader2 size={28} className="animate-spin text-amber-primary" /></div>}
