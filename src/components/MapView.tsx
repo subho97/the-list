@@ -65,13 +65,20 @@ function getCoords(item: Item): [number, number] {
   return [12.9716, 77.5946];
 }
 
-function getEmoji(cuisine: string | null): string {
-  if (!cuisine) return '🍽️';
-  const c = cuisine.toLowerCase();
-  for (const [key, emoji] of Object.entries(cuisineEmojis)) {
-    if (c.includes(key)) return emoji;
+// Spread overlapping markers so they don't stack perfectly on top of each other
+const _coordSpreadCache = new Map<string, number>();
+function getSpreadCoords(item: Item, index: number): [number, number] {
+  const [lat, lng] = getCoords(item);
+  const key = `${lat.toFixed(4)},${lng.toFixed(4)}`;
+  const count = _coordSpreadCache.get(key) || 0;
+  _coordSpreadCache.set(key, count + 1);
+  if (count > 0) {
+    // Offset each duplicate by ~250m in a triangle pattern
+    const offset = count * 0.003;
+    const angle = index * 2.399; // ~137.5deg (golden angle)
+    return [lat + offset * Math.cos(angle), lng + offset * Math.sin(angle)];
   }
-  return '🍽️';
+  return [lat, lng];
 }
 
 function haversine(lat1: number, lon1: number, lat2: number, lon2: number): number {
@@ -85,12 +92,20 @@ function haversine(lat1: number, lon1: number, lat2: number, lon2: number): numb
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-// Fix default marker icon (runs once)
-let iconFixed = false;
-function ensureLeafletIcons() {
-  if (iconFixed || typeof window === 'undefined') return;
-  iconFixed = true;
-  // Dynamically import leaflet just for icon fix
+function getEmoji(cuisine: string | null): string {
+  if (!cuisine) return '🍽️';
+  const c = cuisine.toLowerCase();
+  for (const [key, emoji] of Object.entries(cuisineEmojis)) {
+    if (c.includes(key)) return emoji;
+  }
+  return '🍽️';
+}
+
+// Fix default marker icon (runs once globally)
+let _iconsFixed = false;
+function fixLeafletIcons() {
+  if (_iconsFixed || typeof window === 'undefined') return;
+  _iconsFixed = true;
   import('leaflet').then((L) => {
     delete (L.Icon.Default.prototype as any)._getIconUrl;
     L.Icon.Default.prototype.options.iconRetinaUrl = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png';
@@ -99,39 +114,57 @@ function ensureLeafletIcons() {
   }).catch(() => {});
 }
 
-// Internal component that uses react-leaflet hooks
+// Module-level L reference for creating custom icons
+let _L: any = null;
+function getL() {
+  if (_L) return Promise.resolve(_L);
+  return import('leaflet').then((L) => {
+    _L = L;
+    return L;
+  }).catch(() => null);
+}
+
+// Internal component that renders map layers
 function MapLayers({ items, userLocation }: { items: Item[]; userLocation: [number, number] | null }) {
-  // Fix icons on mount
-  useEffect(() => { ensureLeafletIcons(); }, []);
+  const [userIcon, setUserIcon] = useState<any>(null);
 
-  // Fit bounds using a separate lazy effect
+  // Fix default marker icons and create user location icon
   useEffect(() => {
-    // Dynamically import to avoid circular issues
-    let map: any = null;
-    // Try to find the map from the container
-    const findAndFit = () => {
-      const container = document.querySelector('.leaflet-container') as any;
-      if (!container || !container._leaflet_id) { setTimeout(findAndFit, 100); return; }
-      const el = document.querySelector(`.leaflet-map-pane`);
-      if (!el) { setTimeout(findAndFit, 100); return; }
+    fixLeafletIcons();
+    getL().then((L) => {
+      if (!L) return;
+      setUserIcon(L.divIcon({
+        className: '',
+        html: '<div style="background:#3B82F6;width:16px;height:16px;border-radius:50%;border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3)"></div>',
+        iconSize: [16, 16],
+        iconAnchor: [8, 8],
+      }));
+    });
+  }, []);
 
-      import('leaflet').then((L) => {
+  // Fit bounds to show all items
+  useEffect(() => {
+    const tryFit = () => {
+      const container = document.querySelector('.leaflet-container') as any;
+      if (!container || !container._leaflet_map) { setTimeout(tryFit, 100); return; }
+      getL().then((L) => {
+        if (!L) return;
         const allCoords = items.map(i => getCoords(i));
         if (userLocation) allCoords.push(userLocation);
+        const map = container._leaflet_map;
         if (allCoords.length > 1) {
-          const bounds = L.latLngBounds(allCoords);
-          // Access map through the container's _leaflet_map
-          const mapEl = document.querySelector('.leaflet-container') as any;
-          if (mapEl && mapEl._leaflet_map) {
-            mapEl._leaflet_map.fitBounds(bounds, { padding: [50, 50] });
-          }
+          map.fitBounds(L.latLngBounds(allCoords), { padding: [50, 50] });
+        } else if (allCoords.length === 1) {
+          map.setView(allCoords[0], 13);
         }
-      }).catch(() => {});
+      });
     };
-    // Delay to let map render
-    const timer = setTimeout(findAndFit, 300);
+    const timer = setTimeout(tryFit, 350);
     return () => clearTimeout(timer);
   }, [items, userLocation]);
+
+  // Reset coordinate spread counter
+  _coordSpreadCache.clear();
 
   return (
     <>
@@ -141,8 +174,8 @@ function MapLayers({ items, userLocation }: { items: Item[]; userLocation: [numb
         maxNativeZoom={18}
         maxZoom={19}
       />
-      {items.map((item) => {
-        const coords = getCoords(item);
+      {items.map((item, idx) => {
+        const coords = getSpreadCoords(item, idx);
         return (
           <Marker key={item.id} position={coords}>
             <Popup maxWidth={250}>
@@ -181,7 +214,7 @@ function MapLayers({ items, userLocation }: { items: Item[]; userLocation: [numb
         );
       })}
       {userLocation && (
-        <Marker position={userLocation} />
+        <Marker position={userLocation} icon={userIcon || undefined} />
       )}
     </>
   );
