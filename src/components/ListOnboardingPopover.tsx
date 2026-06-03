@@ -6,12 +6,16 @@ import { Info, X, Lock, Share2, Layers } from 'lucide-react';
 const LS_KEY = 'list-onboarding-seen';
 
 export default function ListOnboardingPopover() {
-  const [isOpen, setIsOpen] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return !sessionStorage.getItem(LS_KEY);
-    }
-    return false;
-  });
+  const [isOpen, setIsOpen] = useState(false);
+
+  // Auto-open on first Lists page visit per session (after client hydration)
+  useEffect(() => {
+    try {
+      if (!sessionStorage.getItem(LS_KEY)) {
+        setIsOpen(true);
+      }
+    } catch {}
+  }, []);
   const popoverRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
