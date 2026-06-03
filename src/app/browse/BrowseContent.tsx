@@ -47,26 +47,62 @@ export default function BrowseContent() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const [error, setError] = useState('');
+  const restoredScroll = useRef(false);
 
-  // Restore scroll position and active tab when coming back
+  // Disable browser's automatic scroll restoration — we handle it ourselves
   useEffect(() => {
-    const savedScroll = sessionStorage.getItem('browseScrollY');
-    const savedTab = sessionStorage.getItem('browseActiveTab') as TabType | null;
-    
-    // Restore tab if one was saved and no URL param is set
-    if (savedTab && !searchParams.get('type')) {
-      setActiveTab(savedTab);
+    if (typeof window !== 'undefined') {
+      window.history.scrollRestoration = 'manual';
     }
-    
-    // Restore scroll position
-    if (savedScroll) {
-      const y = parseInt(savedScroll);
-      if (!isNaN(y)) requestAnimationFrame(() => window.scrollTo(0, y));
-      sessionStorage.removeItem('browseScrollY');
-    }
-    sessionStorage.removeItem('browseActiveTab');
-  }, [searchParams]);
+  }, []);
 
+  // Save scroll position and active tab when any link is clicked (capture phase)
+  useEffect(() => {
+    const handler = () => {
+      sessionStorage.setItem('browseScrollY', String(window.scrollY));
+      sessionStorage.setItem('browseActiveTab', activeTab);
+    };
+    // Capture clicks on the document to save scroll before navigation happens
+    document.addEventListener('click', handler, true); // true = capture phase
+    return () => document.removeEventListener('click', handler, true);
+  }, [activeTab]);
+
+  // After data finishes loading, restore saved scroll position
+  useEffect(() => {
+    if (isLoading || items.length === 0 || restoredScroll.current) return;
+    
+    const savedScroll = sessionStorage.getItem('browseScrollY');
+    const savedTab = sessionStorage.getItem('browseActiveTab');
+    
+    // Only restore if the saved tab matches the current active tab
+    if (savedTab !== activeTab || !savedScroll) return;
+    
+    const y = parseInt(savedScroll);
+    if (isNaN(y)) return;
+    
+    restoredScroll.current = true;
+    
+    // Double rAF to ensure DOM has fully painted
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        window.scrollTo({ top: y, behavior: 'instant' });
+      });
+    });
+  }, [isLoading, items, activeTab]);
+
+  // Clear saved position when user scrolls manually after restore
+  useEffect(() => {
+    if (!restoredScroll.current) return;
+    const handleScroll = () => {
+      sessionStorage.removeItem('browseScrollY');
+      sessionStorage.removeItem('browseActiveTab');
+      restoredScroll.current = false;
+    };
+    window.addEventListener('scroll', handleScroll, { once: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [restoredScroll.current]);
+
+  // Save scroll and tab manually (also used for click handler)
   const saveScrollAndTab = () => {
     sessionStorage.setItem('browseScrollY', String(window.scrollY));
     sessionStorage.setItem('browseActiveTab', activeTab);
@@ -74,6 +110,11 @@ export default function BrowseContent() {
 
   // On tab change: clear items immediately, reset page, start loading
   const handleTabChange = (tab: TabType) => {
+    // Clear saved scroll — user is navigating to a new tab, not coming back
+    sessionStorage.removeItem('browseScrollY');
+    sessionStorage.removeItem('browseActiveTab');
+    restoredScroll.current = false;
+    
     setActiveTab(tab);
     setItems([]);
     setPage(1);
@@ -313,7 +354,7 @@ export default function BrowseContent() {
               {activeTab === 'food' && viewMode === 'map' ? (
                 <MapView items={items} />
               ) : (
-                <div onClick={saveScrollAndTab} className={activeTab === 'food' ? 'space-y-3' : 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 items-stretch'}>
+                <div className={activeTab === 'food' ? 'space-y-3' : 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 items-stretch'}>
                   {items.map((item) =>
                     activeTab === 'food' ? (
                       <FoodListItem key={item.id} item={item} />
