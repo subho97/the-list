@@ -83,7 +83,7 @@ export default function CreateListContent() {
 
       // If there are pre-selected items, add them now
       if (selectedItems.length > 0) {
-        await addItemsToList(list.slug);
+        await addItemsToList(list.slug, editPin.trim() || undefined);
       } else {
         setStep('add-items');
       }
@@ -94,14 +94,17 @@ export default function CreateListContent() {
     }
   };
 
-  const addItemsToList = async (slug: string) => {
+  const addItemsToList = async (slug: string, pin?: string) => {
     setIsAdding(true);
     try {
+      const body: Record<string, unknown> = {};
       for (const item of selectedItems) {
+        body.item_id = item.id;
+        if (pin) body.pin = pin;
         await fetch(`/api/lists/${slug}/items`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ item_id: item.id }),
+          body: JSON.stringify(body),
         });
       }
       setSuccess(true);
@@ -377,7 +380,7 @@ export default function CreateListContent() {
               Back
             </button>
             <button
-              onClick={() => listSlug && addItemsToList(listSlug)}
+              onClick={() => listSlug && addItemsToList(listSlug, editPin.trim() || undefined)}
               disabled={isAdding || selectedItems.length === 0}
               className="flex-1 py-3 bg-amber-primary text-white rounded-xl font-medium text-sm hover:bg-amber-dark transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm"
             >
