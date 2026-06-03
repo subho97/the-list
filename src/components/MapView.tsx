@@ -101,19 +101,6 @@ function getEmoji(cuisine: string | null): string {
   return '🍽️';
 }
 
-// Fix default marker icon (runs once globally)
-let _iconsFixed = false;
-function fixLeafletIcons() {
-  if (_iconsFixed || typeof window === 'undefined') return;
-  _iconsFixed = true;
-  import('leaflet').then((L) => {
-    delete (L.Icon.Default.prototype as any)._getIconUrl;
-    L.Icon.Default.prototype.options.iconRetinaUrl = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png';
-    L.Icon.Default.prototype.options.iconUrl = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png';
-    L.Icon.Default.prototype.options.shadowUrl = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png';
-  }).catch(() => {});
-}
-
 // Module-level L reference for creating custom icons
 let _L: any = null;
 function getL() {
@@ -124,20 +111,36 @@ function getL() {
   }).catch(() => null);
 }
 
+// Orange map pin SVG matching the website's amber theme
+const ORANGE_PIN = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="40" viewBox="0 0 28 40">
+  <path d="M14 0C6.268 0 0 6.268 0 14c0 10.5 14 26 14 26s14-15.5 14-26C28 6.268 21.732 0 14 0z" fill="#D97706"/>
+  <circle cx="14" cy="14" r="8" fill="#FFFDE7"/>
+  <text x="14" y="17" text-anchor="middle" font-size="10" fill="#D97706" font-weight="bold">🍽</text>
+</svg>`;
+
 // Internal component that renders map layers
 function MapLayers({ items, userLocation }: { items: Item[]; userLocation: [number, number] | null }) {
   const [userIcon, setUserIcon] = useState<any>(null);
+  const [foodIcon, setFoodIcon] = useState<any>(null);
 
-  // Fix default marker icons and create user location icon
+  // Fix default marker icons and create custom icons
   useEffect(() => {
-    fixLeafletIcons();
     getL().then((L) => {
       if (!L) return;
+      // User location: blue dot
       setUserIcon(L.divIcon({
         className: '',
         html: '<div style="background:#3B82F6;width:16px;height:16px;border-radius:50%;border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3)"></div>',
         iconSize: [16, 16],
         iconAnchor: [8, 8],
+      }));
+      // Food markers: orange pin matching theme color
+      const encoded = encodeURIComponent(ORANGE_PIN);
+      setFoodIcon(L.icon({
+        iconUrl: 'data:image/svg+xml,' + encoded,
+        iconSize: [28, 40],
+        iconAnchor: [14, 40],
+        popupAnchor: [0, -40],
       }));
     });
   }, []);
@@ -177,7 +180,7 @@ function MapLayers({ items, userLocation }: { items: Item[]; userLocation: [numb
       {items.map((item, idx) => {
         const coords = getSpreadCoords(item, idx);
         return (
-          <Marker key={item.id} position={coords}>
+          <Marker key={item.id} position={coords} icon={foodIcon || undefined}>
             <Popup maxWidth={250}>
               <div style={{ fontFamily: 'system-ui,sans-serif', minWidth: 180 }}>
                 <div style={{ fontSize: 20, marginBottom: 4 }}>
