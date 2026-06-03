@@ -488,6 +488,36 @@ export default function AddItemModal({ isOpen, onClose, onAddToList }: AddItemMo
                     </select>
                   </div>
                 )}
+                {selectedItem.type === 'book' && (
+                  <div className="mt-2">
+                    <label className="text-xs font-medium text-stone-500 block mb-1">Genre</label>
+                    <select
+                      value={selectedItem.genre || ''}
+                      onChange={(e) => setSelectedItem({ ...selectedItem, genre: e.target.value || null })}
+                      className="w-full px-3 py-2 bg-white border border-stone-200 rounded-xl text-xs text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none"
+                    >
+                      <option value="">No genre</option>
+                      <option value="Fiction">Fiction</option>
+                      <option value="Non-Fiction">Non-Fiction</option>
+                      <option value="Classic Literature">Classic Literature</option>
+                      <option value="Mystery">Mystery</option>
+                      <option value="Thriller">Thriller</option>
+                      <option value="Romance">Romance</option>
+                      <option value="Science Fiction">Science Fiction</option>
+                      <option value="Fantasy">Fantasy</option>
+                      <option value="Biography">Biography</option>
+                      <option value="History">History</option>
+                      <option value="Philosophy">Philosophy</option>
+                      <option value="Psychology">Psychology</option>
+                      <option value="Self-Help">Self-Help</option>
+                      <option value="Poetry">Poetry</option>
+                      <option value="Drama">Drama</option>
+                      <option value="Horror">Horror</option>
+                      <option value="Adventure">Adventure</option>
+                      <option value="Memoir">Memoir</option>
+                    </select>
+                  </div>
+                )}
                 {selectedItem.external_rating && (
                   <p className="text-xs font-bold text-amber-primary bg-amber-primary/10 inline-block px-2 py-0.5 rounded-full mt-2">
                     Rating: {selectedItem.external_rating.toFixed(1)}
