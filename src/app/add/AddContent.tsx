@@ -72,6 +72,7 @@ export default function AddPage() {
       image_url: result.Poster !== 'N/A' ? result.Poster : null,
       external_rating: rating, imdb_id: result.imdbID,
       genre: result.Genre ? result.Genre.split(',')[0].trim() : null,
+      mood: null,
       external_link: `https://www.imdb.com/title/${result.imdbID}`,
     });
     setStep('confirm');
@@ -296,6 +297,30 @@ export default function AddPage() {
               <h3 className="font-semibold text-stone-800">{selectedItem.title}</h3>
               {selectedItem.creator && <p className="text-sm text-olive mt-0.5">{selectedItem.creator}</p>}
               {selectedItem.external_rating && <p className="text-xs font-bold text-amber-primary bg-amber-primary/10 inline-block px-2 py-0.5 rounded-full mt-1">⭐ {selectedItem.external_rating.toFixed(1)}</p>}
+              {type === 'movie' && (
+                <div className="mt-3">
+                  <label className="text-xs font-medium text-stone-500 block mb-1">What mood fits this movie?</label>
+                  <select
+                    value={selectedItem.mood || ''}
+                    onChange={(e) => setSelectedItem({ ...selectedItem, mood: e.target.value || null })}
+                    className="w-full px-3 py-2 bg-white border border-stone-200 rounded-xl text-xs text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none"
+                  >
+                    <option value="">No specific mood</option>
+                    <option value="Feel Good">Feel Good</option>
+                    <option value="Thriller">Thriller</option>
+                    <option value="Dark">Dark</option>
+                    <option value="Romantic">Romantic</option>
+                    <option value="Thought-Provoking">Thought-Provoking</option>
+                    <option value="Funny">Funny</option>
+                    <option value="Scary">Scary</option>
+                    <option value="Inspiring">Inspiring</option>
+                    <option value="Action-packed">Action-packed</option>
+                    <option value="Mind-bending">Mind-bending</option>
+                    <option value="Heartwarming">Heartwarming</option>
+                    <option value="Suspenseful">Suspenseful</option>
+                  </select>
+                </div>
+              )}
               {selectedItem.description && <p className="text-xs text-olive-light mt-2 line-clamp-3">{selectedItem.description}</p>}
             </div>
           </div>
