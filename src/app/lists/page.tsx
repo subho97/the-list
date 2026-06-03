@@ -68,17 +68,32 @@ export default async function ListsPage({
           <h1 className="font-serif text-3xl md:text-4xl font-bold text-stone-900">Lists</h1>
           <ListOnboardingPopover />
         </div>
-        <p className="text-olive text-sm mb-8">Curated collections from the community.</p>
+        <p className="text-olive text-sm mb-8">{searchQuery ? `Results for "${searchQuery}"` : 'Curated collections from the community.'}</p>
 
         <div className="py-16">
-          <p className="text-olive text-sm mb-6">No lists yet. Be the first to create one!</p>
-          <Link
-            href="/lists/new"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-amber-primary text-white rounded-xl font-medium text-sm hover:bg-amber-dark transition-colors duration-150 shadow-sm"
-          >
-            <Plus size={18} />
-            Create your first list
-          </Link>
+          {searchQuery ? (
+            <>
+              <p className="text-olive text-sm mb-2">No lists match &quot;{searchQuery}&quot;</p>
+              <p className="text-xs text-olive-light mb-6">Try a different search term.</p>
+              <Link
+                href="/lists"
+                className="inline-flex items-center gap-2 px-6 py-3 border border-stone-200 text-stone-600 rounded-xl font-medium text-sm hover:bg-stone-50 transition-colors duration-150"
+              >
+                Clear search
+              </Link>
+            </>
+          ) : (
+            <>
+              <p className="text-olive text-sm mb-6">No lists yet. Be the first to create one!</p>
+              <Link
+                href="/lists/new"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-amber-primary text-white rounded-xl font-medium text-sm hover:bg-amber-dark transition-colors duration-150 shadow-sm"
+              >
+                <Plus size={18} />
+                Create your first list
+              </Link>
+            </>
+          )}
         </div>
       </div>
     );
@@ -133,7 +148,7 @@ export default async function ListsPage({
                   {list.has_pin && (
                     <Lock size={12} className="text-amber-primary shrink-0" aria-label="PIN-protected" />
                   )}
-                  {'is_private' in list && (list as any).is_private && (
+                  {list.is_private && (
                     <span className="text-xs bg-stone-100 text-olive-light px-1.5 py-0.5 rounded">Private</span>
                   )}
                 </div>

@@ -9,7 +9,7 @@ export async function GET() {
     const { data } = await supabase
       .from('items')
       .select('genre')
-      .eq('type', 'movie')
+      .in('type', ['movie', 'book'])
       .not('genre', 'is', null)
       .neq('genre', '')
       .order('genre');

@@ -175,10 +175,12 @@ export default function BrowseContent() {
     }
   }, [activeTab]);
 
-  // Fetch genres and moods for movies
+  // Fetch genres and moods
   useEffect(() => {
-    if (activeTab === 'movie') {
+    if (activeTab === 'movie' || activeTab === 'book') {
       fetch('/api/genres').then(r => r.json()).then(d => setGenres(d.genres || [])).catch(() => {});
+    }
+    if (activeTab === 'movie') {
       fetch('/api/moods').then(r => r.json()).then(d => setMoods(d.moods || [])).catch(() => {});
     }
   }, [activeTab]);
@@ -267,14 +269,14 @@ export default function BrowseContent() {
 
       {/* Movie filters */}
       {activeTab === 'movie' && (
-        <div className="flex flex-wrap gap-2 mb-4">
+        <div className="flex items-center gap-2 overflow-x-auto mb-4 pb-1 -mx-1 px-1">
           {/* Genre filter */}
-          <div className="relative">
-            <Filter size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-olive-light pointer-events-none" />
+          <div className="relative shrink-0">
+            <Filter size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-olive-light pointer-events-none" />
             <select
               value={genreFilter}
               onChange={(e) => { setGenreFilter(e.target.value); setPage(1); }}
-              className="pl-8 pr-3 py-2 bg-white border border-stone-200 rounded-xl text-xs text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none"
+              className="pl-7 pr-2.5 py-1.5 bg-white border border-stone-200 rounded-xl text-[11px] text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none"
             >
               <option value="">All genres</option>
               {genres.map(g => (
@@ -284,12 +286,12 @@ export default function BrowseContent() {
           </div>
 
           {/* Rating filter - dropdown */}
-          <div className="relative">
-            <Star size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-olive-light pointer-events-none" />
+          <div className="relative shrink-0">
+            <Star size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-olive-light pointer-events-none" />
             <select
               value={minRating}
               onChange={(e) => { setMinRating(e.target.value); setPage(1); }}
-              className="pl-8 pr-3 py-2 bg-white border border-stone-200 rounded-xl text-xs text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none"
+              className="pl-7 pr-2.5 py-1.5 bg-white border border-stone-200 rounded-xl text-[11px] text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none"
             >
               {RATING_OPTIONS.map(opt => (
                 <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -298,12 +300,12 @@ export default function BrowseContent() {
           </div>
 
           {/* Mood filter - dropdown */}
-          <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-olive-light pointer-events-none">🎭</span>
+          <div className="relative shrink-0">
+            <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[11px] text-olive-light pointer-events-none">🎭</span>
             <select
               value={moodFilter}
               onChange={(e) => { setMoodFilter(e.target.value); setPage(1); }}
-              className="pl-8 pr-3 py-2 bg-white border border-stone-200 rounded-xl text-xs text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none"
+              className="pl-7 pr-2.5 py-1.5 bg-white border border-stone-200 rounded-xl text-[11px] text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none"
             >
               <option value="">All moods</option>
               {moods.map(m => (
@@ -314,16 +316,50 @@ export default function BrowseContent() {
         </div>
       )}
 
+      {/* Book filters */}
+      {activeTab === 'book' && (
+        <div className="flex items-center gap-2 overflow-x-auto mb-4 pb-1 -mx-1 px-1">
+          {/* Genre filter */}
+          <div className="relative shrink-0">
+            <Filter size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-olive-light pointer-events-none" />
+            <select
+              value={genreFilter}
+              onChange={(e) => { setGenreFilter(e.target.value); setPage(1); }}
+              className="pl-7 pr-2.5 py-1.5 bg-white border border-stone-200 rounded-xl text-[11px] text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none"
+            >
+              <option value="">All genres</option>
+              {genres.map(g => (
+                <option key={g} value={g}>{g}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Rating filter - dropdown */}
+          <div className="relative shrink-0">
+            <Star size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-olive-light pointer-events-none" />
+            <select
+              value={minRating}
+              onChange={(e) => { setMinRating(e.target.value); setPage(1); }}
+              className="pl-7 pr-2.5 py-1.5 bg-white border border-stone-200 rounded-xl text-[11px] text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none"
+            >
+              {RATING_OPTIONS.map(opt => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+      )}
+
       {/* City + Cuisine filters (food only) */}
       {activeTab === 'food' && (
-        <div className="flex flex-wrap gap-2 mb-4">
+        <div className="flex items-center gap-2 overflow-x-auto mb-4 pb-1 -mx-1 px-1">
           {/* City filter */}
-          <div className="relative">
-            <MapPin size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-olive-light pointer-events-none" />
+          <div className="relative shrink-0">
+            <MapPin size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-olive-light pointer-events-none" />
             <select
               value={cityFilter}
               onChange={(e) => { setCityFilter(e.target.value); setPage(1); }}
-              className="pl-8 pr-3 py-2 bg-white border border-stone-200 rounded-xl text-xs text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none"
+              className="pl-7 pr-2.5 py-1.5 bg-white border border-stone-200 rounded-xl text-[11px] text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none"
             >
               <option value="">All cities</option>
               {cities.map(c => <option key={c} value={c}>{c}</option>)}
@@ -331,12 +367,12 @@ export default function BrowseContent() {
           </div>
           {/* Cuisine filter */}
           {cuisines.length > 0 && (
-            <div className="relative">
-              <UtensilsCrossed size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-olive-light pointer-events-none" />
+            <div className="relative shrink-0">
+              <UtensilsCrossed size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-olive-light pointer-events-none" />
               <select
                 value={cuisineFilter}
                 onChange={(e) => { setCuisineFilter(e.target.value); setPage(1); }}
-                className="pl-8 pr-3 py-2 bg-white border border-stone-200 rounded-xl text-xs text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none"
+                className="pl-7 pr-2.5 py-1.5 bg-white border border-stone-200 rounded-xl text-[11px] text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none"
               >
                 <option value="">All cuisines</option>
                 {cuisines.map(c => <option key={c} value={c}>{c}</option>)}
