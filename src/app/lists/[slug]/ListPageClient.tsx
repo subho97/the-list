@@ -62,6 +62,11 @@ export default function ListPageClient({ list: initialList }: ListPageClientProp
   }, [showAddModal, allItems.length]);
 
   const handleOpenPinModal = () => {
+    // No PIN? Enter edit mode directly
+    if (!initialList.has_pin) {
+      setIsEditing(true);
+      return;
+    }
     setPinInput('');
     setPinError('');
     setShowPinModal(true);
@@ -248,7 +253,7 @@ export default function ListPageClient({ list: initialList }: ListPageClientProp
                   onClick={handleOpenPinModal}
                   className="flex items-center gap-2 px-4 py-2.5 bg-amber-primary/10 hover:bg-amber-primary/20 text-amber-primary rounded-xl text-sm font-medium transition-all"
                 >
-                  <Lock size={14} />
+                  {initialList.has_pin ? <Lock size={14} /> : <Unlock size={14} />}
                   Edit this list
                 </button>
               ) : (
