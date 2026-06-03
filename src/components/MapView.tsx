@@ -1,9 +1,28 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { MapPin, AlertTriangle } from 'lucide-react';
 import { Item } from '@/lib/types';
+
+// Dynamically import react-leaflet components with SSR disabled
+const MapContainer = dynamic(
+  () => import('react-leaflet').then((m) => m.MapContainer),
+  { ssr: false }
+);
+const TileLayer = dynamic(
+  () => import('react-leaflet').then((m) => m.TileLayer),
+  { ssr: false }
+);
+const Marker = dynamic(
+  () => import('react-leaflet').then((m) => m.Marker),
+  { ssr: false }
+);
+const Popup = dynamic(
+  () => import('react-leaflet').then((m) => m.Popup),
+  { ssr: false }
+);
 
 const cuisineEmojis: Record<string, string> = {
   pizza: '🍕', italian: '🍝', burger: '🍔', sushi: '🍣', japanese: '🍜',
@@ -52,11 +71,113 @@ function haversine(lat1: number, lon1: number, lat2: number, lon2: number): numb
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
+// Map content component (renders inside MapContainer)
+function MapContent({ items, userLocation, onReady }: {
+  items: Item[];
+  userLocation: [number, number] | null;
+  onReady: () => void;
+}) {
+  const [L, setL] = useState<any>(null);
+
+  useEffect(() => {
+    import('leaflet').then((leaflet) => {
+      // Fix default marker icon
+      delete (leaflet.Icon.Default.prototype as any)._getIconUrl;
+      leaflet.Icon.Default.prototype.options.iconRetinaUrl = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png';
+      leaflet.Icon.Default.prototype.options.iconUrl = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png';
+      leaflet.Icon.Default.prototype.options.shadowUrl = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png';
+      setL(leaflet);
+      onReady();
+    }).catch((err) => {
+      console.error('Failed to load leaflet:', err);
+    });
+  }, []);
+
+  // Need leaflet and map ref to fit bounds
+  useEffect(() => {
+    if (!L) return;
+    const mapEl = document.querySelector('.leaflet-container') as any;
+    if (!mapEl || !mapEl._leaflet_map) return;
+    const map = mapEl._leaflet_map;
+
+    const allCoords = items.map(i => getCoords(i));
+    if (userLocation) allCoords.push(userLocation);
+
+    if (allCoords.length > 1) {
+      const bounds = L.latLngBounds(allCoords);
+      map.fitBounds(bounds, { padding: [50, 50] });
+    } else if (allCoords.length === 1) {
+      map.setView(allCoords[0], 13);
+    }
+  }, [L, items, userLocation]);
+
+  if (!L) return null;
+
+  return (
+    <>
+      <TileLayer
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        maxZoom={18}
+      />
+      {items.map((item) => {
+        const coords = getCoords(item);
+        return (
+          <Marker key={item.id} position={coords}>
+            <Popup maxWidth={250}>
+              <div style={{ fontFamily: 'system-ui,sans-serif', minWidth: 180 }}>
+                <div style={{ fontSize: 20, marginBottom: 4 }}>
+                  {getEmoji(item.cuisine)} <strong>{item.title}</strong>
+                </div>
+                <div style={{ fontSize: 12, color: '#666' }}>
+                  {item.cuisine || ''}{item.city ? ` · ${item.city}` : ''}
+                </div>
+                {item.must_try && (
+                  <div style={{ fontSize: 12, color: '#D97706', marginTop: 4 }}>
+                    ✦ {item.must_try}
+                  </div>
+                )}
+                <div style={{ marginTop: 6 }}>
+                  <a
+                    href={item.google_maps_link || `/items/${item.id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ fontSize: 12, color: '#D97706', textDecoration: 'none', fontWeight: 500 }}
+                  >
+                    Open in Maps ↗
+                  </a>
+                  &nbsp;·&nbsp;
+                  <a
+                    href={`/items/${item.id}`}
+                    style={{ fontSize: 12, color: '#D97706', textDecoration: 'none', fontWeight: 500 }}
+                  >
+                    Details →
+                  </a>
+                </div>
+              </div>
+            </Popup>
+          </Marker>
+        );
+      })}
+      {userLocation && (
+        <Marker
+          position={userLocation}
+          icon={L ? L.divIcon({
+            className: '',
+            html: '<div style="background:#3B82F6;width:16px;height:16px;border-radius:50%;border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3)"></div>',
+            iconSize: [16, 16],
+            iconAnchor: [8, 8],
+          }) : undefined}
+        >
+          <Popup>📍 Your location</Popup>
+        </Marker>
+      )}
+    </>
+  );
+}
+
 export default function MapView({ items }: { items: Item[] }) {
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
-  const mapRef = useRef<HTMLDivElement>(null);
-  const mapInstance = useRef<any>(null);
-  const [selectedItem, setSelectedItem] = useState<Item | null>(null);
   const [mapError, setMapError] = useState<string | null>(null);
   const [mapReady, setMapReady] = useState(false);
 
@@ -70,131 +191,10 @@ export default function MapView({ items }: { items: Item[] }) {
     }
   }, []);
 
-  // Inject Leaflet CSS dynamically
-  useEffect(() => {
-    const linkId = 'leaflet-css';
-    if (!document.getElementById(linkId)) {
-      const link = document.createElement('link');
-      link.id = linkId;
-      link.rel = 'stylesheet';
-      link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-      document.head.appendChild(link);
-    }
-  }, []);
-
-  // Initialize Leaflet map
-  useEffect(() => {
-    if (!mapRef.current || mapInstance.current) return;
-
-    const initMap = async () => {
-      try {
-        const L = await import('leaflet');
-
-        // Fix default marker icon
-        delete (L.Icon.Default.prototype as any)._getIconUrl;
-        L.Icon.Default.prototype.options.iconRetinaUrl = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png';
-        L.Icon.Default.prototype.options.iconUrl = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png';
-        L.Icon.Default.prototype.options.shadowUrl = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png';
-
-        const map = L.map(mapRef.current!, {
-          center: [12.9716, 77.5946],
-          zoom: 11,
-          zoomControl: true,
-        });
-
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-          maxZoom: 18,
-        }).addTo(map);
-
-        // Remove the loading overlay and invalidate size
-        if (mapRef.current) {
-          const overlay = mapRef.current.querySelector('.map-loading-overlay');
-          if (overlay) overlay.remove();
-        }
-        setTimeout(() => {
-          map.invalidateSize();
-          setMapReady(true);
-        }, 100);
-
-        mapInstance.current = map;
-      } catch (err) {
-        console.error('Failed to load map:', err);
-        setMapError('Map failed to load. Try reloading the page.');
-      }
-    };
-
-    initMap();
-
-    return () => {
-      if (mapInstance.current) {
-        mapInstance.current.remove();
-        mapInstance.current = null;
-      }
-    };
-  }, []);
-
-  // Add markers when items or user location change
-  useEffect(() => {
-    if (!mapInstance.current || !mapReady) return;
-    const map = mapInstance.current;
-
-    // Clear existing markers (keep tile layer)
-    map.eachLayer((layer: any) => {
-      const L = (map as any).constructor;
-      if (layer instanceof L.Marker) {
-        map.removeLayer(layer);
-      }
-    });
-
-    // Add markers for each item
-    items.forEach((item) => {
-      const [lat, lng] = getCoords(item);
-      const marker = (map as any).constructor.marker([lat, lng]).addTo(map);
-      marker.bindPopup(`
-        <div style="font-family:system-ui,sans-serif;min-width:180px">
-          <div style="font-size:20px;margin-bottom:4px">${getEmoji(item.cuisine)} <strong>${item.title}</strong></div>
-          <div style="font-size:12px;color:#666">${item.cuisine || ''}${item.city ? ' · ' + item.city : ''}</div>
-          ${item.must_try ? `<div style="font-size:12px;color:#D97706;margin-top:4px">✨ ${item.must_try}</div>` : ''}
-          <div style="margin-top:6px">
-            <a href="${item.google_maps_link || `/items/${item.id}`}" target="_blank" style="font-size:12px;color:#D97706;text-decoration:none;font-weight:500">Open in Maps ↗</a>
-            &nbsp;·&nbsp;
-            <a href="/items/${item.id}" style="font-size:12px;color:#D97706;text-decoration:none;font-weight:500">Details →</a>
-          </div>
-        </div>
-      `, { maxWidth: 250 });
-    });
-
-    // Add user location marker
-    if (userLocation) {
-      const userIcon = (map as any).constructor.divIcon({
-        className: '',
-        html: '<div style="background:#3B82F6;width:16px;height:16px;border-radius:50%;border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3)"></div>',
-        iconSize: [16, 16],
-        iconAnchor: [8, 8],
-      });
-      (map as any).constructor.marker(userLocation, { icon: userIcon }).addTo(map)
-        .bindPopup('<div style="font-size:12px">📍 Your location</div>');
-
-      // Fit bounds to show all markers + user
-      const allCoords = items.map(i => getCoords(i));
-      allCoords.push(userLocation);
-      if (allCoords.length > 1) {
-        const bounds = (map as any).constructor.latLngBounds(allCoords);
-        map.fitBounds(bounds, { padding: [50, 50] });
-      }
-    } else if (items.length > 0) {
-      // User location unavailable, fit to items
-      const allCoords = items.map(i => getCoords(i));
-      if (allCoords.length > 1) {
-        const bounds = (map as any).constructor.latLngBounds(allCoords);
-        map.fitBounds(bounds, { padding: [50, 50] });
-      }
-    }
-
-    // Recalculate map size
-    setTimeout(() => map.invalidateSize(), 50);
-  }, [items, userLocation, mapInstance.current, mapReady]);
+  // Calculate default center
+  const defaultCenter: [number, number] = items.length > 0
+    ? getCoords(items[0])
+    : [12.9716, 77.5946];
 
   if (mapError) {
     return (
@@ -224,15 +224,28 @@ export default function MapView({ items }: { items: Item[] }) {
   return (
     <div className="space-y-3">
       {/* Map */}
-      <div ref={mapRef} className="w-full h-[400px] rounded-xl border border-stone-200 shadow-sm z-0 relative">
+      <div className="w-full h-[400px] rounded-xl border border-stone-200 shadow-sm z-0 relative overflow-hidden">
         {!mapReady && (
-          <div className="map-loading-overlay absolute inset-0 flex items-center justify-center bg-stone-50 rounded-xl z-[1000]">
+          <div className="absolute inset-0 flex items-center justify-center bg-stone-50 z-[1000]">
             <div className="text-center">
               <MapPin size={24} className="mx-auto text-olive-light animate-pulse" />
               <p className="text-xs text-olive-light mt-2">Loading map...</p>
             </div>
           </div>
         )}
+        <MapContainer
+          center={defaultCenter}
+          zoom={11}
+          className="w-full h-full"
+          zoomControl={true}
+          scrollWheelZoom={true}
+        >
+          <MapContent
+            items={items}
+            userLocation={userLocation}
+            onReady={() => setMapReady(true)}
+          />
+        </MapContainer>
       </div>
 
       {/* Legend */}
@@ -272,7 +285,7 @@ export default function MapView({ items }: { items: Item[] }) {
                 <p className="text-xs text-olive-light">
                   {item.city || 'Bangalore'}
                   {dist !== null ? ` · ${dist} km` : ''}
-                  {item.must_try ? ` · ✨ ${item.must_try}` : ''}
+                  {item.must_try ? ` · ✦ ${item.must_try}` : ''}
                 </p>
               </div>
               {item.google_maps_link && (
