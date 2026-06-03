@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
         publishedDate: doc.first_publish_year ? String(doc.first_publish_year) : null,
         description: null,
         imageLinks: doc.cover_i
-          ? { thumbnail: `https://covers.openlibrary.org/b/id/${doc.cover_i}-S.jpg` }
+          ? { thumbnail: `https://covers.openlibrary.org/b/id/${doc.cover_i}-M.jpg` }
           : null,
         averageRating: null,
         infoLink: doc.key ? `https://openlibrary.org${doc.key}` : null,

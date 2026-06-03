@@ -5,13 +5,13 @@
  */
 export function thumbnailUrl(url: string | null): string | null {
   if (!url) return null;
-  // OpenLibrary: -L.jpg → -S.jpg (smallest, fastest loading)
+  // OpenLibrary: -L.jpg (large ~500px) → -M.jpg (medium ~180px, good quality + fast)
   if (url.includes('covers.openlibrary.org')) {
-    return url.replace(/-L\.jpg$/, '-S.jpg').replace(/-M\.jpg$/, '-S.jpg');
+    return url.replace(/-L\.jpg$/, '-M.jpg').replace(/-S\.jpg$/, '-M.jpg');
   }
-  // Google Books: use zoom=0 for thumbnails, strip edge=curl for faster load
+  // Google Books: strip edge=curl for faster load
   if (url.includes('books.google.com')) {
-    return url.replace(/zoom=\d+/, 'zoom=0').replace(/&edge=curl/, '');
+    return url.replace(/&edge=curl/, '');
   }
   return url;
 }

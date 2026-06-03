@@ -220,7 +220,32 @@ export default function AddPage() {
           </div>
           {searchError && <div className="flex items-start gap-2 p-4 rounded-xl bg-red-50 border border-red-100 text-red-700 text-sm"><AlertCircle size={18} className="mt-0.5 shrink-0" /><p>{searchError}</p></div>}
           {isSearching && <div className="flex items-center justify-center py-12"><Loader2 size={28} className="animate-spin text-amber-primary" /></div>}
-          {!isSearching && searchResults.length === 0 && searchQuery.length >= 2 && !searchError && <p className="text-center text-sm text-olive-light py-12">No results. Try a different search.</p>}
+          {!isSearching && searchResults.length === 0 && searchQuery.length >= 2 && !searchError && (
+            <div className="text-center py-8">
+              <p className="text-sm text-olive-light mb-3">No results.</p>
+              {type === 'book' && (
+                <button
+                  onClick={() => {
+                    setSelectedItem({
+                      type: 'book',
+                      title: searchQuery,
+                      creator: null,
+                      year: null,
+                      description: null,
+                      image_url: null,
+                      external_rating: null,
+                      external_link: null,
+                      genre: null,
+                    });
+                    setStep('confirm');
+                  }}
+                  className="text-sm font-medium text-amber-primary hover:text-amber-dark transition-colors"
+                >
+                  Can&apos;t find your book? Add &ldquo;{searchQuery}&rdquo; manually
+                </button>
+              )}
+            </div>
+          )}
           <div className="space-y-2 max-h-[50vh] overflow-y-auto">
             {searchResults.map((result) => {
               if (type === 'movie') {
@@ -239,7 +264,7 @@ export default function AddPage() {
               }
               return (
                 <button key={result.id} onClick={() => handleBookSelect(result)} className="w-full flex items-center gap-3 p-3 rounded-xl border border-stone-100 hover:border-amber-primary/30 hover:bg-stone-50 transition-all text-left">
-                  {result.volumeInfo.imageLinks?.thumbnail ? <img src={result.volumeInfo.imageLinks.thumbnail.replace('http:', 'https:')} alt={result.volumeInfo.title} className="w-12 h-16 object-cover rounded-lg shrink-0 bg-stone-100" loading="lazy" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} /> : <div className="w-12 h-16 rounded-lg bg-stone-100 flex items-center justify-center text-olive-light text-[10px] uppercase shrink-0">Book</div>}
+                  {result.volumeInfo.imageLinks?.thumbnail ? <img src={result.volumeInfo.imageLinks.thumbnail.replace('http:', 'https:')} alt={result.volumeInfo.title} className="w-12 h-16 object-cover rounded-lg shrink-0 bg-stone-100" loading="lazy" crossOrigin="anonymous" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} /> : <div className="w-12 h-16 rounded-lg bg-stone-100 flex items-center justify-center text-olive-light text-[10px] uppercase shrink-0">Book</div>}
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-stone-800 text-sm truncate">{result.volumeInfo.title}</p>
                     <p className="text-xs text-olive truncate">{result.volumeInfo.authors?.join(', ')}</p>
@@ -247,6 +272,35 @@ export default function AddPage() {
                 </button>
               );
             })}
+            {type === 'book' && searchQuery.length >= 2 && (
+              <div className="border-t border-stone-100 pt-3 mt-1">
+                <button
+                  onClick={() => {
+                    setSelectedItem({
+                      type: 'book',
+                      title: searchQuery,
+                      creator: null,
+                      year: null,
+                      description: null,
+                      image_url: null,
+                      external_rating: null,
+                      external_link: null,
+                      genre: null,
+                    });
+                    setStep('confirm');
+                  }}
+                  className="w-full flex items-center gap-3 p-3 rounded-xl border border-dashed border-stone-200 hover:border-amber-primary/40 hover:bg-stone-50 transition-all text-left"
+                >
+                  <div className="w-12 h-16 rounded-lg bg-gradient-to-br from-stone-100 to-stone-200 flex items-center justify-center text-olive-light text-[18px] shrink-0">
+                    ✏️
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-stone-700 text-sm">Add &ldquo;{searchQuery}&rdquo; manually</p>
+                    <p className="text-xs text-olive-light mt-0.5">Enter book details yourself</p>
+                  </div>
+                </button>
+              </div>
+            )}
           </div>
           <button onClick={() => { setStep('choose-type'); setType(null); }} className="w-full py-3 border border-stone-200 text-stone-600 rounded-xl font-medium text-sm hover:bg-stone-50 transition-colors">Back</button>
         </div>
@@ -754,14 +808,31 @@ export default function AddPage() {
           </div>
           {type === 'book' && (
             <div className="space-y-3">
+              {/* Author — always required */}
               <div>
-                <label className="block text-sm font-medium text-stone-700 mb-1.5">Genre</label>
+                <label className="block text-sm font-medium text-stone-700 mb-1.5">Author *</label>
+                <input
+                  type="text"
+                  value={selectedItem.creator || ''}
+                  onChange={(e) => setSelectedItem({ ...selectedItem, creator: e.target.value || null })}
+                  placeholder="Author name"
+                  className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm text-stone-700 placeholder:text-olive-light focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary transition-all duration-150"
+                  required
+                />
+                {!selectedItem.creator && (
+                  <p className="text-xs text-red-500 mt-1">Author is required</p>
+                )}
+              </div>
+              {/* Genre — always required */}
+              <div>
+                <label className="block text-sm font-medium text-stone-700 mb-1.5">Genre *</label>
                 <select
                   value={selectedItem.genre || ''}
                   onChange={(e) => setSelectedItem({ ...selectedItem, genre: e.target.value || null })}
                   className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none"
+                  required
                 >
-                  <option value="">Select genre (optional)</option>
+                  <option value="">Select genre...</option>
                   <option value="Classic Literature">Classic Literature</option>
                   <option value="Fiction">Fiction</option>
                   <option value="Non-Fiction">Non-Fiction</option>
@@ -788,6 +859,7 @@ export default function AddPage() {
                   <option value="Literary Fiction">Literary Fiction</option>
                 </select>
               </div>
+              {/* Purchase link — optional */}
               <div>
                 <label className="block text-sm font-medium text-stone-700 mb-1.5">Purchase link <span className="text-olive-light font-normal">(Amazon / Flipkart — optional)</span></label>
                 <input type="url" value={purchaseLink} onChange={(e) => setPurchaseLink(e.target.value)} placeholder="https://www.amazon.in/..." className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary" />
@@ -797,7 +869,7 @@ export default function AddPage() {
           {submitError && <div className="p-3 rounded-xl bg-red-50 border border-red-100 text-red-700 text-sm"><AlertCircle size={16} className="inline mr-1" />{submitError}</div>}
           <div className="flex gap-3">
             <button onClick={() => setStep(type === 'food' ? 'detail' : 'search')} className="flex-1 py-3 border border-stone-200 text-stone-600 rounded-xl font-medium text-sm hover:bg-stone-50 transition-colors">Back</button>
-            <button onClick={handleSubmit} disabled={isSubmitting} className="flex-1 py-3 bg-amber-primary text-white rounded-xl font-medium text-sm hover:bg-amber-dark disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+            <button onClick={handleSubmit} disabled={isSubmitting || (type === 'book' && (!selectedItem.creator || !selectedItem.genre))} className="flex-1 py-3 bg-amber-primary text-white rounded-xl font-medium text-sm hover:bg-amber-dark disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
               {isSubmitting ? <><Loader2 size={16} className="animate-spin" /> Adding...</> : 'Add to The List'}
             </button>
           </div>
