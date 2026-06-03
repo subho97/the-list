@@ -55,6 +55,10 @@ export default function AddPage() {
   const [purchaseLink, setPurchaseLink] = useState('');
   const [foodData, setFoodData] = useState({ title: '', creator: '', cuisine: '', must_try: '', notes: '', description: '', city: '', area: '', google_maps_link: '', year: new Date().getFullYear() });
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const foodSuggestTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const foodSearchedRef = useRef(false);
+  const [foodSuggestions, setFoodSuggestions] = useState<Array<{name: string; area: string; city: string; maps_link: string}>>([]);
+  const [showFoodSuggestions, setShowFoodSuggestions] = useState(false);
 
   useEffect(() => {
     if (prefillType) {
@@ -62,6 +66,24 @@ export default function AddPage() {
       setStep(prefillType === 'food' ? 'detail' : 'search');
     }
   }, [prefillType]);
+
+  const searchFoodPlace = async (query: string) => {
+    try {
+      const res = await fetch(`/api/places/autocomplete?q=${encodeURIComponent(query)}`);
+      const data = await res.json();
+      setFoodSuggestions(data.results || []);
+      setShowFoodSuggestions((data.results || []).length > 0);
+    } catch {
+      setFoodSuggestions([]);
+    }
+  };
+
+  // Click outside to close suggestions
+  useEffect(() => {
+    const handler = () => setShowFoodSuggestions(false);
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
 
   const handleTypeSelect = (selectedType) => {
     setType(selectedType);
@@ -308,9 +330,59 @@ export default function AddPage() {
 
       {step === 'detail' && type === 'food' && (
         <div className="space-y-4">
-          <div>
+          <div className="relative">
             <label className="block text-sm font-medium text-stone-700 mb-1.5">Name *</label>
-            <input type="text" value={foodData.title} onChange={(e) => setFoodData({ ...foodData, title: e.target.value })} placeholder="Restaurant or place name" className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary" autoFocus />
+            <input
+              type="text"
+              value={foodData.title}
+              onChange={(e) => {
+                setFoodData({ ...foodData, title: e.target.value });
+                if (foodSuggestTimeoutRef.current) clearTimeout(foodSuggestTimeoutRef.current);
+                if (e.target.value.length >= 2) {
+                  foodSuggestTimeoutRef.current = setTimeout(() => searchFoodPlace(e.target.value), 300);
+                } else {
+                  setFoodSuggestions([]);
+                }
+              }}
+              onFocus={() => { if (foodSearchedRef.current && foodSuggestions.length > 0) setShowFoodSuggestions(true); }}
+              placeholder="Start typing a restaurant or place name..."
+              className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary"
+              autoFocus
+              autoComplete="off"
+            />
+            {/* Autocomplete dropdown */}
+            {showFoodSuggestions && foodSuggestions.length > 0 && (
+              <div className="absolute z-20 top-full left-0 right-0 mt-1 bg-white rounded-xl border border-stone-200 shadow-lg max-h-64 overflow-y-auto">
+                {foodSuggestions.map((s, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onMouseDown={() => {
+                      setFoodData({
+                        ...foodData,
+                        title: s.name,
+                        city: s.city || foodData.city,
+                        area: s.area || foodData.area,
+                        google_maps_link: s.maps_link || foodData.google_maps_link,
+                      });
+                      setShowFoodSuggestions(false);
+                      foodSearchedRef.current = true;
+                    }}
+                    className="w-full flex items-start gap-3 p-3 text-left hover:bg-amber-50/50 transition-colors border-b border-stone-100 last:border-b-0"
+                  >
+                    <div className="w-8 h-8 shrink-0 rounded-lg bg-gradient-to-br from-orange-200/60 to-orange-300/30 flex items-center justify-center text-sm">
+                      🍽️
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-stone-800 truncate">{s.name}</p>
+                      <p className="text-xs text-olive-light truncate mt-0.5">
+                        {s.area && `${s.area}, `}{s.city || ''}
+                      </p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
           <div>
             <label className="block text-sm font-medium text-stone-700 mb-1.5">Cuisine / Category *</label>
