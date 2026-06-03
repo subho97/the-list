@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase';
 import { List } from '@/lib/types';
 import { Plus, Lock, Calendar, User, Search } from 'lucide-react';
+import ListOnboardingPopover from '@/components/ListOnboardingPopover';
 
 interface ListWithPinInfo extends Omit<List, 'edit_pin'> {
   has_pin: boolean;
@@ -63,7 +64,10 @@ export default async function ListsPage({
   if (lists.length === 0) {
     return (
       <div className="min-h-screen pt-24 md:pt-28 pb-12 px-4 max-w-lg mx-auto text-center">
-        <h1 className="font-serif text-3xl md:text-4xl font-bold text-stone-900 mb-2">Lists</h1>
+        <div className="flex items-center justify-center gap-2 mb-2">
+          <h1 className="font-serif text-3xl md:text-4xl font-bold text-stone-900">Lists</h1>
+          <ListOnboardingPopover />
+        </div>
         <p className="text-olive text-sm mb-8">Curated collections from the community.</p>
 
         <div className="py-16">
@@ -84,7 +88,10 @@ export default async function ListsPage({
     <div className="min-h-screen pt-24 md:pt-28 pb-12 px-4 max-w-3xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="font-serif text-3xl md:text-4xl font-bold text-stone-900">Lists</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="font-serif text-3xl md:text-4xl font-bold text-stone-900">Lists</h1>
+            <ListOnboardingPopover />
+          </div>
           <p className="text-olive text-sm mt-1">{searchQuery ? `Results for "${searchQuery}"` : 'Curated collections from the community.'}</p>
         </div>
         <Link
