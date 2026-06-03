@@ -141,6 +141,8 @@ function MapLayers({ items, userLocation }: { items: Item[]; userLocation: [numb
         iconSize: [28, 40],
         iconAnchor: [14, 40],
         popupAnchor: [0, -40],
+        shadowUrl: '',
+        shadowSize: [0, 0],
       }));
     });
   }, []);
