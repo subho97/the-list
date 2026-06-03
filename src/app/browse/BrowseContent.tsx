@@ -174,7 +174,7 @@ export default function BrowseContent() {
       const params = new URLSearchParams();
       params.set('type', tab);
       params.set('page', pageNum.toString());
-      params.set('limit', '50');
+      params.set('limit', '60');
       if (search) params.set('search', search);
       if (tab === 'food' && cityFilter) params.set('city', cityFilter);
       if (tab === 'food' && areaFilter) params.set('area', areaFilter);
@@ -276,7 +276,7 @@ export default function BrowseContent() {
         }
         setTimeout(() => { busy = false; }, 1000);
       }
-    }, { rootMargin: '400px' });
+    }, { rootMargin: '600px' });
     observer.observe(el);
     return () => observer.disconnect();
   }, []); // Only mount/unmount — refs keep callback current
@@ -464,23 +464,12 @@ export default function BrowseContent() {
               )}
 
               {hasMore && (
-                <>
-                  <div ref={sentinelRef} className="h-4" />
-                  <div className="mt-4 text-center">
-                    <button
-                      onClick={handleLoadMore}
-                      disabled={isLoading}
-                      className="px-6 py-3 bg-white border border-stone-200 rounded-xl text-sm font-medium text-stone-600 hover:border-amber-primary/40 hover:text-amber-primary transition-all duration-150 disabled:opacity-50 shadow-sm"
-                    >
-                      {isLoading ? (
-                        <span className="flex items-center gap-2">
-                          <Loader2 size={16} className="animate-spin" />
-                          Loading...
-                        </span>
-                      ) : 'Load more'}
-                    </button>
-                  </div>
-                </>
+                <div ref={sentinelRef} className="h-4" />
+              )}
+              {isLoading && items.length > 0 && (
+                <div className="py-8 text-center">
+                  <Loader2 size={20} className="animate-spin text-amber-primary mx-auto" />
+                </div>
               )}
             </>
           )}

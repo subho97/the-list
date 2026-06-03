@@ -339,12 +339,12 @@ export default function AddPage() {
                 setFoodData({ ...foodData, title: e.target.value });
                 if (foodSuggestTimeoutRef.current) clearTimeout(foodSuggestTimeoutRef.current);
                 if (e.target.value.length >= 2) {
-                  foodSuggestTimeoutRef.current = setTimeout(() => searchFoodPlace(e.target.value), 300);
+                  foodSuggestTimeoutRef.current = setTimeout(() => searchFoodPlace(e.target.value), 200);
                 } else {
                   setFoodSuggestions([]);
                 }
               }}
-              onFocus={() => { if (foodSearchedRef.current && foodSuggestions.length > 0) setShowFoodSuggestions(true); }}
+              onFocus={() => { if (foodSuggestions.length > 0) setShowFoodSuggestions(true); }}
               placeholder="Start typing a restaurant or place name..."
               className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary"
               autoFocus

@@ -246,8 +246,9 @@ export default function CreateListContent() {
             {/* Privacy toggle */}
             <div className="flex items-center justify-between p-3 bg-white border border-stone-200 rounded-xl">
               <div>
-                <p className="text-sm font-medium text-stone-700">🔒 Private list</p>
-                <p className="text-xs text-olive-light mt-0.5">Only visible to people with the link. Won't show up on public Lists page.</p>
+                <p className="text-sm font-medium text-stone-700">🔒 Private List</p>
+                <p className="text-xs text-olive-light mt-0.5">Only visible to people with the link.</p>
+                <p className="text-xs text-olive-light">Won&apos;t show up on public Lists page.</p>
               </div>
               <button
                 type="button"
