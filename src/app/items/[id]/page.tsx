@@ -84,7 +84,6 @@ export default async function ItemDetailPage({ params }: { params: Promise<{ id:
                   alt={item.title}
                   className="w-full h-full object-cover"
                   loading="lazy"
-                  onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                 />
               ) : item.type === 'food' ? (
                 <div className="w-full h-full bg-gradient-to-br from-orange-200/60 to-orange-300/30 flex flex-col items-center justify-center">
@@ -262,7 +261,6 @@ export default async function ItemDetailPage({ params }: { params: Promise<{ id:
                       alt="Review photo"
                       className="w-full max-w-sm rounded-lg object-cover max-h-64 border border-stone-200"
                       loading="lazy"
-                      onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                     />
                   )}
                   <p className="text-xs text-olive-light">

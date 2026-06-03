@@ -59,10 +59,13 @@ export default function ListOnboardingPopover() {
       </button>
 
       {isOpen && (
-        <div
-          ref={popoverRef}
-          className="absolute top-8 left-0 z-50 w-72 bg-white rounded-2xl border border-stone-200 shadow-lg p-5 space-y-4"
-        >
+        <>
+          {/* Overlay backdrop — only on mobile */}
+          <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 sm:hidden" onClick={dismiss} />
+          <div
+            ref={popoverRef}
+            className="fixed sm:absolute top-1/2 sm:top-8 left-1/2 sm:left-0 -translate-x-1/2 sm:translate-x-0 -translate-y-1/2 sm:translate-y-0 z-50 w-72 bg-white rounded-2xl border border-stone-200 shadow-lg p-5 space-y-4"
+          >
           <div className="flex items-center justify-between">
             <h3 className="font-serif font-bold text-stone-900 text-base">How lists work</h3>
             <button
@@ -103,6 +106,7 @@ export default function ListOnboardingPopover() {
             Got it
           </button>
         </div>
+        </>
       )}
     </div>
   );
