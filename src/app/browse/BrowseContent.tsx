@@ -393,45 +393,40 @@ export default function BrowseContent() {
 
       {/* City + Area + Cuisine filters (food only) */}
       {activeTab === 'food' && (
-        <div className="flex flex-nowrap gap-1 mb-4 pb-1">
-          {/* City filter */}
+        <div className="flex gap-1.5 mb-4 pb-1">
           <select
             value={cityFilter}
             onChange={(e) => { setCityFilter(e.target.value); setPage(1); }}
-            className="min-w-0 flex-[1.2] sm:flex-1 px-1.5 sm:px-2 py-1.5 bg-white border border-stone-200 rounded-xl text-[9px] sm:text-[11px] text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none truncate"
+            className="flex-1 min-w-0 px-2 py-1.5 bg-white border border-stone-200 rounded-xl text-[10px] sm:text-[11px] text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none truncate"
           >
-            <option value="">City</option>
+            <option value="">🏙️ City</option>
             {cities.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
-          {/* Area filter */}
           {areas.length > 0 && (
             <select
               value={areaFilter}
               onChange={(e) => { setAreaFilter(e.target.value); setPage(1); }}
-              className="min-w-0 flex-1 px-1.5 sm:px-2 py-1.5 bg-white border border-stone-200 rounded-xl text-[9px] sm:text-[11px] text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none truncate"
+              className="flex-1 min-w-0 px-2 py-1.5 bg-white border border-stone-200 rounded-xl text-[10px] sm:text-[11px] text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none truncate"
             >
-              <option value="">Area</option>
+              <option value="">📍 Area</option>
               {areas.map(a => <option key={a} value={a}>{a}</option>)}
             </select>
           )}
-          {/* Cuisine filter */}
           {cuisines.length > 0 && (
             <select
               value={cuisineFilter}
               onChange={(e) => { setCuisineFilter(e.target.value); setPage(1); }}
-              className="min-w-0 flex-1 px-1.5 sm:px-2 py-1.5 bg-white border border-stone-200 rounded-xl text-[9px] sm:text-[11px] text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none truncate"
+              className="flex-1 min-w-0 px-2 py-1.5 bg-white border border-stone-200 rounded-xl text-[10px] sm:text-[11px] text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-primary/30 focus:border-amber-primary appearance-none truncate"
             >
-              <option value="">Cuisine</option>
+              <option value="">🍽️ Cuisine</option>
               {cuisines.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
           )}
-
-          {/* Map/List toggle */}
           <button
             onClick={() => setViewMode(viewMode === 'list' ? 'map' : 'list')}
-            className="shrink-0 flex items-center gap-1 px-2.5 py-1.5 bg-white border border-stone-200 rounded-xl text-[10px] sm:text-xs font-medium text-stone-600 hover:border-amber-primary/40 hover:text-amber-primary transition-all duration-150"
+            className="shrink-0 flex items-center gap-1 px-3 py-1.5 bg-white border border-stone-200 rounded-xl text-[10px] sm:text-[11px] font-medium text-stone-600 hover:border-amber-primary/40 hover:text-amber-primary transition-all duration-150"
           >
-            {viewMode === 'list' ? <><Map size={13} /> Map</> : <><List size={13} /> List</>}
+            {viewMode === 'list' ? '🗺️' : '📋'}
           </button>
         </div>
       )}
