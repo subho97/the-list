@@ -59,15 +59,17 @@ export default function VoteButtons({ itemId, initialUpvotes = 0, initialDownvot
       localStorage.setItem('thelist_votes', JSON.stringify(stored));
     } catch {}
 
-    // Send to server
-    try {
-      await fetch(`/api/items/${itemId}/vote`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ vote: newVote }),
-      });
-    } catch {
-      // revert on error? for now, keep optimistic
+    // Send to server — only when vote is not null (skip for unvotes)
+    if (newVote) {
+      try {
+        await fetch(`/api/items/${itemId}/vote`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ vote: newVote }),
+        });
+      } catch {
+        // revert on error? for now, keep optimistic
+      }
     }
   };
 
