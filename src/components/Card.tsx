@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import { Item } from '@/lib/types';
 import { Film, BookOpen, UtensilsCrossed, MapPin } from 'lucide-react';
@@ -103,14 +102,15 @@ export default function Card({ item, index = 99 }: CardProps) {
       {/* Image */}
       <div className="aspect-[3/4] bg-stone-100 relative overflow-hidden">
         {item.image_url ? (
-          <Image
+          <img
             src={thumbnailUrl(item.image_url) || item.image_url}
             alt={item.title}
-            fill
-            sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
-            className="object-cover group-hover:scale-105 transition-transform duration-300"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             loading={index < 6 ? 'eager' : 'lazy'}
-            priority={index < 3}
+            decoding={index < 10 ? 'sync' : 'async'}
+            fetchPriority={index < 3 ? 'high' : 'auto'}
+            crossOrigin="anonymous"
+            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
           />
         ) : item.type === 'food' ? (
           <div className={`w-full h-full bg-gradient-to-br ${getCuisineGradient(item.cuisine)} flex flex-col items-center justify-center`}>
