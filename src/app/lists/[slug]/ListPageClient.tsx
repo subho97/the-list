@@ -294,8 +294,8 @@ export default function ListPageClient({ list: initialList }: ListPageClientProp
       {/* Header */}
       <div className="mb-8">
         <div className="bg-white rounded-2xl shadow-sm border border-stone-200 p-6 md:p-8">
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex-1 min-w-0">
+          <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
+            <div className="flex-1 min-w-0 w-full">
               <div className="flex items-center gap-2 flex-wrap">
                 <h1 className="font-serif text-3xl md:text-4xl font-bold text-stone-900 tracking-tight">
                   {list.name}
@@ -325,11 +325,11 @@ export default function ListPageClient({ list: initialList }: ListPageClientProp
               </div>
             </div>
 
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto">
               {!isEditing ? (
                 <button
                   onClick={handleOpenPinModal}
-                  className="flex items-center gap-2 px-4 py-2.5 bg-amber-primary/10 hover:bg-amber-primary/20 text-amber-primary rounded-xl text-sm font-medium transition-all"
+                  className="flex items-center justify-center gap-2 w-full sm:w-auto px-4 py-2.5 bg-amber-primary/10 hover:bg-amber-primary/20 text-amber-primary rounded-xl text-sm font-medium transition-all"
                 >
                   {initialList.has_pin ? <Lock size={14} /> : <Unlock size={14} />}
                   Edit this list
