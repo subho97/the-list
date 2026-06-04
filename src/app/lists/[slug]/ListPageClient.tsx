@@ -422,12 +422,12 @@ export default function ListPageClient({ list: initialList }: ListPageClientProp
         <EmptyState type="lists" description={items.length === 0 ? (isEditing ? 'Start adding items to this list!' : 'This list is empty.') : `No ${activeFilter} items in this list.`} />
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {filteredListItems.map((item) => {
+          {filteredListItems.map((item, idx) => {
             const isChecked = checkedIds.has(item.list_item_id);
             return (
               <div key={item.list_item_id} className="relative group">
                 <div className={`transition-all duration-200 ${isChecked ? 'opacity-40 saturate-0' : ''}`}>
-                  <Card item={item} />
+                  <Card item={item} index={idx} />
                 </div>
                 {item.note && (
                   <p className={`mt-1.5 px-1 text-xs italic truncate transition-all duration-200 ${isChecked ? 'text-stone-300' : 'text-olive'}`}>
@@ -441,7 +441,7 @@ export default function ListPageClient({ list: initialList }: ListPageClientProp
                   className={`absolute top-2 right-2 z-20 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-150 shadow-sm border-2 ${
                     isChecked
                       ? 'bg-emerald-500 border-emerald-500 text-white'
-                      : 'bg-white/90 border-stone-300 text-olive-light hover:border-emerald-400 hover:text-emerald-500 opacity-0 group-hover:opacity-100'
+                      : 'bg-white/90 border-stone-300 text-olive-light hover:border-emerald-400 hover:text-emerald-500 opacity-60 md:opacity-0 md:group-hover:opacity-100'
                   }`}
                   title={isChecked ? 'Mark as not done' : 'Mark as done'}
                   disabled={togglingItemId === item.list_item_id}
