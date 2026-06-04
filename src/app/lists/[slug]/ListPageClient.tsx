@@ -420,11 +420,11 @@ export default function ListPageClient({ list: initialList }: ListPageClientProp
       {filteredListItems.length === 0 ? (
         <EmptyState type="lists" description={items.length === 0 ? (isEditing ? 'Start adding items to this list!' : 'This list is empty.') : `No ${activeFilter} items in this list.`} />
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 items-stretch">
           {filteredListItems.map((item, idx) => {
             const isChecked = checkedIds.has(item.list_item_id);
             return (
-              <div key={item.list_item_id} className="relative group">
+              <div key={item.list_item_id} className="relative group h-full">
                 <div className={`transition-all duration-200 ${isChecked ? 'opacity-40 saturate-0' : ''}`}>
                   <Card item={item} index={idx} />
                 </div>
