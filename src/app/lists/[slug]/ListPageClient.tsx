@@ -338,16 +338,17 @@ export default function ListPageClient({ list: initialList }: ListPageClientProp
                 </button>
               ) : (
                 <>
-                  <span className="flex items-center gap-1.5 px-3 py-2 bg-emerald-50 text-emerald-700 rounded-xl text-xs font-medium">
+                  <span className="hidden sm:flex items-center gap-1.5 px-3 py-2 bg-emerald-50 text-emerald-700 rounded-xl text-xs font-medium">
                     <PenBox size={13} />
                     Editing
                   </span>
                   <button
                     onClick={handleStopEditing}
-                    className="flex items-center gap-2 px-3 py-2.5 text-olive hover:text-stone-700 rounded-xl text-sm transition-colors"
-                    title="Stop editing"
+                    className="flex items-center justify-center gap-2 px-4 py-2.5 bg-amber-primary text-white rounded-xl text-sm font-medium hover:bg-amber-dark transition-colors shadow-sm"
+                    title="Done editing"
                   >
-                    <X size={16} />
+                    <Check size={15} />
+                    Done
                   </button>
                 </>
               )}
@@ -357,37 +358,35 @@ export default function ListPageClient({ list: initialList }: ListPageClientProp
 
           {/* Edit mode banner */}
           {isEditing && (
-            <div className="mt-4 pt-4 border-t border-stone-100 flex items-center justify-between">
-              <div className="flex items-center gap-3">
+            <div className="mt-4 pt-4 border-t border-stone-100 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+              <div className="flex items-center gap-3 w-full sm:w-auto">
                 <button
                   onClick={() => {
                     setShowAddModal(true);
                     setSearchQuery('');
                   }}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 bg-amber-primary text-white rounded-xl text-sm font-medium hover:bg-amber-dark transition-colors shadow-sm"
+                  className="flex items-center justify-center gap-2 flex-1 sm:flex-none px-4 py-2.5 bg-amber-primary text-white rounded-xl text-sm font-medium hover:bg-amber-dark transition-colors shadow-sm"
                 >
                   <Plus size={15} />
                   Add items
                 </button>
-              </div>
-              <div className="flex items-center gap-3">
                 {initialList.has_pin ? (
                   <button
                     onClick={handleDeleteList}
-                    className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-xl transition-colors"
+                    className="flex items-center justify-center gap-1.5 px-4 py-2.5 text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-xl transition-colors flex-1 sm:flex-none"
                   >
                     <Trash2 size={13} />
-                    Delete list
+                    Delete
                   </button>
                 ) : (
-                  <span className="text-xs text-olive-light italic" title="Only PIN-protected lists can be deleted. This keeps public lists safe from accidental removal.">
+                  <span className="text-xs text-olive-light italic hidden sm:inline" title="Only PIN-protected lists can be deleted.">
                     💡 Add a PIN to enable deletion
                   </span>
                 )}
-                <span className="text-xs text-olive-light">
-                  Hover over an item and click <Trash2 size={11} className="inline text-red-400" /> to remove
-                </span>
               </div>
+              <span className="text-xs text-olive-light">
+                Hover item and tap <Trash2 size={11} className="inline text-red-400" /> to remove
+              </span>
             </div>
           )}
         </div>
