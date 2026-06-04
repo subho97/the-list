@@ -11,7 +11,7 @@ interface ListData {
   created_at: string;
   created_by: string;
   has_pin: boolean;
-  items: (Item & { list_item_id: string; added_at: string; note: string | null })[];
+  items: (Item & { list_item_id: string; added_at: string; note: string | null; checked: boolean; checked_at: string | null })[];
 }
 
 async function getList(slug: string): Promise<ListData | null> {
@@ -35,6 +35,8 @@ async function getList(slug: string): Promise<ListData | null> {
       id,
       added_at,
       note,
+      checked,
+      checked_at,
       items (*)
     `)
       .eq('list_id', list.id)
@@ -45,12 +47,14 @@ async function getList(slug: string): Promise<ListData | null> {
     return {
       ...listWithoutPin,
       has_pin: !!edit_pin,
-      items: (listItems || []).map((li: { items: unknown; id: string; added_at: string; note: string | null }) => ({
+      items: (listItems || []).map((li: { items: unknown; id: string; added_at: string; note: string | null; checked: boolean; checked_at: string | null }) => ({
         ...(li.items as object),
         list_item_id: li.id,
         added_at: li.added_at,
         note: li.note,
-      } as Item & { list_item_id: string; added_at: string; note: string | null })),
+        checked: li.checked,
+        checked_at: li.checked_at,
+      } as Item & { list_item_id: string; added_at: string; note: string | null; checked: boolean; checked_at: string | null })),
     };
   } catch {
     return null;

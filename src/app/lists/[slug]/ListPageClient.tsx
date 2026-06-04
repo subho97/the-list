@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Item } from '@/lib/types';
+import { Item, ItemType } from '@/lib/types';
 import {
   Calendar, User, Clock, Lock, Unlock, Trash2, X,
-  AlertCircle, Loader2, Plus, Check, Search
+  AlertCircle, Loader2, Plus, Check, Search, Circle
 } from 'lucide-react';
 import Card from '@/components/Card';
 import EmptyState from '@/components/EmptyState';
@@ -19,7 +19,7 @@ interface ListData {
   created_at: string;
   created_by: string;
   has_pin: boolean;
-  items: (Item & { list_item_id: string; added_at: string; note: string | null })[];
+  items: (Item & { list_item_id: string; added_at: string; note: string | null; checked: boolean; checked_at: string | null })[];
 }
 
 interface ListPageClientProps {
@@ -49,6 +49,16 @@ export default function ListPageClient({ list: initialList }: ListPageClientProp
   const [addingItemId, setAddingItemId] = useState<string | null>(null);
   const [addSuccess, setAddSuccess] = useState<string | null>(null);
 
+  // Checkmark state
+  const [checkedIds, setCheckedIds] = useState<Set<string>>(
+    new Set(items.filter(i => i.checked).map(i => i.list_item_id))
+  );
+  const [togglingItemId, setTogglingItemId] = useState<string | null>(null);
+  const [pendingToggleId, setPendingToggleId] = useState<string | null>(null);
+
+  // Filter state
+  const [activeFilter, setActiveFilter] = useState<ItemType | 'all'>('all');
+
   // Load all items when add modal opens
   useEffect(() => {
     if (showAddModal && allItems.length === 0) {
@@ -70,6 +80,11 @@ export default function ListPageClient({ list: initialList }: ListPageClientProp
     setPinInput('');
     setPinError('');
     setShowPinModal(true);
+  };
+
+  const handleClosePinModal = () => {
+    setShowPinModal(false);
+    setPendingToggleId(null);
   };
 
   const handleVerifyPin = async () => {
@@ -94,6 +109,12 @@ export default function ListPageClient({ list: initialList }: ListPageClientProp
         setEditPin(pinInput);
         setIsEditing(true);
         setShowPinModal(false);
+        // Fire any pending toggle
+        if (pendingToggleId) {
+          const toggleId = pendingToggleId;
+          setPendingToggleId(null);
+          handleToggleCheck(toggleId, pinInput);
+        }
       } else {
         setPinError('Incorrect PIN');
       }
@@ -173,6 +194,8 @@ export default function ListPageClient({ list: initialList }: ListPageClientProp
             list_item_id: data.id,
             added_at: new Date().toISOString(),
             note: null,
+            checked: false,
+            checked_at: null,
           }]);
         }
         setAddSuccess(itemId);
@@ -185,6 +208,54 @@ export default function ListPageClient({ list: initialList }: ListPageClientProp
       alert('Failed to add item');
     } finally {
       setAddingItemId(null);
+    }
+  };
+
+  const handleToggleCheck = async (listItemId: string, pinOverride?: string) => {
+    const effectivePin = pinOverride !== undefined ? pinOverride : editPin;
+
+    if (!effectivePin) {
+      if (initialList.has_pin) {
+        setPendingToggleId(listItemId);
+        handleOpenPinModal();
+        return;
+      }
+      // No PIN — enter edit mode directly
+      setIsEditing(true);
+      // Toggle without PIN for unsecured lists
+      await doToggleCheck(listItemId, '');
+      return;
+    }
+
+    await doToggleCheck(listItemId, effectivePin);
+  };
+
+  const doToggleCheck = async (listItemId: string, pinForToggle: string) => {
+    setTogglingItemId(listItemId);
+
+    try {
+      const res = await fetch(`/api/lists/${initialList.slug}/items/${listItemId}/toggle`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pin: pinForToggle }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setCheckedIds(prev => {
+          const next = new Set(prev);
+          if (data.checked) {
+            next.add(listItemId);
+          } else {
+            next.delete(listItemId);
+          }
+          return next;
+        });
+      }
+    } catch {
+      // silently fail — not critical
+    } finally {
+      setTogglingItemId(null);
     }
   };
 
@@ -202,6 +273,13 @@ export default function ListPageClient({ list: initialList }: ListPageClientProp
 
   // Compute list with current items for display
   const list = { ...initialList, items };
+
+  // Category filters
+  const itemTypes = ['all', ...new Set(items.map(i => i.type))] as (ItemType | 'all')[];
+  const typeLabels: Record<string, string> = { all: 'All', movie: 'Movies', book: 'Books', food: 'Food' };
+  const filteredListItems = activeFilter === 'all'
+    ? items
+    : items.filter(i => i.type === activeFilter);
 
   return (
     <div className="min-h-screen pt-24 md:pt-28 pb-12 px-4 max-w-5xl mx-auto">
@@ -313,37 +391,86 @@ export default function ListPageClient({ list: initialList }: ListPageClientProp
         </div>
       </div>
 
+      {/* Category filters */}
+      {itemTypes.length > 2 && (
+        <div className="mb-6 flex flex-wrap gap-2">
+          {itemTypes.map(type => (
+            <button
+              key={type}
+              onClick={() => setActiveFilter(type)}
+              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-150 ${
+                activeFilter === type
+                  ? 'bg-amber-primary text-white shadow-sm'
+                  : 'bg-white border border-stone-200 text-olive hover:border-amber-primary/40 hover:text-amber-primary'
+              }`}
+            >
+              {typeLabels[type] || type}
+              {type !== 'all' && (
+                <span className="ml-1.5 text-xs opacity-60">
+                  {items.filter(i => i.type === type).length}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* Items */}
-      {items.length === 0 ? (
-        <EmptyState type="lists" description={isEditing ? 'Start adding items to this list!' : 'This list is empty.'} />
+      {filteredListItems.length === 0 ? (
+        <EmptyState type="lists" description={items.length === 0 ? (isEditing ? 'Start adding items to this list!' : 'This list is empty.') : `No ${activeFilter} items in this list.`} />
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {items.map((item) => (
-            <div key={item.list_item_id} className="relative group">
-              <Card item={item} />
-              {item.note && (
-                <p className="mt-1.5 px-1 text-xs text-olive italic truncate">
-                  &ldquo;{item.note}&rdquo;
-                </p>
-              )}
+          {filteredListItems.map((item) => {
+            const isChecked = checkedIds.has(item.list_item_id);
+            return (
+              <div key={item.list_item_id} className="relative group">
+                <div className={`transition-all duration-200 ${isChecked ? 'opacity-40 saturate-0' : ''}`}>
+                  <Card item={item} />
+                </div>
+                {item.note && (
+                  <p className={`mt-1.5 px-1 text-xs italic truncate transition-all duration-200 ${isChecked ? 'text-stone-300' : 'text-olive'}`}>
+                    &ldquo;{item.note}&rdquo;
+                  </p>
+                )}
 
-              {/* Remove button in edit mode */}
-              {isEditing && (
+                {/* Checkmark button */}
                 <button
-                  onClick={() => handleRemoveItem(item.list_item_id)}
-                  disabled={removingItemId === item.list_item_id}
-                  className="absolute -top-2 -right-2 w-7 h-7 bg-white border border-red-200 rounded-full flex items-center justify-center shadow-sm hover:bg-red-50 transition-colors opacity-0 group-hover:opacity-100"
-                  title="Remove from list"
+                  onClick={() => handleToggleCheck(item.list_item_id)}
+                  className={`absolute top-2 right-2 z-20 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-150 shadow-sm border-2 ${
+                    isChecked
+                      ? 'bg-emerald-500 border-emerald-500 text-white'
+                      : 'bg-white/90 border-stone-300 text-olive-light hover:border-emerald-400 hover:text-emerald-500 opacity-0 group-hover:opacity-100'
+                  }`}
+                  title={isChecked ? 'Mark as not done' : 'Mark as done'}
+                  disabled={togglingItemId === item.list_item_id}
                 >
-                  {removingItemId === item.list_item_id ? (
-                    <Loader2 size={12} className="animate-spin text-red-500" />
+                  {togglingItemId === item.list_item_id ? (
+                    <Loader2 size={14} className="animate-spin" />
+                  ) : isChecked ? (
+                    <Check size={16} strokeWidth={3} />
                   ) : (
-                    <Trash2 size={12} className="text-red-400" />
+                    <Circle size={16} />
                   )}
                 </button>
-              )}
-            </div>
-          ))}
+
+                {/* Remove button in edit mode */}
+                {isEditing && (
+                  <button
+                    onClick={() => handleRemoveItem(item.list_item_id)}
+                    disabled={removingItemId === item.list_item_id}
+                    className="absolute -top-2 -right-2 w-7 h-7 bg-white border border-red-200 rounded-full flex items-center justify-center shadow-sm hover:bg-red-50 transition-colors opacity-0 group-hover:opacity-100"
+                    title="Remove from list"
+                  >
+                    {removingItemId === item.list_item_id ? (
+                      <Loader2 size={12} className="animate-spin text-red-500" />
+                    ) : (
+                      <Trash2 size={12} className="text-red-400" />
+                    )}
+                  </button>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
 
@@ -366,7 +493,7 @@ export default function ListPageClient({ list: initialList }: ListPageClientProp
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-serif text-lg font-bold text-stone-900">Enter Edit PIN</h3>
               <button
-                onClick={() => setShowPinModal(false)}
+                onClick={handleClosePinModal}
                 className="text-olive-light hover:text-stone-700 transition-colors"
               >
                 <X size={18} />
@@ -374,7 +501,7 @@ export default function ListPageClient({ list: initialList }: ListPageClientProp
             </div>
 
             <p className="text-sm text-olive mb-4">
-              This list is PIN-protected. Enter the 4-6 character PIN to edit it.
+              {pendingToggleId ? 'Enter the PIN to mark this item as done.' : 'This list is PIN-protected. Enter the 4-6 character PIN to edit it.'}
             </p>
 
             {pinError && (
@@ -407,7 +534,7 @@ export default function ListPageClient({ list: initialList }: ListPageClientProp
 
             <div className="flex gap-3">
               <button
-                onClick={() => setShowPinModal(false)}
+                onClick={handleClosePinModal}
                 className="flex-1 py-3 border border-stone-200 text-stone-600 rounded-xl font-medium text-sm hover:bg-stone-50 transition-colors"
               >
                 Cancel
