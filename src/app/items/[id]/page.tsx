@@ -66,7 +66,7 @@ export default async function ItemDetailPage({ params }: { params: Promise<{ id:
   return (
     <div className="min-h-screen pt-24 md:pt-28 pb-12 px-4 max-w-3xl mx-auto">
       {/* Back link — returns to previous page, falls back to browse */}
-      <BackButton fallbackHref={`/browse?type=${item.type}`} label={item.type === 'movie' ? 'Movies' : item.type === 'book' ? 'Books' : 'Food'} />
+      <BackButton fallbackHref={`/browse?type=${item.type}`} label="Back" />
 
       {/* Hero section */}
       <div className="bg-white rounded-2xl shadow-sm border border-stone-200 overflow-hidden">
