@@ -9,9 +9,11 @@ export function thumbnailUrl(url: string | null): string | null {
   if (url.includes('covers.openlibrary.org')) {
     return url.replace(/-L\.jpg$/, '-M.jpg').replace(/-S\.jpg$/, '-M.jpg');
   }
-  // Google Books: strip edge=curl for faster load
+  // Google Books: strip edge=curl + use smaller thumbnail zoom (3 = ~130px, loads fast)
   if (url.includes('books.google.com')) {
-    return url.replace(/&edge=curl/, '');
+    return url
+      .replace(/&edge=curl/, '')
+      .replace(/zoom=\d+/, 'zoom=4');
   }
   return url;
 }
