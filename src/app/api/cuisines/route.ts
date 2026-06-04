@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
+import { cachedJson } from '@/lib/cache';
 import { createClient } from '@/lib/supabase';
 
 export async function GET() {
   try {
     const supabase = await createClient();
-    if (!supabase) return NextResponse.json({ cuisines: [] });
+    if (!supabase) return cachedJson({ cuisines: [] });
 
     const { data } = await supabase
       .from('items')
@@ -15,8 +16,8 @@ export async function GET() {
       .order('cuisine');
 
     const unique = [...new Set((data || []).map((r: { cuisine: string }) => r.cuisine))].filter(Boolean).sort();
-    return NextResponse.json({ cuisines: unique });
+    return cachedJson({ cuisines: unique });
   } catch {
-    return NextResponse.json({ cuisines: [] });
+    return cachedJson({ cuisines: [] });
   }
 }

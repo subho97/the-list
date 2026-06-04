@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase';
 import { List } from '@/lib/types';
-import { Plus, Lock, Calendar, User, Search } from 'lucide-react';
+import { Plus, Calendar, User, Search } from 'lucide-react';
 import ListOnboardingPopover from '@/components/ListOnboardingPopover';
 
 interface ListWithPinInfo extends Omit<List, 'edit_pin'> {
@@ -146,7 +146,7 @@ export default async function ListsPage({
                     {list.name}
                   </h2>
                   {list.has_pin && (
-                    <Lock size={12} className="text-amber-primary shrink-0" aria-label="PIN-protected" />
+                    <span className="inline-flex items-center px-1.5 py-0.5 bg-amber-primary/10 text-amber-primary rounded-full text-[10px] font-medium">PIN</span>
                   )}
                   {list.is_private && (
                     <span className="text-xs bg-stone-100 text-olive-light px-1.5 py-0.5 rounded">Private</span>

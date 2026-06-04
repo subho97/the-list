@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase';
+import { cachedJson } from '@/lib/cache';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -69,13 +70,13 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json({
+  return cachedJson({
     items: data || [],
     total: count || 0,
     page,
     limit,
     hasMore: (offset + limit) < (count || 0),
-  });
+  }, { ttl: 60 });
 }
 
 export async function POST(request: NextRequest) {
