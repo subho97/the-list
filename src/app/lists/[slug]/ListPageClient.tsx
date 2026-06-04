@@ -425,7 +425,7 @@ export default function ListPageClient({ list: initialList }: ListPageClientProp
             const isChecked = checkedIds.has(item.list_item_id);
             return (
               <div key={item.list_item_id} className="relative group h-full">
-                <div className={`transition-all duration-200 ${isChecked ? 'opacity-40 saturate-0' : ''}`}>
+                <div className={`h-full transition-all duration-200 ${isChecked ? 'opacity-40 saturate-0' : ''}`}>
                   <Card item={item} index={idx} />
                 </div>
                 {item.note && (
