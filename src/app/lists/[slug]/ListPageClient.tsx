@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Item, ItemType } from '@/lib/types';
 import {
-  Calendar, User, Clock, Lock, Unlock, Trash2, X,
-  AlertCircle, Loader2, Plus, Check, Search, Circle
+  Calendar, User, Clock, Trash2, X,
+  AlertCircle, Loader2, Plus, Check, Search, Circle, PenBox
 } from 'lucide-react';
 import Card from '@/components/Card';
 import EmptyState from '@/components/EmptyState';
@@ -333,13 +333,13 @@ export default function ListPageClient({ list: initialList }: ListPageClientProp
                   onClick={handleOpenPinModal}
                   className="flex items-center justify-center gap-2 flex-1 sm:flex-none px-4 py-2.5 bg-amber-primary/10 hover:bg-amber-primary/20 text-amber-primary rounded-xl text-sm font-medium transition-all"
                 >
-                  {initialList.has_pin ? <Lock size={14} /> : <Unlock size={14} />}
+                  <PenBox size={14} />
                   Edit this list
                 </button>
               ) : (
                 <>
                   <span className="flex items-center gap-1.5 px-3 py-2 bg-emerald-50 text-emerald-700 rounded-xl text-xs font-medium">
-                    <Unlock size={13} />
+                    <PenBox size={13} />
                     Editing
                   </span>
                   <button
