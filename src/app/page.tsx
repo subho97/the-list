@@ -183,7 +183,7 @@ export default async function Home() {
       {/* Footer note */}
       <section className="px-4 pb-20 text-center">
         <p className="text-xs text-olive-light">
-          The List — where your taste meets the world&apos;s. Built by the community ♥
+          The List — where your taste meets the world&apos;s.<br />Built by the community ♥
         </p>
       </section>
     </div>
