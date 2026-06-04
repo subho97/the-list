@@ -100,7 +100,7 @@ export default function Card({ item, index = 99 }: CardProps) {
       className="group flex flex-col bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-150 overflow-hidden border border-stone-200 hover:border-amber-primary/30 hover:-translate-y-0.5 h-full"
     >
       {/* Image */}
-      <div className="aspect-[3/4] bg-stone-100 relative overflow-hidden">
+      <div className="h-40 sm:h-48 bg-stone-100 relative overflow-hidden">
         {item.image_url ? (
           <img
             src={thumbnailUrl(item.image_url) || item.image_url}
@@ -135,25 +135,23 @@ export default function Card({ item, index = 99 }: CardProps) {
       </div>
 
       {/* Info */}
-      <div className="p-3 flex flex-col flex-1">
-        <div className="space-y-0.5">
-          <h3 className="font-medium text-stone-900 text-sm line-clamp-2 group-hover:text-amber-primary transition-colors duration-150 leading-snug">
-            {item.title}
-          </h3>
-          {item.creator && item.type !== 'food' && (
-            <p className="text-[12px] text-olive truncate">{item.creator}</p>
-          )}
-          {item.genre && !item.cuisine && (
-            <p className="text-[12px] text-olive-light truncate">{item.genre}</p>
-          )}
-          {item.cuisine && (
-            <p className="text-[12px] text-olive-light truncate">{item.cuisine}</p>
-          )}
-          {item.year && (
-            <p className="text-[12px] text-olive-light">{item.year}</p>
-          )}
-        </div>
-        <div className="flex items-center justify-between mt-auto pt-1.5">
+      <div className="flex-1 p-3 space-y-0.5">
+        <h3 className="font-medium text-stone-900 text-sm line-clamp-2 group-hover:text-amber-primary transition-colors duration-150 leading-snug">
+          {item.title}
+        </h3>
+        {item.creator && item.type !== 'food' && (
+          <p className="text-[12px] text-olive truncate">{item.creator}</p>
+        )}
+        {item.genre && !item.cuisine && (
+          <p className="text-[12px] text-olive-light truncate">{item.genre}</p>
+        )}
+        {item.cuisine && (
+          <p className="text-[12px] text-olive-light truncate">{item.cuisine}</p>
+        )}
+        {item.year && (
+          <p className="text-[12px] text-olive-light">{item.year}</p>
+        )}
+        <div className="flex items-center justify-between mt-1">
           {(item.area || item.city) && (
             <p className="text-[12px] text-olive-light flex items-center gap-1">
               <MapPin size={10} />
