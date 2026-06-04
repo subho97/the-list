@@ -6,6 +6,7 @@ import { Film, BookOpen, UtensilsCrossed, ExternalLink, Star, Share2, MapPin } f
 import RatingBadge from '@/components/RatingBadge';
 import ItemActions from './ItemActions';
 import VoteButtons from '@/components/VoteButtons';
+import BackButton from '@/components/BackButton';
 
 interface ItemDetailData extends Item {
   reviews: Review[];
@@ -64,13 +65,8 @@ export default async function ItemDetailPage({ params }: { params: Promise<{ id:
 
   return (
     <div className="min-h-screen pt-24 md:pt-28 pb-12 px-4 max-w-3xl mx-auto">
-      {/* Back link — preserves current tab type */}
-      <Link
-        href={`/browse?type=${item.type}`}
-        className="inline-flex items-center gap-1 text-sm text-olive hover:text-stone-700 mb-5 transition-colors duration-150"
-      >
-        ← Browse
-      </Link>
+      {/* Back link — returns to previous page, falls back to browse */}
+      <BackButton fallbackHref={`/browse?type=${item.type}`} label={item.type === 'movie' ? 'Movies' : item.type === 'book' ? 'Books' : 'Food'} />
 
       {/* Hero section */}
       <div className="bg-white rounded-2xl shadow-sm border border-stone-200 overflow-hidden">
