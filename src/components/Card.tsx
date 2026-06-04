@@ -3,6 +3,7 @@ import { Item } from '@/lib/types';
 import { Film, BookOpen, UtensilsCrossed, MapPin } from 'lucide-react';
 import RatingBadge from './RatingBadge';
 import VoteButtons from './VoteButtons';
+import LazyCover from './LazyCover';
 import { thumbnailUrl } from '@/lib/images';
 
 interface CardProps {
@@ -102,15 +103,12 @@ export default function Card({ item, index = 99 }: CardProps) {
       {/* Image */}
       <div className="h-40 sm:h-48 bg-stone-100 relative overflow-hidden">
         {item.image_url ? (
-          <img
+          <LazyCover
             src={thumbnailUrl(item.image_url) || item.image_url}
             alt={item.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-            loading={index < 6 ? 'eager' : 'lazy'}
-            decoding={index < 10 ? 'sync' : 'async'}
-            fetchPriority={index < 3 ? 'high' : 'auto'}
-            crossOrigin="anonymous"
-            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+            type={item.type}
+            cuisine={item.cuisine}
+            priority={index < 4}
           />
         ) : item.type === 'food' ? (
           <div className={`w-full h-full bg-gradient-to-br ${getCuisineGradient(item.cuisine)} flex flex-col items-center justify-center`}>
